@@ -169,11 +169,14 @@ void checkMesh(Mesh<T> const&m)
     for (unsigned side = 0; side < c.numFacets(&m); ++side)
     {
       FacetH facet = c.facet(&m,side);
+      std::pair<CellH, CellH> f_icells = facet.icellAndMate(&m);
       
       CellH adj = c.adjCell(&m, side);
       if (!adj.isValid())
       {
         EXPECT_EQ(1u, facet.valency(&m));
+        EXPECT_TRUE(f_icells.first  == c);
+        EXPECT_TRUE(f_icells.second == NULL_IDX);
         continue;
       }
         
@@ -182,7 +185,7 @@ void checkMesh(Mesh<T> const&m)
       int other_side = c.adjSideAndAnchor(&m, side, &anch);
       std::vector<VertexH> adj_f_vtcs = adj.facetVertices(&m, abs(other_side));
 
-      if (facet.valency(&m) < 3)
+      if (facet.valency(&m) < 3) // if it is not singular
         EXPECT_EQ(c, adj.adjCell(&m, abs(other_side)) );
       
       if (other_side>=0)
@@ -190,9 +193,14 @@ void checkMesh(Mesh<T> const&m)
       std::rotate(adj_f_vtcs.begin(), adj_f_vtcs.begin()+anch, adj_f_vtcs.end());
       EXPECT_EQ(f_vtcs, adj_f_vtcs) << "ANCH = " << anch << endl;
       
+      if (facet.valency(&m) < 3) // if it is not singular
+        EXPECT_TRUE((f_icells.first == c && f_icells.second == adj) || (f_icells.second == c && f_icells.first == adj))
+          << f_icells.first<<" "<<f_icells.second<<" "<<c<<" "<<adj;
     }
   }  
 
+
+  // TODO: check ridge adjacencies
 
 }
 
