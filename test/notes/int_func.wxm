@@ -1,0 +1,63 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 0.8.5 ] */
+
+/* [wxMaxima: input   start ] */
+/* EDGE */
+newcontext(Edge)$
+kill(p)$
+declare(p, integer)$
+assume(p>=1)$
+integrate(x^p,x,-1,1);
+killcontext(Edge)$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* TRIANGLE */
+/* F(x,y) = x^p * (1-y)^p */
+newcontext(Triangle)$
+kill(p)$
+beta_args_sum_to_integer:true$
+declare(p, integer)$
+assume(p>=1)$
+assume(y-1 < 0)$
+integrate(integrate(x^p*(y-1)^p, x, 0, 1-y),y,0, 1);
+killcontext(Triangle)$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* QUADRANGLE */
+newcontext(Quad)$
+kill(p)$
+declare(p, integer)$
+assume(p>0)$
+integrate(integrate(x^p*y^p, x, -1, 1), y, -1, 1);
+killcontext(Quad)$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* TETRAHEDRON */
+newcontext(Tet)$
+F(x,y,z) := (x*(1-y-z))^p$
+kill(p)$
+beta_args_sum_to_integer:true$
+declare(p, integer)$
+assume(p>1)$
+assume(y+z-1 < 0)$
+A : integrate(F(x,y,z),x,0,1-y-z)$
+B : integrate(A, y, 0 , 1)$
+    integrate(B, z, 0, 1);
+killcontext(Tet)$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* HEXAHEDRON */
+newcontext(Hex)$
+kill(p)$
+declare(p, integer)$
+assume(p>0)$
+integrate(integrate(x^p*y^p, x, -1, 1), y, -1, 1);
+killcontext(Hex)$
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$

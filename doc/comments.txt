@@ -1,0 +1,3 @@
+Name convention (Cell, facets, ridge):
+
+http://en.wikipedia.org/wiki/Face_%28geometry%29

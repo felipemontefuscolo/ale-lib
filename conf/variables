@@ -1,0 +1,31 @@
+ALE_CXX = g++
+
+# You can also check if an environment variable has been set and initialise it to something if it has not. ie.
+METIS_DIR = $(ALELIB_DIR)/contrib/metis
+METIS_LD  = $(ALELIB_DIR)/contrib/metis
+EIGEN_DIR = $(ALELIB_DIR)/contrib/eigen
+LOKI_DIR  = $(ALELIB_DIR)/contrib/Loki
+OMPTL_DIR = $(ALELIB_DIR)/contrib/omptl
+BOOST_DIR = $(ALELIB_DIR)/contrib/boost
+ARRAY_DIR = $(ALELIB_DIR)/contrib/generic_array
+
+ALE_INCLUDE = -I$(ALELIB_DIR) -I$(EIGEN_DIR) -I$(METIS_DIR)/include -I$(LOKI_DIR) -I$(OMPTL_DIR) -I$(BOOST_DIR) -I$(ARRAY_DIR)
+
+ALE_LIBS_DIR = $(ALELIB_DIR)/Alelib/slibs
+
+
+
+#ALE_LDFLAGS = -fopenmp -L$(METIS_LD) -lmetis
+#ALE_LDFLAGS = -L$(METIS_LD) -lmetis
+#ALE_LDFLAGS = -fopenmp
+
+#-Wundef -Wshadow boost hates these 
+ALE_PEDANTIC_FLAGS = -pedantic -Wcast-align -Wlogical-op -Wredundant-decls -Winline -Wmissing-format-attribute -Wpacked -Wmissing-field-initializers
+ALE_PEDANTIC_FLAGS += 
+
+ALE_CXXFLAGS  = -g  -Wextra -Wall ${ALE_PEDANTIC_FLAGS} $(ALE_INCLUDE)
+#ALE_CXXFLAGS = -O3 -march=native -msse2  $(ALE_INCLUDE) -fopenmp
+ALE_CXXFLAGS += $(ALE_LDFLAGS)
+
+ALE_RM = rm -f
+

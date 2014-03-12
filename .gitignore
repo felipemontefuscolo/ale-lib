@@ -1,0 +1,10 @@
+*.exe
+*.o
+*.a
+*.so
+*.d
+*.geany
+*.swp
+Jac.m
+octave-core
+outtest/
