@@ -13,6 +13,7 @@
 # but shouldn't modify.
 
 ALELIB_DIR = ${HOME}/Dropbox/cl-simu2/ale-lib
+export ALELIB_DIR
 include ../conf/variables
 
 

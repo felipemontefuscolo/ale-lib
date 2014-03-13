@@ -81,6 +81,16 @@ public:
     return ff;
   }
 
+  void matesByVtx(MeshT const* mp, uint8_t  vtx_loc_id, CellH * mates) const
+  {
+    for (unsigned fv = 0; fv < CellT::n_verts_p_facet; ++fv) // for each facet of this vertex
+    {
+      int const side = mp->m_table_vC_x_fC( vtx_loc_id , fv );
+      mates[fv] = adjCell(mp, side);
+    }
+    
+  }
+
   static inline const char* shortName()
   {
     switch (MeshT::CellType)

@@ -36,6 +36,22 @@ public:
   inline index_t id(MeshT const*) const
   { return m_id; }
 
+  inline int8_t localId(MeshT const* mp, CellH const cell) const
+  {
+    CellT const& c = mp->m_cells[cell.id(mp)];
+    for (unsigned i = 0; i < CellT::n_verts; ++i)
+    {
+      if (c.verts[i] == m_id)
+        return i;
+    }
+    return NULL_IDX;
+  }
+
+  bool isBoundary(MeshT const* mp) const
+  {
+    return mp->m_verts[m_id].status & Vertex::mk_inboundary;
+  }
+
   bool isDisabled(MeshT const* mp) const
   { return mp->m_verts[m_id].isDisabled();};
 //
@@ -50,6 +66,9 @@ public:
 
   inline Labelable const& label(MeshT const* mp) const
   { return VertexH::label(mp, m_id); }
+
+  bool inBoundary(MeshT const* mp) const
+  { return mp->m_verts[m_id].status & VertexT::mk_inboundary;}
 
   inline void coord(MeshT const* mp, Real *coord, int spacedim) const
   { return VertexH::coord(mp, coord, spacedim); }

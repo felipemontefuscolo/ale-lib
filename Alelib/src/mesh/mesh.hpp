@@ -70,15 +70,6 @@ class Mesh
 
   const int m_spacedim;
 
-  // Cell attributes
-  static const int m_cell_dim         = CellT::dim             ;
-  static const int m_verts_per_cell   = CellT::n_verts         ;
-  static const int m_verts_per_facet  = CellT::n_verts_p_facet ;
-  static const int m_verts_per_ridge  = CellT::n_verts_p_ridge ;
-  static const int m_facets_per_cell  = CellT::n_facets        ;
-  static const int m_ridges_per_cell  = CellT::n_ridges        ;
-  static const int m_ridges_per_facet = CellT::n_ridges_p_facet;
-
 
   marray::Array<int, 2> const m_table_fC_x_vC;
   marray::Array<int, 2> const m_table_vC_x_fC;
@@ -88,6 +79,15 @@ class Mesh
 
 
 public:
+
+  // Cell attributes
+  static const int cell_dim         = CellT::dim             ;
+  static const int verts_per_cell   = CellT::n_verts         ;
+  static const int verts_per_facet  = CellT::n_verts_p_facet ;
+  static const int verts_per_ridge  = CellT::n_verts_p_ridge ;
+  static const int facets_per_cell  = CellT::n_facets        ;
+  static const int ridges_per_cell  = CellT::n_ridges        ;
+  static const int ridges_per_facet = CellT::n_ridges_p_facet;
 
   class CellH;
   class FacetH;
@@ -174,7 +174,7 @@ public:
   /// Return the number of activated ridges 
   size_type numRidges() const
   {
-    if (this->m_cell_dim == 3)
+    if (this->cell_dim == 3)
       return static_cast<index_t>( m_ridges.size() );
     else
       return static_cast<index_t>( m_verts.size() );
@@ -183,7 +183,7 @@ public:
   /// Return the number of ridges (activated and deactivated) 
   size_type numRidgesTotal() const
   {
-    if (this->m_cell_dim == 3)
+    if (this->cell_dim == 3)
       return static_cast<index_t>( m_ridges.totalSize() );
     else
       return static_cast<index_t>( m_verts.totalSize() );

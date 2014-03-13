@@ -1,4 +1,5 @@
-ALELIB_DIR = ${HOME}/Dropbox/cl-simu2/ale-lib
+ALELIB_DIR=${HOME}/Dropbox/cl-simu2/ale-lib
+export ALELIB_DIR
 
 include $(ALELIB_DIR)/conf/variables
 

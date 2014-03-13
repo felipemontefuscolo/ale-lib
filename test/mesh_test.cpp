@@ -199,8 +199,30 @@ void checkMesh(Mesh<T> const&m)
     }
   }  
 
-
   // TODO: check ridge adjacencies
+
+
+  // check boundary vtcs
+  for (VertexH v = m.vertexBegin(), vend = m.vertexEnd(); v!=vend; ++v)
+  {
+    std::vector<CellH> star = v.star(&m); 
+    
+    bool is_interior = 1;
+    for (unsigned i = 0; i < star.size(); ++i)
+    {
+      CellH mates_by_vtk[MeshT::cell_dim]; // number os facets connected to this vertex
+      int l = v.localId(&m, star[i]);
+      star[i].matesByVtx(&m, l, mates_by_vtk);
+      for (int k = 0; k < MeshT::cell_dim; ++k)
+        is_interior *= mates_by_vtk[k].isValid();
+      if (!is_interior)
+        break;
+    }
+    bool is_boundary = !is_interior;
+    EXPECT_EQ(is_boundary, v.isBoundary(&m));
+    
+  }
+
 
 }
 
@@ -229,20 +251,21 @@ void addTriMesh1(MeshE1 &m, bool check = true)
   vts[12] = m.addVertex(Point(3,3,0),12);
   vts[13] = m.addVertex(Point(1,2,1),13);
 
-  int const E = 10;
+  int const E = 11;
 
   CellH cells[E];
 
-  cells[0] = m.addCell(listOf(vts[ 0], vts[ 1], vts[ 2]));
-  cells[1] = m.addCell(listOf(vts[ 1], vts[ 3], vts[ 4]));
-  cells[2] = m.addCell(listOf(vts[ 2], vts[ 6], vts[ 5]));
-  cells[3] = m.addCell(listOf(vts[ 3], vts[ 4], vts[ 7]));
-  cells[4] = m.addCell(listOf(vts[ 5], vts[10], vts[ 9]));
-  cells[5] = m.addCell(listOf(vts[ 5], vts[ 6], vts[10]));
-  cells[6] = m.addCell(listOf(vts[ 6], vts[11], vts[10]));
-  cells[7] = m.addCell(listOf(vts[ 6], vts[ 7], vts[11]));
-  cells[8] = m.addCell(listOf(vts[ 7], vts[ 8], vts[12]));
-  cells[9] = m.addCell(listOf(vts[13], vts[ 6], vts[10]));
+  cells[ 0] = m.addCell(listOf(vts[ 0], vts[ 1], vts[ 2]));
+  cells[ 1] = m.addCell(listOf(vts[ 1], vts[ 3], vts[ 4]));
+  cells[ 2] = m.addCell(listOf(vts[ 2], vts[ 6], vts[ 5]));
+  cells[ 3] = m.addCell(listOf(vts[ 3], vts[ 4], vts[ 7]));
+  cells[ 4] = m.addCell(listOf(vts[ 5], vts[10], vts[ 9]));
+  cells[ 5] = m.addCell(listOf(vts[ 5], vts[ 6], vts[10]));
+  cells[ 6] = m.addCell(listOf(vts[ 6], vts[11], vts[10]));
+  cells[ 7] = m.addCell(listOf(vts[ 6], vts[ 7], vts[11]));
+  cells[ 8] = m.addCell(listOf(vts[ 7], vts[ 8], vts[12]));
+  cells[ 9] = m.addCell(listOf(vts[13], vts[ 6], vts[10]));
+  cells[10] = m.addCell(listOf(vts[ 2], vts[ 7], vts[ 6]));
 
   if (!check)
     return;

@@ -38,6 +38,9 @@ public:
   unsigned valency(MeshT const* mp) const
   { return mp->m_facets[m_id].valency; }
 
+  std::pair<CellH,CellH> icellAndMate(MeshT const* mp) const
+  { return std::make_pair(CellH(mp->m_facets[m_id].icell), CellH(mp->m_facets[m_id].opp_cell)); }
+
 //  inline index_t id(MeshT const*) const
 //  { return m_id; }
 //

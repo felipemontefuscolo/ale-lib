@@ -38,7 +38,8 @@ struct Vertex : public Labelable
   typedef SetVector<index_t> VectorT;
   
   uint8_t status;    // padding.
-  uint8_t padding1;  // padding.
+  // uint8_t padding1;  // padding.
+  // int32_t padding2;  // padding, because sizeof(icells) = 24.
   VectorT icells;
 
 
