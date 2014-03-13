@@ -52,9 +52,9 @@ public:
   {
     FacetT const& f = mp->m_facets[  mp->m_cells[m_id].facets[side]  ];
     if (f.icell == m_id)
-      return f.opp_cell;
+      return CellH(f.opp_cell);
     else
-      return f.icell;
+      return CellH(f.icell);
   }
 
   inline FacetH facet(MeshT const* mp, unsigned side) const
@@ -65,10 +65,27 @@ public:
     CellT const& c = mp->m_cells[m_id];
     return std::vector<VertexH>(c.verts, c.verts+CellT::n_verts);
   }
-  
+
+  /// same as adjSideAndAnchor, but also returns the adjacent cell
+  /// anchor can be NULL
+  /// @return the adj cell
+  CellH adjCellSideAndAnchor(MeshT const* mp, int side, int* adj_side, int* anchor = NULL) const
+  {
+    CellH adj = adjCell(mp, side);
+    if(!adj.isValid())
+      return adj;
+    VertexH v[CellT::n_verts_p_facet];
+    facetVertices(mp, side, v);
+    std::reverse(v, v+CellT::n_verts_p_facet);
+    bool const is_facet = adj.isFacet(mp, v, adj_side, anchor);
+    ALELIB_CHECK(is_facet, "something is wrong with the adjacencies (2)", std::runtime_error);
+    return adj;
+  }
+
   /// @param[out] anchor for 3-cells, return the `anchor' (how the adj cell is rotated)
   /// @return which side of the adjacent cell corresponds to this side. If there is no
-  ///  adj cell, return 
+  ///  adj cell, return -1
+  /// @warning make sure that there is a adjacent cell by the side `side`
   int adjSideAndAnchor(MeshT const* mp, int side, int* anchor = NULL) const
   {
     CellH adj = adjCell(mp, side);

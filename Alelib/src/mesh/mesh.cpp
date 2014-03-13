@@ -289,13 +289,37 @@ Mesh<CT>::addCell_2D(VertexH const verts[])
 
 
 template<ECellType CT>
-void Mesh<CT>::removeCell_2D(CellH cell)
+void Mesh<CT>::removeCell_2D(CellH ch)
 {
   // Some checks
-  ALELIB_CHECK(!cell.isDisabled(this) && cell.isValid(this), "This cell can not be deleted", std::invalid_argument);
+  ALELIB_CHECK(!ch.isDisabled(this) && ch.isValid(this), "This cell can not be deleted", std::invalid_argument);
+  
+  #define nvpc (CellT::n_verts)
+  #define nfpc (CellT::n_verts)
+  
+  index_t const cid = ch.id(this);
+  CellT const& cell = this->m_cells[cid];
+  
+  // Setting up vertices
+  for (unsigned i = 0; i < nvpc; ++i)
+  {
+    VertexT& vtx = m_verts[cell.verts[i]];
+    vtx.icells.erase(cid);
+    vtx.status |= Vertex::mk_inboundary;
+  }
+  
+  // SET UP ITSELF and other cells
+  for (unsigned i = 0; i < nvpc; ++i)
+  {
+    int adj_side;
+    CellH adj = ch.adjCellSideAndAnchor(this, i, &adj_side);
+    
+    
+  }
   
   
-  
+  #undef nvpc
+  #undef nfpc
 }
 
 template class Mesh<EDGE>       ;

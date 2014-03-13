@@ -226,6 +226,7 @@ void checkMesh(Mesh<T> const&m)
 
 }
 
+// this mesh has singular vertices and edges, and has inverted triangle
 void addTriMesh1(MeshE1 &m, bool check = true)
 {
   typedef MeshE1 MeshT;
@@ -271,6 +272,16 @@ void addTriMesh1(MeshE1 &m, bool check = true)
     return;
 
   checkMesh(m);
+
+  // attention: this vertex is boundary because of the third triangle added to its edge
+  EXPECT_TRUE(VertexH(6).inBoundary(&m));
+  
+  // if we add the triangle:
+  m.addCell(listOf(vts[ 6], vts[ 7], vts[13]));
+
+  // now the vertex should not be boundary:
+  EXPECT_FALSE(VertexH(6).inBoundary(&m));
+
 
   // specific checking
   std::vector<VertexH> cverts(3);
