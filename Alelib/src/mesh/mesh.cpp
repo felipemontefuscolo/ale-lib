@@ -255,8 +255,8 @@ Mesh<CT>::addCell_2D(VertexH const verts[])
     {
       // the new facet will always point to the new cell
       new_c.facets[i] = pushFacet(FacetT(new_cid, i, NULL_IDX, NO_TAG, NO_FLAG, 1));
-      m_verts[f_vtcs[0].id(this)].status |= Vertex::mk_inboundary;
-      m_verts[f_vtcs[1].id(this)].status |= Vertex::mk_inboundary;
+      //m_verts[f_vtcs[0].id(this)].status |= Vertex::mk_inboundary;
+      //m_verts[f_vtcs[1].id(this)].status |= Vertex::mk_inboundary;
     }
     else // if there is an adj cell
     {
@@ -305,14 +305,13 @@ void Mesh<CT>::removeCell_2D(CellH ch)
   {
     VertexT& vtx = m_verts[cell.verts[i]];
     vtx.icells.erase(cid);
-    vtx.status |= Vertex::mk_inboundary;
   }
   
   // SET UP ITSELF and other cells
   for (unsigned i = 0; i < nvpc; ++i)
   {
-    int adj_side;
-    CellH adj = ch.adjCellSideAndAnchor(this, i, &adj_side);
+  //  int adj_side;
+  //  CellH adj = ch.adjCellSideAndAnchor(this, i, &adj_side);
     
     
   }

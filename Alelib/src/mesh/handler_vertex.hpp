@@ -39,7 +39,7 @@ public:
   inline index_t id(MeshT const*) const
   { return m_id; }
 
-  inline int8_t localId(MeshT const* mp, CellH const cell) const
+  inline int localId(MeshT const* mp, CellH const cell) const
   {
     CellT const& c = mp->m_cells[cell.id(mp)];
     for (unsigned i = 0; i < CellT::n_verts; ++i)
@@ -50,10 +50,34 @@ public:
     return NULL_IDX;
   }
 
+  // check if it is a boundary vertex
+  // it has some cost ...
   bool isBoundary(MeshT const* mp) const
   {
-    return mp->m_verts[m_id].status & Vertex::mk_inboundary;
+    typedef typename Vertex::VectorT VectorT;
+    typedef typename VectorT::const_iterator iterator;
+    
+    VectorT const& star = mp->m_verts[m_id].icells;
+    iterator star_it = star.begin();
+    iterator star_end = star.end();
+    
+    bool is_interior = true;
+    for ( ; star_it != star_end; ++star_it)
+    {
+      CellH mates_by_vtx[CellT::dim]; // number os facets connected to this vertex
+      int l = localId(mp, CellH(*star_it));
+      CellH(*star_it).matesByVtx(mp, l, mates_by_vtx);
+      for (unsigned k = 0; k < CellT::dim; ++k)
+        is_interior &= mates_by_vtx[k].isValid();
+      if (!is_interior)
+        break;
+    }
+    return !is_interior;
   }
+
+
+
+
 
 //
 //  inline index_t incidCell() const
@@ -67,9 +91,6 @@ public:
 
   inline Labelable const& label(MeshT const* mp) const
   { return VertexH::label(mp, m_id); }
-
-  bool inBoundary(MeshT const* mp) const
-  { return mp->m_verts[m_id].status & VertexT::mk_inboundary;}
 
   inline void coord(MeshT const* mp, Real *coord, int spacedim) const
   { return VertexH::coord(mp, coord, spacedim); }

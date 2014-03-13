@@ -210,11 +210,11 @@ void checkMesh(Mesh<T> const&m)
     bool is_interior = 1;
     for (unsigned i = 0; i < star.size(); ++i)
     {
-      CellH mates_by_vtk[MeshT::cell_dim]; // number os facets connected to this vertex
+      CellH mates_by_vtx[MeshT::cell_dim]; // number os facets connected to this vertex
       int l = v.localId(&m, star[i]);
-      star[i].matesByVtx(&m, l, mates_by_vtk);
+      star[i].matesByVtx(&m, l, mates_by_vtx);
       for (int k = 0; k < MeshT::cell_dim; ++k)
-        is_interior *= mates_by_vtk[k].isValid();
+        is_interior *= mates_by_vtx[k].isValid();
       if (!is_interior)
         break;
     }
@@ -274,14 +274,13 @@ void addTriMesh1(MeshE1 &m, bool check = true)
   checkMesh(m);
 
   // attention: this vertex is boundary because of the third triangle added to its edge
-  EXPECT_TRUE(VertexH(6).inBoundary(&m));
+  EXPECT_TRUE(VertexH(6).isBoundary(&m));
   
   // if we add the triangle:
   m.addCell(listOf(vts[ 6], vts[ 7], vts[13]));
 
   // now the vertex should not be boundary:
-  EXPECT_FALSE(VertexH(6).inBoundary(&m));
-
+  EXPECT_FALSE(VertexH(6).isBoundary(&m));
 
   // specific checking
   std::vector<VertexH> cverts(3);

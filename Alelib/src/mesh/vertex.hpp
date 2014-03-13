@@ -45,8 +45,8 @@ struct Vertex : public Labelable
 
   enum Masks
   {
-    mk_none = 0,
-    mk_inboundary = (1<<0)
+    mk_none = 0
+   // mk_inboundary = (1<<0)
   };
 
   // Construtor.
