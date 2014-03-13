@@ -36,7 +36,7 @@ public:
   inline index_t id(MeshT const*) const
   { return m_id; }
 
-  bool isValid() const
+  bool isValid(MeshT const* = 0) const
   { return m_id != (index_t)NULL_IDX; }
 
   bool isDisabled(MeshT const* mp) const

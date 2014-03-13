@@ -33,6 +33,9 @@ public:
   bool isValid() const
   { return m_id != (index_t)NULL_IDX; }
 
+  bool isDisabled(MeshT const* mp) const
+  { return mp->m_verts[m_id].isDisabled();}
+
   inline index_t id(MeshT const*) const
   { return m_id; }
 
@@ -52,8 +55,6 @@ public:
     return mp->m_verts[m_id].status & Vertex::mk_inboundary;
   }
 
-  bool isDisabled(MeshT const* mp) const
-  { return mp->m_verts[m_id].isDisabled();};
 //
 //  inline index_t incidCell() const
 //  { return VertexH::incidCell(m_msh, m_id); };

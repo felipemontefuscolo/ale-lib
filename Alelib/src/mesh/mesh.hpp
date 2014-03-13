@@ -106,7 +106,7 @@ public:
   static Mesh* create(unsigned spacedim);
 
 
-  // Basic mesh operators.
+  // BASIC MESH OPERATORS
   // C.f. "A Topological Approach for Handling Triangle Insertion and Removal into Two-
   // Dimensional Unstructured Meshes".
   //
@@ -124,27 +124,36 @@ public:
     return VertexH(this, id);
   }
 
+  /// remove a vertex only if it is unreferenced
   inline void removeUnrefVertex(VertexH vtx)
   {
-    ALELIB_CHECK(vtx.valency(this) == 0, "can't remove referenced vertex", std::invalid_argument);
-    m_verts.disable(vtx.id(this));
+    if (vtx.valency(this) == 0)
+      m_verts.disable(vtx.id(this));
   }
 
   void removeUnrefVertices()
   {
-    index_t const tot = numVerticesTotal();
-    for (index_t i = 0; i < tot; ++i)
+    VertexH v    = vertexBegin();
+    VertexH vend = vertexEnd();
+    for (; v!= vend; ++v)
     {
-      if (m_verts[i].isDisabled())
+      if (v.isDisabled(this))
         continue;
-        
-      if (VertexH::valency(this, i) == 0)
-        m_verts.disable(i);
+      
+      removeUnrefVertex(v);
     }
   }
 
   /// @return the id of the added cell 
   CellH addCell(VertexH const verts[]);
+
+  /// remove a cell
+  /// Obs: its vertices are not removed
+  void removeCell(CellH c);
+
+
+
+
 
 
   /// Return the number of activated cells. 
@@ -266,11 +275,12 @@ private:
   }
 
 
-
-  index_t* vertexStar_2D(index_t C, uint8_t vC, index_t iCs[], uint8_t viCs[]) const;
-
   /// @return the id of the added cell 
   CellH addCell_2D(VertexH const verts[]);
+
+  /// remove a cell
+  /// Obs: its vertices are not removed
+  void removeCell_2D(CellH c);
 
 
 }; // end Mesh class

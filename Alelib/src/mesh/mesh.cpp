@@ -5,6 +5,7 @@
 #include "handler_ridge.hpp"
 #include "../util/misc2.hpp"
 #include "../util/assert.hpp"
+#include "../util/algorithm.hpp"
 
 namespace alelib
 {
@@ -231,10 +232,8 @@ Mesh<CT>::addCell_2D(VertexH const verts[])
  
   index_t const new_cid = pushCell();
   CellT &new_c = m_cells[new_cid];
-  std::vector<index_t> intersec;
-  std::vector<index_t>::iterator it;
-  
-  intersec.resize(16); // this vector is that big to deal with manifold cases
+  index_t adj_id;
+  index_t const* it;
   
   // FIRST, SET UP ITSELF and other cells
   for (unsigned i = 0; i < nvpc; ++i)
@@ -247,24 +246,20 @@ Mesh<CT>::addCell_2D(VertexH const verts[])
     VertexT const &vi = m_verts[f_vtcs[0].id(this)];
     VertexT const &vj = m_verts[f_vtcs[1].id(this)];
     
-    intersec.resize( vi.valency() +  vj.valency());
-
-    it = std::set_intersection(vi.icells.begin(), vi.icells.end(),
-                               vj.icells.begin(), vj.icells.end(), intersec.begin());
-
-    intersec.resize(it-intersec.begin());
-    
     new_c.verts[i] = verts[i].id(this);
+
+    it = set_1_intersection(vi.icells.begin(), vi.icells.end(),
+                                 vj.icells.begin(), vj.icells.end(), &adj_id);
     
-    if (intersec.empty()) // no adj cell
+    if (it == &adj_id) // i.ei, no adj cell
     {
+      // the new facet will always point to the new cell
       new_c.facets[i] = pushFacet(FacetT(new_cid, i, NULL_IDX, NO_TAG, NO_FLAG, 1));
       m_verts[f_vtcs[0].id(this)].status |= Vertex::mk_inboundary;
       m_verts[f_vtcs[1].id(this)].status |= Vertex::mk_inboundary;
     }
     else // if there is an adj cell
     {
-      index_t const adj_id = intersec.front();
       int side;
       bool const is_facet = CellH(adj_id).isFacet(this, f_vtcs, &side, NULL);
       ALELIB_CHECK(is_facet, "maybe something is wrong with the function CellH::isFacet", std::runtime_error);
@@ -293,6 +288,16 @@ Mesh<CT>::addCell_2D(VertexH const verts[])
 }
 
 
+template<ECellType CT>
+void Mesh<CT>::removeCell_2D(CellH cell)
+{
+  // Some checks
+  ALELIB_CHECK(!cell.isDisabled(this) && cell.isValid(this), "This cell can not be deleted", std::invalid_argument);
+  
+  
+  
+}
+
 template class Mesh<EDGE>       ;
 template class Mesh<TRIANGLE>   ;
 template class Mesh<QUADRANGLE> ;
@@ -304,8 +309,8 @@ template class Mesh<HEXAHEDRON> ;
 
 
 
-
-#if (0) //BACKUP
+//BACKUP //BACKUP//BACKUP //BACKUP //BACKUP //BACKUP
+#if (0) 
 
 template<ECellType CT>
 typename Mesh<CT>::CellH
