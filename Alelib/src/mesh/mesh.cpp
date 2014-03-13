@@ -11,13 +11,13 @@ namespace alelib
 {
 
 //void dummy_instantiation() {
-//  
-//  Mesh<EDGE>       ::create(1);       
+//
+//  Mesh<EDGE>       ::create(1);
 //  Mesh<TRIANGLE>   ::create(1);
 //  Mesh<QUADRANGLE> ::create(1);
 //  Mesh<TETRAHEDRON>::create(1);
 //  Mesh<HEXAHEDRON> ::create(1);
-//  
+//
 //}
 
 
@@ -38,9 +38,9 @@ marray::Array<int, 2> init_tables(int n)
   static marray::Array<int, 2> table_fC_x_bC;
   static marray::Array<int, 2> table_bC_x_vC;
   static marray::Array<int, 2> table_bC_x_fC;
-  
+
   static int counter = 0;
-  
+
   if (counter == 0)
   {
     switch (fept)
@@ -165,9 +165,9 @@ marray::Array<int, 2> init_tables(int n)
     default: {
       std::cout << "invalid table" << std::endl;
       throw;
-    }    
+    }
   }
-  
+
 }
 
 template<ECellType CT>
@@ -219,51 +219,49 @@ Mesh<CT>::addCell_2D(VertexH const verts[])
   //index_t verts[CellT::n_verts];
   //for (unsigned i = 0; i < CellT::n_verts; ++i)
   //  verts[i] = verts_[i].id(this);
-  
+
   // Some checks
   for (unsigned i = 0; i < CellT::n_verts; ++i)
   {
     ALELIB_CHECK(verts[i].id(this) < this->numVerticesTotal(), "Vertex index: out of range", std::invalid_argument);
     ALELIB_CHECK(!verts[i].isDisabled(this), "Can not use disabled vertex", std::invalid_argument);
   }
-  
+
   #define nvpc (CellT::n_verts)
   #define nfpc (CellT::n_verts)
- 
+
   index_t const new_cid = pushCell();
   CellT &new_c = m_cells[new_cid];
   index_t adj_id;
   index_t const* it;
-  
+
   // FIRST, SET UP ITSELF and other cells
   for (unsigned i = 0; i < nvpc; ++i)
   {
     // loop on sides
-    
+
     VertexH const f_vtcs[] = {verts[i], verts[(i+1)%nvpc]};
     //index_t const f_vtcs[] = {verts[i], verts[(i+1)%nvpc]};
-    
+
     VertexT const &vi = m_verts[f_vtcs[0].id(this)];
     VertexT const &vj = m_verts[f_vtcs[1].id(this)];
-    
+
     new_c.verts[i] = verts[i].id(this);
 
     it = set_1_intersection(vi.icells.begin(), vi.icells.end(),
-                                 vj.icells.begin(), vj.icells.end(), &adj_id);
-    
+                            vj.icells.begin(), vj.icells.end(), &adj_id);
+
     if (it == &adj_id) // i.ei, no adj cell
     {
       // the new facet will always point to the new cell
       new_c.facets[i] = pushFacet(FacetT(new_cid, i, NULL_IDX, NO_TAG, NO_FLAG, 1));
-      //m_verts[f_vtcs[0].id(this)].status |= Vertex::mk_inboundary;
-      //m_verts[f_vtcs[1].id(this)].status |= Vertex::mk_inboundary;
     }
     else // if there is an adj cell
     {
       int side;
       bool const is_facet = CellH(adj_id).isFacet(this, f_vtcs, &side, NULL);
       ALELIB_CHECK(is_facet, "maybe something is wrong with the function CellH::isFacet", std::runtime_error);
-      
+
       CellT& adj_c = m_cells[adj_id];
       new_c.facets[i] = adj_c.facets[side];
       FacetT& f = m_facets[new_c.facets[i]];
@@ -272,51 +270,82 @@ Mesh<CT>::addCell_2D(VertexH const verts[])
       f.opp_cell = new_cid;
     }
   }
-  
+
   // Setting up vertices
   for (unsigned i = 0; i < nvpc; ++i)
   {
     VertexT& vtx = m_verts[verts[i].id(this)];
     vtx.icells.insert(new_cid);
   }
-  
-  
+
+
   #undef nvpc
   #undef nfpc
-  
+
   return CellH(this, new_cid);
 }
 
 
 template<ECellType CT>
-void Mesh<CT>::removeCell_2D(CellH ch)
+void Mesh<CT>::removeCell_2D(CellH ch, bool remove_unref_verts)
 {
   // Some checks
   ALELIB_CHECK(!ch.isDisabled(this) && ch.isValid(this), "This cell can not be deleted", std::invalid_argument);
-  
+
   #define nvpc (CellT::n_verts)
   #define nfpc (CellT::n_verts)
-  
+
   index_t const cid = ch.id(this);
   CellT const& cell = this->m_cells[cid];
-  
-  // Setting up vertices
+
+  // Remove this cell from the stars (it must be the first step)
   for (unsigned i = 0; i < nvpc; ++i)
   {
     VertexT& vtx = m_verts[cell.verts[i]];
     vtx.icells.erase(cid);
   }
-  
-  // SET UP ITSELF and other cells
+
+  // the facets, the cell and the neighbors
   for (unsigned i = 0; i < nvpc; ++i)
   {
-  //  int adj_side;
-  //  CellH adj = ch.adjCellSideAndAnchor(this, i, &adj_side);
-    
-    
+    FacetH fh = ch.facet(this, i);
+    FacetT &f = this->m_facets[fh.id(this)];
+
+    // Update facets and remove unref facets
+
+    if (f.valency == 1) // boundary, delete it
+    {
+      m_facets.disable(fh.id(this));
+    }
+    else if (f.valency == 2)
+    {
+      CellH adj = fh.icellSide1(this);
+      --(f.valency);
+      f.icell = adj.id(this);
+      f.opp_cell = NULL_IDX;
+    }
+    else // singular facet
+    {
+      CellH adj1 = fh.icellSide1(this);
+      CellH adj2 = fh.icellSide2(this); // the singular cell
+      --(f.valency);
+      f.icell = adj1.id(this);
+      f.opp_cell = adj2.id(this);
+    }
+
+
   }
-  
-  
+
+  if (remove_unref_verts)
+  {
+    for (unsigned i = 0; i < nvpc; ++i)
+    {
+      this->removeUnrefVertex(VertexH(cell.verts[i]));
+    }
+  }
+
+  m_cells.disable(ch.id(this));
+
   #undef nvpc
   #undef nfpc
 }
@@ -333,7 +362,7 @@ template class Mesh<HEXAHEDRON> ;
 
 
 //BACKUP //BACKUP//BACKUP //BACKUP //BACKUP //BACKUP
-#if (0) 
+#if (0)
 
 template<ECellType CT>
 typename Mesh<CT>::CellH
@@ -342,44 +371,44 @@ Mesh<CT>::addCell_2D(VertexH const verts_[])
   index_t verts[CellT::n_verts];
   for (unsigned i = 0; i < CellT::n_verts; ++i)
     verts[i] = verts_[i].id(this);
-  
+
   // Some checks
   for (unsigned i = 0; i < CellT::n_verts; ++i)
   {
     ALELIB_CHECK(verts[i] < this->numVerticesTotal(), "Vertex index: out of range", std::invalid_argument);
     ALELIB_CHECK(!VertexH::isDisabled(this, verts[i]), "Can not use disabled vertex", std::invalid_argument);
   }
-  
+
   #define nvpc (CellT::n_verts)
   #define nfpc (CellT::n_verts)
- 
+
   index_t const new_cid = pushCell();
   CellT &new_c = m_cells[new_cid];
   std::vector<index_t> intersec;
   std::vector<index_t>::iterator it;
-  
+
   intersec.resize(16); // this vector is that big to deal with manifold cases
-  
+
   // FIRST, SET UP ITSELF
   for (unsigned i = 0; i < nvpc; ++i)
   {
     // loop on sides
-    
+
     VertexH const f_vtcs_id[] = {verts[i], verts[(i+1)%nvpc]};
     //index_t const f_vtcs_id[] = {verts[i], verts[(i+1)%nvpc]};
-    
+
     VertexT const &vi = m_verts[f_vtcs_id[0].id(this)];
     VertexT const &vj = m_verts[f_vtcs_id[1].id(this)];
-    
+
     intersec.resize( vi.valency() +  vj.valency());
 
     it = std::set_intersection(vi.icells.begin(), vi.icells.end(),
                               vj.icells.begin(), vj.icells.end(), intersec.begin());
 
     intersec.resize(it-intersec.begin());
-    
+
     new_c.verts[i] = verts[i];
-    
+
     if (intersec.empty()) // no adj cell
     {
       new_c.adj_cells[i] = NULL_IDX;
@@ -394,27 +423,27 @@ Mesh<CT>::addCell_2D(VertexH const verts_[])
       int side;
       bool const is_facet = CellH(adj_id).isFacet(this, f_vtcs_id, &side, NULL);
       ALELIB_CHECK(is_facet, "maybe something is wrong with the function CellH::isFacet", std::runtime_error);
-      
+
       CellT& adj_c = m_cells[adj_id];
       new_c.facets[i] = adj_c.facets[side];
       ++(m_facets[new_c.facets[i]].valency);
-      
+
       // take the chance to set up the adjcent cell
       adj_c.adj_cells[side] = new_cid;
     }
   }
-  
+
   // Setting up vertices
   for (unsigned i = 0; i < nvpc; ++i)
   {
     VertexT& vtx = m_verts[verts[i]];
     vtx.icells.insert(new_cid);
   }
-  
-  
+
+
   #undef nvpc
   #undef nfpc
-  
+
   return CellH(this, new_cid);
 }
 

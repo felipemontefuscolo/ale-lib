@@ -1,7 +1,7 @@
 #ifndef ALELIB_HANDLER_FACET
 #define ALELIB_HANDLER_FACET
 
-
+#include "../util/algorithm.hpp"
 
 namespace alelib
 {
@@ -40,6 +40,34 @@ public:
 
   std::pair<CellH,CellH> icellAndMate(MeshT const* mp) const
   { return std::make_pair(CellH(mp->m_facets[m_id].icell), CellH(mp->m_facets[m_id].opp_cell)); }
+
+  CellH icellSide0(MeshT const* mp) const
+  { return CellH(mp->m_facets[m_id].icell); }
+
+  CellH icellSide1(MeshT const* mp) const
+  { return CellH(mp->m_facets[m_id].opp_cell); }
+
+  /// return the third cell connects to this facet (singular facet).
+  /// If a third cell does not exist, then return NULL_IDX
+  CellH icellSide2(MeshT const* mp) const
+  {
+    ALELIB_CHECK(CellT::dim == 2, "FacetH::icellSide2 only can be called by 2-cell meshes", std::invalid_argument);
+    
+    VertexH vts[CellT::n_verts_p_facet];
+    this->vertices(mp, vts);
+    typedef typename VertexT::VectorT VectorT;
+    typedef typename VectorT::const_iterator iterator;
+    
+    VectorT const& star0 = mp->m_verts[vts[0].id(mp)].icells;
+    VectorT const& star1 = mp->m_verts[vts[1].id(mp)].icells;
+    
+    index_t intersect[3] = {NULL_IDX, NULL_IDX, NULL_IDX};
+
+    set_3_intersection(star0.begin(), star0.end(),
+                       star1.begin(), star1.end(), intersect);
+                             
+    return CellH(intersect[2]);
+  }
 
 //  inline index_t id(MeshT const*) const
 //  { return m_id; }

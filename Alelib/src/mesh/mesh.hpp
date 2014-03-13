@@ -149,7 +149,7 @@ public:
 
   /// remove a cell
   /// Obs: its vertices are not removed
-  void removeCell(CellH c);
+  void removeCell(CellH c, bool remove_unref_verts);
 
 
 
@@ -280,7 +280,7 @@ private:
 
   /// remove a cell
   /// Obs: its vertices are not removed
-  void removeCell_2D(CellH c);
+  void removeCell_2D(CellH c, bool remove_unref_verts);
 
 
 }; // end Mesh class
