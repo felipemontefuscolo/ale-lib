@@ -177,7 +177,7 @@ TEST(SeqListTest, TestStep2)
   for (int i=0; i<a_size; ++i)
     v.insert(Dummy(i)); // v = a
 
-  EXPECT_EQ(index_t(a_size), size(v));
+  EXPECT_EQ(index_t(a_size), (index_t)size(v));
 
   EXPECT_EQ(24u, v.size());
   EXPECT_EQ(24u, v.totalSize());
@@ -230,9 +230,9 @@ TEST(SeqListTest, TestStep2)
   v.disable(15);
   // {x,x,x,x,  1,x,5,7,  1,3,5,x,  1,3,5,x,  1,3,x,7,  x,x,x,x};
   
-  EXPECT_EQ(index_t(12), v.size());
-  EXPECT_EQ(index_t(12), size(v));
-  EXPECT_EQ(index_t(24), v.totalSize());  
+  EXPECT_EQ(index_t(12), (index_t)v.size());
+  EXPECT_EQ(index_t(12), (index_t)size(v));
+  EXPECT_EQ(index_t(24), (index_t)v.totalSize());  
   EXPECT_EQ(index_t(0 ), v.contiguousId(4));  EXPECT_EQ(index_t(6 ), v.contiguousId(12));
   EXPECT_EQ(index_t(1 ), v.contiguousId(6));  EXPECT_EQ(index_t(7 ), v.contiguousId(13));
   EXPECT_EQ(index_t(2 ), v.contiguousId(7));  EXPECT_EQ(index_t(8 ), v.contiguousId(14));

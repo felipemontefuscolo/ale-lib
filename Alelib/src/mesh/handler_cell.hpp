@@ -89,12 +89,16 @@ public:
   int adjSideAndAnchor(MeshT const* mp, int side, int* anchor = NULL) const
   {
     CellH adj = adjCell(mp, side);
-    VertexH v[CellT::n_verts_p_facet];
-    facetVertices(mp, side, v);
-    std::reverse(v, v+CellT::n_verts_p_facet);
+    VertexH vts[CellT::n_verts_p_facet];
+    facetVertices(mp, side, vts);
+    std::reverse(vts, vts+CellT::n_verts_p_facet);
     int ff;
-    bool const is_facet = adj.isFacet(mp, v, &ff, anchor);
-    ALELIB_CHECK(is_facet, "something is wrong with the adjacencies", std::runtime_error);
+    bool const is_facet = adj.isFacet(mp, vts, &ff, anchor);
+    //if (!is_facet) // debug
+    //{
+    //  std::cout << "AQUII " <<"me:"<<m_id <<" adj:"<<adj<<", "<<vts[0] <<" "<<vts[1]<<"; side:"<<side<< std::endl;
+    //}
+    ALELIB_CHECK(is_facet, "No adjacent cell", std::runtime_error);
     return ff;
   }
 
@@ -121,13 +125,6 @@ public:
     return "None";
   };
 
-  static inline index_t facetId(MeshT const* mp, index_t cell, uint8_t pos)
-  {
-    if (CellT::dim > 1)
-      return mp->m_cells[cell].facets[pos];
-    else
-      return mp->m_cells[cell].verts[pos];
-  }
 
   /// Check if the vertices form a facet of this cell, if so returns facet's id.
   /// @param[in] pointer to the mesh
@@ -214,6 +211,18 @@ public:
     ALELIB_CHECK(side < CellT::n_facets, "invalid side", std::invalid_argument);
     for (int i = 0; i < (int)CellT::n_verts_p_facet; ++i)
       *vts++ = VertexH(mp->m_cells[m_id].verts[mp->m_table_fC_x_vC(side,i)]);    
+  }
+
+  /// return the local id of the facet f
+  int facetLocalId(MeshT const* mp, FacetH f) const
+  {
+    CellT const& c = mp->m_cells[m_id];
+    for (int i = 0; i < (int)CellT::n_facets; ++i)
+    {
+      if (f.id(mp) == c.facets[i])
+        return i;
+    }
+    return NULL_IDX;
   }
 
   bool operator != (Self const& x) const
@@ -436,174 +445,6 @@ public:
 //
 //  static inline Labelable const& label(MeshT const* mp, index_t cell)
 //  { return mp->m_cells[cell]; }
-//
-//
-//  // SETTERS  ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//  // SETTERS  ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//  // SETTERS  ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//  // SETTERS  ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//  // SETTERS  ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//  // SETTERS  ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//  // SETTERS  ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//  // SETTERS  ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//  // SETTERS  ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//  // SETTERS  ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//  // SETTERS  ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//
-//private:
-//
-//  inline void reset()
-//  {return CellH::reset(m_msh, m_id); }
-//
-//  inline void resetFacets()
-//  { return CellH::resetFacets(m_msh, m_id);}
-//
-//  inline void resetRidges()
-//  { return CellH::resetRidges(m_msh, m_id);}
-//
-//  inline void resetAdjCells()
-//  { return CellH::resetAdjCells(m_msh, m_id);}
-//
-//  inline void resetVertices()
-//  { return CellH::resetVertices(m_msh, m_id);}
-//
-//  inline void setIncidence(int fth, index_t adj_cell, char side, char anch=0)
-//  { return CellH::setIncidence(m_msh, m_id, fth, adj_cell, side, anch);}
-//
-//  inline void setAdjCell(int fth, index_t adj_cell)
-//  { return CellH::setAdjCell(m_msh, m_id, fth, adj_cell);}
-//
-//  inline void setAdjCellSide(int fth, int side)
-//  { return CellH::setAdjCellSide(m_msh, m_id, fth, side);}
-//
-//  inline void setAdjCellAnch(int fth, int anch)
-//  { return CellH::setAdjCellAnch(m_msh, m_id, fth, anch);}
-//
-//  inline void setVerticeId(int pos, index_t id)
-//  { return CellH::setVerticeId(m_msh, m_id, pos, id);}
-//
-//  inline void setVerticesId(index_t const* ids, int n_verts = MeshT::m_verts_per_cell)
-//  { return CellH::setVerticesId(m_msh, m_id, ids, n_verts);}
-//
-//  inline void setFacetId(int pos, index_t id)
-//  { return CellH::setFacetId(m_msh, m_id, pos, id);}
-//
-//  inline void setFacetsId(index_t const* ids, int n_facets = MeshT::m_facets_per_cell)
-//  { return CellH::setFacetsId(m_msh, m_id, ids, n_facets);}
-//
-//  inline void setRidgeId(int pos, index_t id)
-//  { return CellH::setRidgeId(m_msh, m_id, pos, id);}
-//
-//  inline void setRidgesId(index_t const* ids, int n_ridges = MeshT::m_ridges_per_cell)
-//  { return CellH::setRidgesId(m_msh, m_id, ids, n_ridges);}
-//
-//  void setAllMembers(index_t const* vertices, index_t const* ridges, index_t const* facets, index_t const* adj_cells, int const* sides,
-//                                   int const* anchs, int const* tag, int const* flag)
-//  { return CellH::setAllMembers(m_msh, m_id, vertices, ridges, facets, adj_cells, sides,
-//                                   anchs, tag, flag);}
-//
-//
-//
-//  // -------------------------------------------------------
-//  // -------------------------------------------------------
-//  // -------------------------------------------------------
-//
-//
-//  inline void reset(MeshT* mp, int cell)
-//  { mp->m_cells[cell].reset(); }
-//
-//  inline void resetFacets(MeshT* mp, int cell)
-//  { mp->m_cells[cell].resetFacets(); }
-//
-//  inline void resetRidges(MeshT* mp, index_t cell)
-//  { mp->m_cells[cell].resetRidges(); }
-//
-//
-//
-//
-//  inline void resetVertices(MeshT* mp, index_t cell)
-//  { mp->m_cells[cell].resetVertices(); }
-//
-//  /// is same to:
-//  /// setAdjCell(facet, adjCell);
-//  /// setIncidCellPos(facet, pos);
-//  /// setIncidCellAnch(facet, anch);
-//  ///
-//  inline void setIncidence(MeshT* mp, index_t cell, int fth, index_t adj_cell, char side, char anch=0)
-//  {
-//    setAdjCell(mp, cell, fth, adj_cell);
-//    setAdjCellSide(mp, cell, fth, side);
-//    setAdjCellAnch(mp, cell, fth, anch);
-//  }
-//
-//  // inline void setAdjCell(MeshT* mp, index_t cell, int fth, index_t adj_cell)
-//  // { mp->m_cells[cell].adj_cells[fth] = adj_cell; }
-//  // 
-//  // inline void setAdjCellSide(MeshT* mp, index_t cell, int fth, int side)
-//  // { mp->m_cells[cell].adj_cells_sides[fth] = side; }
-//  // 
-//  // inline void setAdjCellAnch(MeshT* mp, index_t cell, int fth, int anch)
-//  // { mp->m_cells[cell].adj_cells_anchs[fth] = anch; }
-//
-//  inline void setVerticeId(MeshT* mp, index_t cell, int pos, index_t id)
-//  { mp->m_cells[cell].verts[pos] = id; }
-//
-//  inline void setVerticesId(MeshT* mp, index_t cell, index_t const* ids, int n_verts = MeshT::m_verts_per_cell)
-//  {
-//    for (int i = 0; i < n_verts; ++i)
-//      mp->m_cells[cell].verts[i] = ids[i];
-//  }
-//
-//  inline void setFacetId(MeshT* mp, index_t cell, int pos, index_t id)
-//  { mp->m_cells[cell].facets[pos] = id; }
-//
-//  inline void setFacetsId(MeshT* mp, index_t cell, index_t const* ids, int n_facets = MeshT::m_facets_per_cell)
-//  {
-//    for (int i = 0; i < n_facets; ++i)
-//      mp->m_cells[cell].facets[i] = ids[i];
-//  }
-//
-//  inline void setRidgeId(MeshT* mp, index_t cell, int pos, index_t id)
-//  { mp->m_cells[cell].ridges[pos] = id; }
-//
-//  inline void setRidgesId(MeshT* mp, index_t cell, index_t const* ids, int n_ridges = MeshT::m_ridges_per_cell)
-//  {
-//    for (int i = 0; i < n_ridges; ++i)
-//      mp->m_cells[cell].ridges[i] = ids[i];
-//  }
-//
-//  void setAllMembers(MeshT* mp, index_t cell, index_t const* vertices, index_t const* ridges, index_t const* facets, index_t const* adj_cell, int const* side,
-//                                   int const* anch, int const* tag, int const* flag)
-//  {
-//    // nodes
-//    if (vertices != NULL)
-//      setVerticesId(mp, cell, vertices);//, mp->m_verts_per_cell);
-//
-//    if (ridges!= NULL)
-//      setRidgesId(mp, cell, ridges);//, mp->m_ridges_per_cell);
-//
-//    if (facets!= NULL)
-//      setFacetsId(mp, cell, facets);//, mp->m_facets_per_cell);
-//
-//    for (int i = 0; i < mp->m_facets_per_cell; ++i)
-//    {
-//      if (adj_cell!=NULL)
-//        setAdjCell(mp, cell, i, adj_cell[i]);
-//        
-//      if (side!=NULL)
-//        setAdjCellSide(mp, cell, i, side[i]);  
-//        
-//      if (anch!=NULL)
-//        setAdjCellAnch(mp, cell, i, anch[i]);
-//      
-//    }
-//
-//    if (tag != NULL)
-//      mp->m_cells[cell].setTag(*tag);
-//    if (flag != NULL)
-//      mp->m_cells[cell].setFlag(*flag);
-//  }
-//
 //
 
 

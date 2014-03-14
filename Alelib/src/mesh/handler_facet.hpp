@@ -49,9 +49,9 @@ public:
 
   /// return the third cell connects to this facet (singular facet).
   /// If a third cell does not exist, then return NULL_IDX
-  CellH icellSide2(MeshT const* mp) const
+  void first3icells(MeshT const* mp, CellH ics[]) const
   {
-    ALELIB_CHECK(CellT::dim == 2, "FacetH::icellSide2 only can be called by 2-cell meshes", std::invalid_argument);
+    ALELIB_CHECK(CellT::dim == 2, "FacetH::first3icells only can be called by 2-cell meshes", std::invalid_argument);
     
     VertexH vts[CellT::n_verts_p_facet];
     this->vertices(mp, vts);
@@ -61,12 +61,15 @@ public:
     VectorT const& star0 = mp->m_verts[vts[0].id(mp)].icells;
     VectorT const& star1 = mp->m_verts[vts[1].id(mp)].icells;
     
-    index_t intersect[3] = {NULL_IDX, NULL_IDX, NULL_IDX};
+     // put index_t conversion here because g++ complains
+    index_t intersect[3] = {index_t(NULL_IDX), index_t(NULL_IDX), index_t(NULL_IDX)};
 
     set_3_intersection(star0.begin(), star0.end(),
                        star1.begin(), star1.end(), intersect);
-                             
-    return CellH(intersect[2]);
+    ics[0] = CellH(intersect[0]);
+    ics[1] = CellH(intersect[1]);
+    ics[2] = CellH(intersect[2]);
+    
   }
 
 //  inline index_t id(MeshT const*) const

@@ -45,30 +45,30 @@ const int dim1 = 1;
 const int dim2 = 2;
 const int dim3 = 3;
 
-typedef Mesh<EDGE>        MeshE0;
-typedef Mesh<TRIANGLE>    MeshE1;
-typedef Mesh<QUADRANGLE>  MeshE2;
-typedef Mesh<TETRAHEDRON> MeshE3;
-typedef Mesh<HEXAHEDRON>  MeshE4;
+typedef Mesh<EDGE>        MeshEdg;
+typedef Mesh<TRIANGLE>    MeshTri;
+typedef Mesh<QUADRANGLE>  MeshQua;
+typedef Mesh<TETRAHEDRON> MeshTet;
+typedef Mesh<HEXAHEDRON>  MeshHex;
 
 TEST(MeshTest, Initialize2d)
 {
-  MeshE0 m0(dim3);
-  MeshE1 m1(dim3);
-  MeshE2 m2(dim3);
-  MeshE3 m3(dim3);
-  MeshE4 m4(dim3);
+  MeshEdg m0(dim3);
+  MeshTri m1(dim3);
+  MeshQua m2(dim3);
+  MeshTet m3(dim3);
+  MeshHex m4(dim3);
 
-  //MeshE0::printElementsSize();
-  //MeshE1::printElementsSize();
-  //MeshE2::printElementsSize();
-  MeshE3::printElementsSize();
-  //MeshE4::printElementsSize();
+  //MeshEdg::printElementsSize();
+  //MeshTri::printElementsSize();
+  //MeshQua::printElementsSize();
+  MeshTet::printElementsSize();
+  //MeshHex::printElementsSize();
 }
 
 TEST(MeshTest, AddVertex)
 {
-  typedef MeshE1 MeshT;
+  typedef MeshTri MeshT;
   typedef MeshT::VertexH VertexH;
   MeshT m(dim2);
 
@@ -91,7 +91,7 @@ TEST(MeshTest, AddVertex)
 
 TEST(MeshTest, RemoveUnrefVertex)
 {
-  typedef MeshE1 MeshT;
+  typedef MeshTri MeshT;
   typedef MeshT::VertexH VertexH;
   MeshT m(dim2);
 
@@ -101,13 +101,13 @@ TEST(MeshTest, RemoveUnrefVertex)
   { vts[i] = m.addVertex(Point(i,i)); }
 
   m.removeUnrefVertex(vts[2]);
-  EXPECT_EQ(index_t(4), m.numVertices());
+  EXPECT_EQ(index_t(4), (index_t)m.numVertices());
   m.removeUnrefVertex(vts[0]);
-  EXPECT_EQ(index_t(3), m.numVertices());
+  EXPECT_EQ(index_t(3), (index_t)m.numVertices());
   m.removeUnrefVertex(vts[4]);
-  EXPECT_EQ(index_t(2), m.numVertices());
+  EXPECT_EQ(index_t(2), (index_t)m.numVertices());
 
-  EXPECT_EQ(index_t(5), m.numVerticesTotal());
+  EXPECT_EQ(index_t(5), (index_t)m.numVerticesTotal());
 
   EXPECT_TRUE( vts[2].isDisabled(&m));
   EXPECT_TRUE( vts[0].isDisabled(&m));
@@ -165,6 +165,11 @@ void checkMesh(Mesh<T> const&m)
   {
     if (c.isDisabled(&m))
       continue;
+    
+    std::vector<VertexH> vts = c.vertices(&m);
+    // check vertices indices
+    for (int i = 0; i < MeshT::verts_per_cell; ++i)
+      EXPECT_TRUE((vts[i].id(&m) < (index_t)m.numVerticesTotal()) && (vts[i].id(&m) >= 0));
       
     for (unsigned side = 0; side < c.numFacets(&m); ++side)
     {
@@ -186,7 +191,7 @@ void checkMesh(Mesh<T> const&m)
       std::vector<VertexH> adj_f_vtcs = adj.facetVertices(&m, abs(other_side));
 
       if (facet.valency(&m) < 3) // if it is not singular
-        EXPECT_EQ(c, adj.adjCell(&m, abs(other_side)) );
+        EXPECT_EQ(c, adj.adjCell(&m, abs(other_side)) ) << "adj is " << adj;
       
       if (other_side>=0)
         std::reverse(adj_f_vtcs.begin(), adj_f_vtcs.end());
@@ -227,9 +232,9 @@ void checkMesh(Mesh<T> const&m)
 }
 
 // this mesh has singular vertices and edges, and has inverted triangle
-void addTriMesh1(MeshE1 &m, bool check = true)
+void addTriMesh1(MeshTri &m, bool check = true)
 {
-  typedef MeshE1 MeshT;
+  typedef MeshTri MeshT;
   typedef MeshT::VertexH VertexH;
   typedef MeshT::CellH   CellH;
 
@@ -256,31 +261,30 @@ void addTriMesh1(MeshE1 &m, bool check = true)
 
   CellH cells[E];
 
-  cells[ 0] = m.addCell(listOf(vts[ 0], vts[ 1], vts[ 2]));
-  cells[ 1] = m.addCell(listOf(vts[ 1], vts[ 3], vts[ 4]));
-  cells[ 2] = m.addCell(listOf(vts[ 2], vts[ 6], vts[ 5]));
-  cells[ 3] = m.addCell(listOf(vts[ 3], vts[ 4], vts[ 7]));
-  cells[ 4] = m.addCell(listOf(vts[ 5], vts[10], vts[ 9]));
-  cells[ 5] = m.addCell(listOf(vts[ 5], vts[ 6], vts[10]));
-  cells[ 6] = m.addCell(listOf(vts[ 6], vts[11], vts[10]));
-  cells[ 7] = m.addCell(listOf(vts[ 6], vts[ 7], vts[11]));
-  cells[ 8] = m.addCell(listOf(vts[ 7], vts[ 8], vts[12]));
-  cells[ 9] = m.addCell(listOf(vts[13], vts[ 6], vts[10]));
-  cells[10] = m.addCell(listOf(vts[ 2], vts[ 7], vts[ 6]));
-
-  if (!check)
-    return;
-
-  checkMesh(m);
+  cells[ 0] = m.addCell(listOf(vts[ 0], vts[ 1], vts[ 2])); //  0
+  cells[ 1] = m.addCell(listOf(vts[ 1], vts[ 3], vts[ 4])); //  1
+  cells[ 2] = m.addCell(listOf(vts[ 2], vts[ 6], vts[ 5])); //  2
+  cells[ 3] = m.addCell(listOf(vts[ 3], vts[ 4], vts[ 7])); //  3
+  cells[ 4] = m.addCell(listOf(vts[ 5], vts[10], vts[ 9])); //  4
+  cells[ 5] = m.addCell(listOf(vts[ 5], vts[ 6], vts[10])); //  5
+  cells[ 6] = m.addCell(listOf(vts[ 6], vts[11], vts[10])); //  6
+  cells[ 7] = m.addCell(listOf(vts[ 6], vts[ 7], vts[11])); //  7
+  cells[ 8] = m.addCell(listOf(vts[ 7], vts[ 8], vts[12])); //  8
+  cells[ 9] = m.addCell(listOf(vts[13], vts[ 6], vts[10])); //  9
+  cells[10] = m.addCell(listOf(vts[ 2], vts[ 7], vts[ 6])); // 10
 
   // attention: this vertex is boundary because of the third triangle added to its edge
-  EXPECT_TRUE(VertexH(6).isBoundary(&m));
+  EXPECT_TRUE(vts[ 6].isBoundary(&m));
   
   // if we add the triangle:
   m.addCell(listOf(vts[ 6], vts[ 7], vts[13]));
 
   // now the vertex should not be boundary:
-  EXPECT_FALSE(VertexH(6).isBoundary(&m));
+  EXPECT_FALSE(vts[ 6].isBoundary(&m));
+
+  EXPECT_TRUE(cells[ 3].adjCell(&m, 0) == cells[ 1]);
+  EXPECT_TRUE(cells[ 1].adjCell(&m, 1) == cells[ 3]);
+
 
   // specific checking
   std::vector<VertexH> cverts(3);
@@ -297,24 +301,99 @@ void addTriMesh1(MeshE1 &m, bool check = true)
   cverts[0] = vts[ 7]; cverts[1] = vts[ 8]; cverts[2] = vts[12]; EXPECT_TRUE(cverts == cells[8].vertices(&m));
   cverts[0] = vts[13]; cverts[1] = vts[ 6]; cverts[2] = vts[10]; EXPECT_TRUE(cverts == cells[9].vertices(&m));
 
+  EXPECT_EQ(14u, m.numVertices());
+  EXPECT_EQ(12u, m.numCells());
+  EXPECT_EQ(26u, m.numFacets());
+
+  if (!check)
+    return;
+
+  checkMesh(m);
+
 
 }
 
 TEST(MeshTest, AddCellTri)
 {
-  typedef MeshE1 MeshT;
+  typedef MeshTri MeshT;
   typedef MeshT::VertexH VertexH;
   MeshT m(dim3);
 
   addTriMesh1(m, true);
 }
 
+TEST(MeshTest, RemoveSingularCellTri)
+{
+  typedef MeshTri MeshT;
+  typedef typename MeshT::VertexH VertexH;
+  typedef typename MeshT::CellH CellH;
+  typedef typename MeshT::FacetH FacetH;
+  typedef typename MeshT::RidgeH RidgeH;
+  MeshT m(dim3);
+
+  addTriMesh1(m, false);
+  
+  m.removeCell(CellH(9), false);
+  // if we remove the cell 9, vtx 6 must be boundary
+  EXPECT_TRUE(VertexH(6).isBoundary(&m));
+  EXPECT_EQ(14u, m.numVertices());
+  EXPECT_EQ(11u, m.numCells());
+  EXPECT_EQ(25u, m.numFacets());
+  checkMesh(m);
+  
+  // now, if we remove the cell 11, vtx 6 must be non-boundary
+  m.removeCell(CellH(11), false);
+  EXPECT_FALSE(VertexH(6).isBoundary(&m));
+  EXPECT_EQ(14u, m.numVertices());
+  EXPECT_EQ(10u, m.numCells());
+  EXPECT_EQ(23u, m.numFacets());
+  checkMesh(m);
+  
+  EXPECT_TRUE( m.removeUnrefVertex(13) );
+  EXPECT_EQ(13u, m.numVertices());
+  
+  m.removeCell(CellH(5), true);
+  EXPECT_TRUE(VertexH(6).isBoundary(&m));
+  EXPECT_EQ(13u, m.numVertices());
+  EXPECT_EQ(9u, m.numCells());
+  EXPECT_EQ(23u, m.numFacets());  
+  checkMesh(m);  
+}
 
 
+TEST(MeshTest, AddAndRemoveCellTri)
+{
+  typedef MeshTri MeshT;
+  typedef typename MeshT::VertexH VertexH;
+  typedef typename MeshT::CellH CellH;
+  typedef typename MeshT::FacetH FacetH;
+  typedef typename MeshT::RidgeH RidgeH;
+  MeshT m(dim3);
 
+  addTriMesh1(m, false);
 
+  unsigned k = 0;
+  for (CellH ch = m.cellBegin(); ch != m.cellEnd(); ++ch)
+  {
+    if (ch.isDisabled(&m))
+      continue;
+      
+    m.removeCell(ch, true);
+    ++k;
+    EXPECT_EQ(12u-k, m.numCells());
+    checkMesh(m);
+  }
 
-
+  EXPECT_EQ(0u, m.numVertices());
+  EXPECT_EQ(0u, m.numCells());
+  EXPECT_EQ(0u, m.numFacets());  
+  
+  
+  // add again:
+  addTriMesh1(m, false);
+  checkMesh(m);
+  
+}
 
 
 

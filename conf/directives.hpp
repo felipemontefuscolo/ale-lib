@@ -35,7 +35,7 @@
 
 #define ALELIB_SCALAR_TYPE double
 
-#define ALELIB_INDEX_TYPE unsigned //std::size_t
+#define ALELIB_INDEX_TYPE int //std::size_t
 
 
 #ifdef ALE_HAS_OPENMP

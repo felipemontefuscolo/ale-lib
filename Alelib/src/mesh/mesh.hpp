@@ -125,10 +125,15 @@ public:
   }
 
   /// remove a vertex only if it is unreferenced
-  inline void removeUnrefVertex(VertexH vtx)
+  /// return true if it was removed
+  inline bool removeUnrefVertex(VertexH vtx)
   {
     if (vtx.valency(this) == 0)
+    {
       m_verts.disable(vtx.id(this));
+      return true;
+    }
+    return false;
   }
 
   void removeUnrefVertices()
@@ -261,7 +266,7 @@ private:
   index_t pushVertex()
   {
     index_t const id = m_verts.insert();
-    if (id == m_points.size())
+    if (id == (index_t)m_points.size())
       m_points.push_back(PointT());
     return id;
   }
@@ -269,7 +274,7 @@ private:
   index_t pushVertex(VertexT const& a, PointT const& b)
   {
     index_t const id = m_verts.insert(a);
-    if (id == m_points.size())
+    if (id == (index_t)m_points.size())
       m_points.push_back(b);
     return id;
   }

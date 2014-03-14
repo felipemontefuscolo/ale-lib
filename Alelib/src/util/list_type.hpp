@@ -140,10 +140,10 @@ public:
 
   //  PARALLEL VERSION
 
-  iterator begin(index_t tid, int nthreads, index_t * begin_idx = NULL)
+  iterator begin(size_type tid, int nthreads, index_t * begin_idx = NULL)
   {
     size_type const N = size();
-    size_type const start = tid*(N/nthreads) + ((N%nthreads) < tid ? (N%nthreads) : tid);
+    size_type const start = size_type(tid*(N/nthreads) + ((N%nthreads) < tid ? (N%nthreads) : tid));
     if(begin_idx)
       *begin_idx = (index_t)start;
     iterator s = begin();
@@ -152,11 +152,11 @@ public:
     return s;
   }
 
-  iterator end(index_t tid, int nthreads, index_t * end_idx = NULL)
+  iterator end(size_type tid, int nthreads, index_t * end_idx = NULL)
   {
     size_type const N = size();
-    size_type const start = tid*(N/nthreads) + ((N%nthreads) < tid ? (N%nthreads) : tid);
-    size_type const end_   = start + N/nthreads + ((N%nthreads) > tid);
+    size_type const start = size_type(tid*(N/nthreads) + ((N%nthreads) < tid ? (N%nthreads) : tid));
+    size_type const end_  = size_type(start + N/nthreads + ((N%nthreads) > tid));
     if (end_idx)
       *end_idx = (index_t)end_;
     iterator e = begin(tid,nthreads);
@@ -165,7 +165,7 @@ public:
     return e;
   }
 
-  const_iterator begin(index_t tid, int nthreads, index_t * begin_idx = NULL) const
+  const_iterator begin(size_type tid, int nthreads, index_t * begin_idx = NULL) const
   {
     index_t const N = size();
     index_t const start = tid*(N/nthreads) + ((N%nthreads) < tid ? (N%nthreads) : tid);
@@ -177,7 +177,7 @@ public:
     return s;
   }
 
-  const_iterator end(index_t tid, int nthreads, index_t * end_idx = NULL) const
+  const_iterator end(size_type tid, int nthreads, index_t * end_idx = NULL) const
   {
     size_type const N = size();
     size_type const start = tid*(N/nthreads) + ((N%nthreads) < tid ? (N%nthreads) : tid);

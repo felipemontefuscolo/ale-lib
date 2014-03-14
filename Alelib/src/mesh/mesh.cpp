@@ -185,33 +185,6 @@ Mesh<CT>* Mesh<CT>::create(unsigned spacedim)
   return new MeshT(spacedim);
 }
 
-template<>
-Mesh<EDGE>::CellH
-Mesh<EDGE>::addCell(VertexH const [])
-{ return CellH(); }
-
-template<>
-Mesh<TRIANGLE>::CellH
-Mesh<TRIANGLE>::addCell(VertexH const verts[])
-{ return Mesh<TRIANGLE>::addCell_2D(verts); }
-
-template<>
-Mesh<QUADRANGLE>::CellH
-Mesh<QUADRANGLE>::addCell(VertexH const verts[])
-{ return Mesh<QUADRANGLE>::addCell_2D(verts); }
-
-template<>
-Mesh<TETRAHEDRON>::CellH
-Mesh<TETRAHEDRON>::addCell(VertexH const[])
-{ return CellH(); }
-
-template<>
-Mesh<HEXAHEDRON>::CellH
-Mesh<HEXAHEDRON>::addCell(VertexH const[])
-{ return CellH(); }
-
-
-
 template<ECellType CT>
 typename Mesh<CT>::CellH
 Mesh<CT>::addCell_2D(VertexH const verts[])
@@ -223,7 +196,7 @@ Mesh<CT>::addCell_2D(VertexH const verts[])
   // Some checks
   for (unsigned i = 0; i < CellT::n_verts; ++i)
   {
-    ALELIB_CHECK(verts[i].id(this) < this->numVerticesTotal(), "Vertex index: out of range", std::invalid_argument);
+    ALELIB_CHECK(verts[i].id(this) < (index_t)this->numVerticesTotal(), "Vertex index: out of range", std::invalid_argument);
     ALELIB_CHECK(!verts[i].isDisabled(this), "Can not use disabled vertex", std::invalid_argument);
   }
 
@@ -298,12 +271,6 @@ void Mesh<CT>::removeCell_2D(CellH ch, bool remove_unref_verts)
   index_t const cid = ch.id(this);
   CellT const& cell = this->m_cells[cid];
 
-  // Remove this cell from the stars (it must be the first step)
-  for (unsigned i = 0; i < nvpc; ++i)
-  {
-    VertexT& vtx = m_verts[cell.verts[i]];
-    vtx.icells.erase(cid);
-  }
 
   // the facets, the cell and the neighbors
   for (unsigned i = 0; i < nvpc; ++i)
@@ -319,21 +286,37 @@ void Mesh<CT>::removeCell_2D(CellH ch, bool remove_unref_verts)
     }
     else if (f.valency == 2)
     {
-      CellH adj = fh.icellSide1(this);
+      if(f.icell == ch.id(this))
+      {
+        CellH adj = fh.icellSide1(this);
+        f.icell = adj.id(this);
+        f.local_id = adj.facetLocalId(this, fh);
+      }
       --(f.valency);
-      f.icell = adj.id(this);
       f.opp_cell = NULL_IDX;
     }
     else // singular facet
     {
-      CellH adj1 = fh.icellSide1(this);
-      CellH adj2 = fh.icellSide2(this); // the singular cell
+      CellH ics[3];
+      fh.first3icells(this, ics);
+      int I;
+      if      (ics[0] == ch) I = 0;
+      else if (ics[1] == ch) I = 1;
+      else if (ics[2] == ch) I = 2;
+      int J=(I+1)%3, K=(I+2)%3;
+      
       --(f.valency);
-      f.icell = adj1.id(this);
-      f.opp_cell = adj2.id(this);
+      f.icell    = ics[J].id(this);
+      f.opp_cell = ics[K].id(this);
+      f.local_id = ics[J].facetLocalId(this, fh);
     }
+  }
 
-
+  // Remove this cell from the stars
+  for (unsigned i = 0; i < nvpc; ++i)
+  {
+    VertexT& vtx = m_verts[cell.verts[i]];
+    vtx.icells.erase(cid);
   }
 
   if (remove_unref_verts)
@@ -349,6 +332,60 @@ void Mesh<CT>::removeCell_2D(CellH ch, bool remove_unref_verts)
   #undef nvpc
   #undef nfpc
 }
+
+
+template<>
+Mesh<EDGE>::CellH
+Mesh<EDGE>::addCell(VertexH const [])
+{ return CellH(); }
+
+template<>
+Mesh<TRIANGLE>::CellH
+Mesh<TRIANGLE>::addCell(VertexH const verts[])
+{ return Mesh<TRIANGLE>::addCell_2D(verts); }
+
+template<>
+Mesh<QUADRANGLE>::CellH
+Mesh<QUADRANGLE>::addCell(VertexH const verts[])
+{ return Mesh<QUADRANGLE>::addCell_2D(verts); }
+
+template<>
+Mesh<TETRAHEDRON>::CellH
+Mesh<TETRAHEDRON>::addCell(VertexH const[])
+{ return CellH(); }
+
+template<>
+Mesh<HEXAHEDRON>::CellH
+Mesh<HEXAHEDRON>::addCell(VertexH const[])
+{ return CellH(); }
+
+// ;;
+template<>
+void
+Mesh<EDGE>::removeCell(CellH , bool )
+{  }
+
+template<>
+void
+Mesh<TRIANGLE>::removeCell(CellH ch, bool remove_unref_verts)
+{ return Mesh<TRIANGLE>::removeCell_2D(ch, remove_unref_verts); }
+
+template<>
+void
+Mesh<QUADRANGLE>::removeCell(CellH ch, bool remove_unref_verts)
+{ return Mesh<QUADRANGLE>::removeCell_2D(ch, remove_unref_verts); }
+
+template<>
+void
+Mesh<TETRAHEDRON>::removeCell(CellH , bool )
+{  }
+
+template<>
+void
+Mesh<HEXAHEDRON>::removeCell(CellH , bool )
+{  }
+
+
 
 template class Mesh<EDGE>       ;
 template class Mesh<TRIANGLE>   ;
