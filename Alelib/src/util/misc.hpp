@@ -199,45 +199,6 @@ inline void unset_bit(T & c, unsigned bitoffset)
 }
 
 
-/** @brief Searches the stream for a key-word and return the position after
- *  the key-word. If the key-word was not found, return ULONG_MAX.
- *  @param word the key-word.
- *  @param word_size size of the key-word.
- *  @param fp the stream.
- *  @note a key-word is a word that is at the beginning of a line.
- */ 
-long int find_keyword(const char* word, int word_size, FILE *fp);
-
-
-/**
- * C++ version 0.4 std::string style "itoa":
- * Contributions from Stuart Lowe, Ray-Yuan Sheu,
- * Rodrigo de Salvo Braz, Luc Gallant, John Maloney
- * and Brian Hunt
- * 
- * modified: Felipe Montefuscolo
- */
-std::string itos(int value);
-
-std::string itoafill0(int value, int fill);
-
-// remove espaços finais de strings
-std::string stripTrailingSpaces(std::string name);
-
-/** @example <tt>user/file.dat</tt> returns <tt>user/</tt>
- *  @note aassumes that is a valid file name.
- */ 
-std::string getRelativePath(std::string const& name);
-
-/** @example <tt>user/file.dat</tt> returns <tt>.dat</tt>
- *  @note assumes that is a valid file name.
- */ 
-std::string getExtension(std::string const& name);
-
-/** @example <tt>user/file.dat</tt> returns <tt>file</tt>
- *  @note assumes that is a valid file name.
- */ 
-std::string getBaseName(std::string name);
 
 } // end namespace
 

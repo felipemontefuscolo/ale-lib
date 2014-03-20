@@ -20,8 +20,8 @@
 // Alelib. If not, see <http://www.gnu.org/licenses/>.
 
 
-#ifndef ALELIB_CUTHIL_MCKEE
-#define ALELIB_CUTHIL_MCKEE
+#ifndef ALELIB_CUTHIL_MCKEE_HPP
+#define ALELIB_CUTHIL_MCKEE_HPP
 
 #include <vector>
 #include <set>

@@ -72,6 +72,70 @@ public:
     
   }
 
+  inline void vertices(MeshT const* mp, VertexH * facet_verts) const
+  {
+    FacetT const& fct = mp->m_facets[m_id];
+    index_t const cell = fct.icell;
+    int const f_pos = fct.local_id;
+
+    for (int i = 0; i < (int)CellT::n_verts_p_facet; ++i)
+      *facet_verts++ = VertexH(mp->m_cells[cell].verts[mp->m_table_fC_x_vC(f_pos,i)]);
+  }
+
+  inline void points(MeshT const* mp, Point * facet_points) const
+  {
+    VertexH vs[MeshT::verts_per_facet];
+    vertices(mp, vs);
+    for (int i = 0; i < MeshT::verts_per_facet; ++i)
+      facet_points[i] = mp->m_points[vs[i].id(mp)];
+  }
+
+  static inline void verticesId(MeshT const* mp, index_t facet, index_t * facet_verts)
+  {
+    FacetT const& fct = mp->m_facets[facet];
+    index_t const cell = fct.icell;
+    int const f_pos = fct.local_id;
+
+    for (int i = 0; i < (int)CellT::n_verts_p_facet; ++i)
+      *facet_verts++ = mp->m_cells[cell].verts[mp->m_table_fC_x_vC(f_pos,i)];
+  }
+  
+  bool operator != (Self const& x) const
+  { return m_id != x.m_id; }
+
+  bool operator == (Self const& x) const
+  { return m_id == x.m_id; }
+  
+  bool operator < (Self const& x) const
+  { return m_id < x.m_id; }
+  
+  Self&
+  operator++()
+  {
+    ++m_id;
+    return *this;
+  }
+  
+  Self
+  operator++(int)
+  { return Self(m_id++); }
+  
+  Self&
+  operator--()
+  {
+    --m_id;
+    return *this;
+  }
+  
+  Self
+  operator--(int)
+  { return Self(m_id--); }
+
+  friend inline std::ostream& operator << (std::ostream& os, Self const& v) 
+  {
+    os << v.m_id;
+    return os;
+  }  
 //  inline index_t id(MeshT const*) const
 //  { return m_id; }
 //
@@ -117,25 +181,6 @@ public:
 //  { return mp->m_ridges_per_facet; }
 //
 
-  inline void vertices(MeshT const* mp, VertexH * facet_verts) const
-  {
-    FacetT const& fct = mp->m_facets[m_id];
-    index_t const cell = fct.icell;
-    int const f_pos = fct.local_id;
-
-    for (int i = 0; i < (int)CellT::n_verts_p_facet; ++i)
-      *facet_verts++ = VertexH(mp->m_cells[cell].verts[mp->m_table_fC_x_vC(f_pos,i)]);
-  }
-
-  static inline void verticesId(MeshT const* mp, index_t facet, index_t * facet_verts)
-  {
-    FacetT const& fct = mp->m_facets[facet];
-    index_t const cell = fct.icell;
-    int const f_pos = fct.local_id;
-
-    for (int i = 0; i < (int)CellT::n_verts_p_facet; ++i)
-      *facet_verts++ = mp->m_cells[cell].verts[mp->m_table_fC_x_vC(f_pos,i)];
-  }
 //
 //  static inline void ridgesId(MeshT const* mp, index_t facet, index_t * ridges)
 //  {
@@ -160,42 +205,7 @@ public:
 //
 //  // SETTERS  ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-  bool operator != (Self const& x) const
-  { return m_id != x.m_id; }
 
-  bool operator == (Self const& x) const
-  { return m_id == x.m_id; }
-  
-  bool operator < (Self const& x) const
-  { return m_id < x.m_id; }
-  
-  Self&
-  operator++()
-  {
-    ++m_id;
-    return *this;
-  }
-  
-  Self
-  operator++(int)
-  { return Self(m_id++); }
-  
-  Self&
-  operator--()
-  {
-    --m_id;
-    return *this;
-  }
-  
-  Self
-  operator--(int)
-  { return Self(m_id--); }
-
-  friend inline std::ostream& operator << (std::ostream& os, Self const& v) 
-  {
-    os << v.m_id;
-    return os;
-  }
 
 //private:
 //  inline void setIncidCell(MeshT* mp, int facet, index_t icell_id)

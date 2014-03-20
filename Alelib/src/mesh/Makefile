@@ -6,7 +6,7 @@ CPPSOURCES = $(wildcard *.cpp)
 all: $(CPPSOURCES:.cpp=.o) subdirs
 
 subdirs:
-	$(MAKE) all -C io
+	#$(MAKE) all -C io
 
 %.o: %.cpp
 #	$(warning In Objs Script)

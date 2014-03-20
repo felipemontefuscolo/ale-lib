@@ -8,7 +8,7 @@
 
 using namespace std;
 
-#define MAX(a,b) ((a) > (b) ? (a) : (b))
+//#define MAX(a,b) ((a) > (b) ? (a) : (b))
 
 typedef double Real;
 
@@ -127,7 +127,7 @@ void test_parametric_pts(bool print_geo)
     print_tet_geo(Tet( 3), "tet3.geo");
     print_tet_geo(Tet(10), "tet10.geo");
 
-    print_tri_geo(TriReordered( 1, 0), "triRe03A0.geo");    
+    print_tri_geo(TriReordered( 3, 0), "triRe03A0.geo");    
     print_tri_geo(TriReordered(10, 0), "triRe10A0.geo");
     print_tri_geo(TriReordered(10, 1), "triRe10A1.geo");
     print_tri_geo(TriReordered(10, 2), "triRe10A2.geo");
@@ -143,7 +143,7 @@ void test_parametric_pts(bool print_geo)
 int main(int , char *[])
 {
 
-  test_parametric_pts(true);
+  test_parametric_pts(false);
   
   
 }

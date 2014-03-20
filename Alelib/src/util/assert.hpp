@@ -24,7 +24,7 @@
 
 #include <stdexcept>
 #include <string>
-#include "misc.hpp"
+#include "../io/io_aux.hpp"
 #include "macros.hpp"
 
 namespace alelib

@@ -6,6 +6,7 @@
 *.d
 *.geany
 *.swp
+*.vtk
 Jac.m
 octave-core
 outtest/

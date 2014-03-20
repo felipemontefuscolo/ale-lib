@@ -17,11 +17,11 @@ public:
   { m_coord[0]=x; m_coord[1]=y; m_coord[2]=z;}
   
   Point(Real x, Real y)
-  { m_coord[0]=x; m_coord[1]=y;}
+  { m_coord[0]=x; m_coord[1]=y; m_coord[2]=0;}
   
   explicit
   Point(Real x)
-  { m_coord[0]=x;}
+  { m_coord[0]=x; m_coord[1]=0; m_coord[2]=0;}
   
   Point() {}
   
@@ -49,12 +49,28 @@ public:
     return &m_coord[0];
   }
 
+  inline Real* coord()
+  {
+    return &m_coord[0];
+  }
+
   /// Retorna a i-ésima componente da coordenada
   inline Real coord(int i) const
   {
     return m_coord[i];
   }
   
+  Real& operator[](int i)
+  { return m_coord[i]; }
+  
+  Real const& operator[](int i) const
+  { return m_coord[i]; }
+  
+  friend
+  Point operator+ (Point const& a, Point const& b)
+  {
+    return Point(a.coord(0)+b.coord(0), a.coord(1)+b.coord(1), a.coord(2)+b.coord(2));
+  }
   
 };
 

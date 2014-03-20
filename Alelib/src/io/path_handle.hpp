@@ -19,20 +19,24 @@
 // License and a copy of the GNU General Public License along with
 // Alelib. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef FEPIC_MESHNAMEHANDLER_HPP
-#define FEPIC_MESHNAMEHANDLER_HPP
+#ifndef ALELIB_PATH_HANDLE_HPP
+#define ALELIB_PATH_HANDLE_HPP
 
 #include <string>
 
+namespace alelib
+{
+
 class iPathHandle
 {
-protected:
-  
-  iPathHandle() : m_is_family(false), m_high_order_nodes(true), m_sofn_already_called(false) {}
-  
 public:
 
-  void isFamily(bool is_family)
+  iPathHandle() : m_is_family(false)
+  {
+    setOutputFileName("untitled");
+  }
+
+  void setFamily(bool is_family)
   {
     m_is_family = is_family;
   }
@@ -40,16 +44,6 @@ public:
   bool isFamily() const
   {
     return m_is_family;
-  }
-  
-  void printHighOrderNodes(bool h)
-  {
-    m_high_order_nodes = h;
-  }
-  
-  bool printHighOrderNodes() const
-  {
-    return m_high_order_nodes;
   }
 
   /** @param a file name (without extension) or a path in the form <tt>foo/bar/</tt>
@@ -65,7 +59,7 @@ public:
   
 protected:  
   /// TODO
-  void printNames();
+  void printPathInfo();
 
 protected:
 
@@ -75,9 +69,9 @@ protected:
    * @param extension expected extension
    * @param is_family output
    */ 
-  bool fi_registerFile(std::string filename, std::string const& extension);
+  bool registerFile(std::string filename, std::string const& extension);
  
-  std::string fi_popNextName(int filenum, std::string const& ext);
+  std::string paddedName(int filenum, std::string const& ext, int padding = 5);
 
   std::string m_in_meshfile;  // eg.   /home/user/test.msh
   std::string m_in_basename;  // eg.   test
@@ -87,11 +81,10 @@ protected:
   std::string m_out_path;     // eg.   /home/user/result/
   std::string m_out_extension;// eg.
   bool        m_is_family; // se o output sera impresso como familia
-  bool        m_high_order_nodes; // se imprime nós de controle
-  bool        m_sofn_already_called; // if the function setOutputFileName has been called
+
 
 };
 
-
+}
 
 #endif

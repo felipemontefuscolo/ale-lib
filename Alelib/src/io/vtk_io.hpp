@@ -19,14 +19,18 @@
 // License and a copy of the GNU General Public License along with
 // Alelib. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef FEPIC_MESHIOVTK_HPP
-#define FEPIC_MESHIOVTK_HPP
+#ifndef ALELIB_MESHIOVTK_HPP
+#define ALELIB_MESHIOVTK_HPP
 
 #include <cstdio>
-#include "../../util/assert.hpp"
-#include "../mesh.hpp"
-#include "meshnamehandler.hpp"
-#include "../enums.hpp"
+#include "../util/assert.hpp"
+#include "../mesh/mesh.hpp"
+#include "path_handle.hpp"
+#include "../mesh/enums.hpp"
+
+
+namespace alelib
+{
 
 class DefaultGetDataVtk
 {
@@ -39,16 +43,16 @@ public:
                                           : data_r(r), data_i(i), data_vec(vec), vec_size_(vsize) {}
   //DefaultGetDataVtk(int * i = NULL, Real * r = NULL) : data_r(r), data_i(i) {}
   
-  virtual Real get_data_r(int id) const
+  virtual Real get_data_r(index_t id) const
   {
     return data_r[id];
   }
-  virtual int get_data_i(int id) const
+  virtual int get_data_i(index_t id) const
   {
     return data_i[id];
   }
   // returns vec_out size
-  virtual void get_vec(int id, Real * vec_out) const
+  virtual void get_vec(index_t id, Real * vec_out) const
   {
     for (int i = 0; i < vec_size_; ++i)
       vec_out[i] = data_vec[id*vec_size_ + i];
@@ -68,47 +72,69 @@ protected:
 };
 
 
-
+template<ECellType ECT>
 class MeshIoVtk : public iPathHandle
 {
-  typedef void (MeshIoVtk::*CprinterMemFunPtr)(int const*, FILE*) const;
-  typedef void (MeshIoVtk::*PprinterMemFunPtr)(Point const*, FILE*) const;
 
 protected:
   bool m_is_binary;
-  int  m_filenumVtk;
-  int  m_add_node_scalar_vtk_n_calls;
-  int  m_add_cell_scalar_vtk_n_calls;
+  int  m_filenum;
+  int  m_add_node_scalar_n_calls;
+  int  m_add_cell_scalar_n_calls;
   int  m_spacedim;
-  ECellType m_fep_tag;
-  Mesh const* m_mesh;
-  CprinterMemFunPtr m_c_printer;
-  //PprinterMemFunPtr m_p_printer;
+  Mesh<ECT> const* m_mesh;
+  int m_subdivs_lvl;  // < 2 means do nothing, otherwise means the number of parts that an edge is divided
+  std::vector<int> m_subcells;
+  std::vector<Real> m_ref_cpts;
+  std::vector<Real> m_ref_fpts;
 
 public:
 
-  MeshIoVtk() : m_is_binary(false), m_filenumVtk(0), m_add_node_scalar_vtk_n_calls(0), m_mesh(NULL) {};
+  typedef Mesh<ECT> MeshT;
+  typedef MeshIoVtk<ECT> Self;
+  typedef typename MeshT::VertexH VertexH;
+  typedef typename MeshT::RidgeH RidgeH;
+  typedef typename MeshT::FacetH FacetH;
+  typedef typename MeshT::CellH CellH;
+  
+  
+  static const ECellType CellType = ECT;
 
-  explicit MeshIoVtk(Mesh const* mesh, int filenum=0) : m_filenumVtk(filenum), m_add_node_scalar_vtk_n_calls(0)
+  MeshIoVtk() : m_is_binary(false), m_filenum(0), m_add_node_scalar_n_calls(0), m_add_cell_scalar_n_calls(0),
+                m_spacedim(0), m_mesh(NULL)
+  {
+    divideEdge(1);
+  };
+
+  explicit MeshIoVtk(MeshT const* mesh) : m_is_binary(false), m_filenum(0), m_add_node_scalar_n_calls(0), m_add_cell_scalar_n_calls(0),
+                                          m_subdivs_lvl(1)
   {
     attachMesh(mesh);
+    divideEdge(1);
   }
+
+  MeshIoVtk(MeshIoVtk const&) {};
 
   void setBinaryOutput(bool b)
   {
     m_is_binary = b;
   }
 
-  MeshIoVtk(MeshIoVtk const&) {};
-
-  void attachMesh(Mesh const* mesh);
+  void attachMesh(MeshT const* mesh)
+  {
+    ALELIB_ASSERT(mesh != NULL, "invalid mesh", std::invalid_argument);
+    m_mesh = mesh;
+    m_spacedim = m_mesh->spaceDim();    
+  }
 
   std::string outputFileName()
   {
-    return this->fi_popNextName(this->m_filenumVtk, ".vtk");
+    return this->paddedName(this->m_filenum, ".vtk");
   }
+
+  void divideEdge(unsigned n_parts);
   
-  void writeVtk(std::string outname = "");
+  void writeVtk(double* time); // time = optional parameter
   void addNodeScalarVtk(const char* nome_var, DefaultGetDataVtk const& data);
   void addNodeVectorVtk(const char* nome_var, DefaultGetDataVtk const& data);
   void addCellScalarVtk(const char* nome_var, DefaultGetDataVtk const& data);
@@ -119,41 +145,17 @@ public:
   void printPointPositionVtk(const char* nome_var="pt_ic_pos"); //  debug
   void printCellIdVtk(const char* nome_var="cell_id");
 
-  void fi_printPointVtk(Point const* p, FILE *fp) const;
+protected:
 
-  void fi_printCellVtk_Edge2(int const* ids, FILE *fp) const;
-  
-  void fi_printCellVtk_Edge3(int const* ids, FILE *fp) const;
-
-  void fi_printCellVtk_Triangle3(int const* ids, FILE *fp) const;
-
-  void fi_printCellVtk_Triangle6(int const* ids, FILE *fp) const;
-
-  void fi_printCellVtk_Quadrangle4(int const* ids, FILE *fp) const;
-
-  void fi_printCellVtk_Quadrangle8(int const* ids, FILE *fp) const;
-
-  void fi_printCellVtk_Quadrangle9(int const* ids, FILE *fp) const;
-
-  void fi_printCellVtk_Tetrahedron4(int const* ids, FILE *fp) const;
-
-  void fi_printCellVtk_Tetrahedron10(int const* ids, FILE *fp) const;
-
-  void fi_printCellVtk_Hexahedron8(int const* ids, FILE *fp) const;
-
-  void fi_printCellVtk_Hexahedron20(int const* ids, FILE *fp) const;
-
-  void fi_printCellVtk_Hexahedron27(int const* ids, FILE *fp) const;
-
+  void fi_printPointVtk(double x[], FILE *fp) const;
+  void fi_printCellVtk(index_t const* ids, FILE *fp) const;
 
   static int getVtkTag(ECellType type);
-
-  static int getNumDivisions(ECellType type);
 
 
 };
 
-
+}
 
 
 #endif

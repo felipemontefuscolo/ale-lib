@@ -105,6 +105,8 @@ public:
 
   static Mesh* create(unsigned spacedim);
 
+  int spaceDim() const
+  { return m_spacedim; }
 
   // BASIC MESH OPERATORS
   // C.f. "A Topological Approach for Handling Triangle Insertion and Removal into Two-

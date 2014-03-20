@@ -92,6 +92,9 @@ public:
   inline Labelable const& label(MeshT const* mp) const
   { return VertexH::label(mp, m_id); }
 
+  inline void coord(MeshT const* mp, Real *coord) const
+  { return VertexH::coord(mp, coord, mp->spaceDim()); }
+  
   inline void coord(MeshT const* mp, Real *coord, int spacedim) const
   { return VertexH::coord(mp, coord, spacedim); }
 

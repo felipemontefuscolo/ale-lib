@@ -66,6 +66,65 @@ public:
     return std::vector<VertexH>(c.verts, c.verts+CellT::n_verts);
   }
 
+  inline void vertices(MeshT const* mp, VertexH* verts) const
+  {
+    CellT const& c = mp->m_cells[m_id];
+    for (int i = 0; i < (int)CellT::n_verts; ++i)
+      verts[i] = VertexH(c.verts[i]);
+  }
+
+  inline void facets(MeshT const* mp, FacetH* facets) const
+  {
+    CellT const& c = mp->m_cells[m_id];
+    for (int i = 0; i < (int)CellT::n_facets; ++i)
+      facets[i] = FacetH(c.facets[i]);
+  }
+
+  inline void ridges(MeshT const* mp, RidgeH* ridges) const
+  {
+    CellT const& c = mp->m_cells[m_id];
+    for (int i = 0; i < (int)CellT::n_ridges; ++i)
+      ridges[i] = RidgeH(c.ridges[i]);
+  }
+
+
+  inline void verticesContigId(MeshT const* mp, index_t* ids) const
+  {
+    CellT const& c = mp->m_cells[m_id];
+    for (int i = 0; i < (int)CellT::n_verts; ++i)
+      ids[i] = mp->m_verts.contiguousId(c.verts[i]);
+  }
+
+  inline void facetsContigId(MeshT const* mp, index_t* ids) const
+  {
+    CellT const& c = mp->m_cells[m_id];
+    for (int i = 0; i < (int)CellT::n_facets; ++i)
+      ids[i] = mp->m_facets.contiguousId(c.facets[i]);
+  }
+
+  inline void ridgesContigId(MeshT const* mp, index_t* ids) const
+  {
+    CellT const& c = mp->m_cells[m_id];
+    for (int i = 0; i < (int)CellT::n_ridges; ++i)
+      ids[i] = mp->m_ridges.contiguousId(c.ridges[i]);
+  }
+
+  inline index_t contiguousId(MeshT const* mp) const
+  { return mp->m_cells.contiguousId(m_id); }
+
+
+
+
+  inline void points(MeshT const* mp, Point * pts) const
+  {
+    VertexH vs[CellT::n_verts];
+    vertices(mp, vs);
+    for (int i = 0; i < (int)CellT::n_verts; ++i)
+      pts[i] = mp->m_points[vs[i].id(mp)];
+  }
+
+
+
   /// same as adjSideAndAnchor, but also returns the adjacent cell
   /// anchor can be NULL
   /// @return the adj cell
@@ -131,7 +190,7 @@ public:
   /// @param[in] verts vector with the ids of the vertices.
   /// @param[out] ff local id of the facet that has those vertices. For 3d-cells, if the vertices form a facet
   ///  in a anticyclically manner, then the negative of id is returned.
-  /// @param[out] anchor in 3D, returns the anchor (how the facet is positioned, see doc.). In 2d, 1 means inverted and 0 otherwise.
+  /// @param[out] anchor in 3D, returns the anchor (how the facet is positioned, see doc.). In 2d, 1 means inverted and 0 not inverted.
   /// @return true if a facet were found, false otherwise.
   inline bool isFacet(MeshT const* mp, VertexH const verts[], int *ff = NULL, int *anchor = NULL) const
   {
