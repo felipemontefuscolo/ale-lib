@@ -26,7 +26,9 @@ CXX = g++
 CPPFLAGS += -I$(GTEST_DIR)/include $(ALE_INCLUDE)
 
 # Flags passed to the C++ compiler.
-CXXFLAGS += -g -Wall -Wextra
+CXXFLAGS += -g -Wall -Wextra -gdwarf-2
+
+#-gdwarf-2 is for handle inline functions in gdb
 
 LDFLAGS	= -L${ALE_LIBS_DIR} -lalelib
 LDFLAGS+= -fopenmp -lpthread 

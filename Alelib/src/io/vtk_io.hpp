@@ -103,14 +103,14 @@ public:
   MeshIoVtk() : m_is_binary(false), m_filenum(0), m_add_node_scalar_n_calls(0), m_add_cell_scalar_n_calls(0),
                 m_spacedim(0), m_mesh(NULL)
   {
-    divideEdge(1);
+    splitEdge(1);
   };
 
   explicit MeshIoVtk(MeshT const* mesh) : m_is_binary(false), m_filenum(0), m_add_node_scalar_n_calls(0), m_add_cell_scalar_n_calls(0),
                                           m_subdivs_lvl(1)
   {
     attachMesh(mesh);
-    divideEdge(1);
+    splitEdge(1);
   }
 
   MeshIoVtk(MeshIoVtk const&) {};
@@ -132,9 +132,9 @@ public:
     return this->paddedName(this->m_filenum, ".vtk");
   }
 
-  void divideEdge(unsigned n_parts);
+  void splitEdge(unsigned n_parts);
   
-  void writeVtk(double* time); // time = optional parameter
+  void writeVtk(double* time = NULL); // time = optional parameter
   void addNodeScalarVtk(const char* nome_var, DefaultGetDataVtk const& data);
   void addNodeVectorVtk(const char* nome_var, DefaultGetDataVtk const& data);
   void addCellScalarVtk(const char* nome_var, DefaultGetDataVtk const& data);

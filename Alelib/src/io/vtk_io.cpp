@@ -36,9 +36,9 @@ T reverseEndian( T aa)
 }
 
 template<ECellType CT>
-void MeshIoVtk<CT>::divideEdge(unsigned n_parts)
+void MeshIoVtk<CT>::splitEdge(unsigned n_parts)
 {
-  typedef typename CTypeTraits<CT>::EFacetType FT;
+  static ECellType const FT = CTypeTraits<CT>::EFacetType;
 
   if (n_parts < 1)
     return;
@@ -69,17 +69,21 @@ void MeshIoVtk<ECT>::fi_printPointVtk(double x[], FILE *fp) const
 template<ECellType ECT>
 void MeshIoVtk<ECT>::fi_printCellVtk(index_t const* ids, FILE *fp) const
 {
-  int const n = m_subdivs_lvl;
+  //int const n = m_subdivs_lvl;
   int const n_nds   = MeshT::verts_per_cell; // per sub-cell
-  int const n_subcs = CTypeTraits<ECT>::np_per_cell(m_subdivs_lvl);
+  int const n_subcs = CTypeTraits<ECT>::n_sub_cells(m_subdivs_lvl);
 
   if (m_is_binary)
   {
+    int const tmp = reverseEndian(n_nds);
     for (int i = 0; i < n_subcs; ++i)
     {
-      fwrite(&n_nds, sizeof(index_t), 1, fp);
+      fwrite(&tmp, sizeof(index_t), 1, fp);
       for (int j = 0; j < n_nds; ++j)
-        fwrite(&ids[m_subcells[i*n_nds + j]], sizeof(index_t), 1, fp);
+      {
+        index_t const tmp = reverseEndian(ids[m_subcells[i*n_nds + j]]);
+        fwrite(&tmp, sizeof(index_t), 1, fp);
+      }
     }
   }
   else
@@ -112,7 +116,7 @@ void MeshIoVtk<CT>::writeVtk(double* time)
   this->m_add_node_scalar_n_calls=0;
   this->m_add_cell_scalar_n_calls=0;
 
-  std::string outname = this->paddedName(this->m_filenum, ".vtk");
+  std::string outname = this->paddedName(this->m_filenum, ".vtk", m_name_padd);
   ++m_filenum;
 
   FILE *file_ptr = fopen(outname.c_str(), m_is_binary ? "wb" : "w");
@@ -130,7 +134,10 @@ void MeshIoVtk<CT>::writeVtk(double* time)
     fprintf(file_ptr, "FIELD FieldData 1\n");
     fprintf(file_ptr, "TIME 1 1 double\n");
     if (m_is_binary)
-      fwrite(time, sizeof(double), 1, file_ptr);
+    {
+      double const aux = reverseEndian(*time);
+      fwrite(&aux, sizeof(double), 1, file_ptr);
+    }
     else
       fprintf(file_ptr, "%f\n", *time);
   }
@@ -148,7 +155,7 @@ void MeshIoVtk<CT>::writeVtk(double* time)
 
     for (; v!=vend ; ++v)
     {
-      if (v.isDisabled())
+      if (v.isDisabled(m_mesh))
         continue;
       double x[3] = {0.,0.,0.};
       v.coord(m_mesh, x);
@@ -167,7 +174,7 @@ void MeshIoVtk<CT>::writeVtk(double* time)
       RidgeH rend = m_mesh->ridgeEnd();
       for (; r != rend; ++r)
       {
-        if (r.isDisabled())
+        if (r.isDisabled(m_mesh))
           continue;
         r.points(m_mesh,p);
         for (Real i = 0; i < nvir; ++i)
@@ -198,15 +205,16 @@ void MeshIoVtk<CT>::writeVtk(double* time)
       FacetH fend = m_mesh->facetEnd();
       for (; f != fend; ++f)
       {
-        if (f.isDisabled())
+        if (f.isDisabled(m_mesh))
           continue;
 
         f.points(m_mesh, vts);
 
-        int const first_index =  MeshT::verts_per_cell +
-                                (MeshT::cell_dim <= 2 ? 0 : MeshT::ridges_per_facet * CTypeTraits<CT>::np_in_ridge(m_subdivs_lvl));
+        int const first_index = (MeshT::cell_dim-1) *
+                                (  MeshT::verts_per_facet +
+                                   (MeshT::cell_dim <= 2 ? 0 : MeshT::ridges_per_facet * CTypeTraits<CT>::np_in_ridge(m_subdivs_lvl)) );
 
-        CTypeTraits<FT>::master_to_real(n_new_pts, m_ref_fpts.data() + first_index, vts, x);
+        CTypeTraits<FT>::master_to_real(n_new_pts, m_ref_fpts.data() + first_index, vts, x.data());
 
         for (int i = 0; i < n_new_pts; ++i)
           fi_printPointVtk(x[i].coord(), file_ptr);
@@ -229,16 +237,17 @@ void MeshIoVtk<CT>::writeVtk(double* time)
       CellH cend = m_mesh->cellEnd();
       for (; c != cend; ++c)
       {
-        if (c.isDisabled())
+        if (c.isDisabled(m_mesh))
           continue;
 
         c.points(m_mesh, vts);
 
-        int const first_index =  MeshT::verts_per_cell +
-                                (MeshT::cell_dim <= 2 ? 0 : MeshT::ridges_per_cell * CTypeTraits<CT>::np_in_ridge(m_subdivs_lvl)) +
-                                (MeshT::cell_dim <= 1 ? 0 : MeshT::facets_per_cell * CTypeTraits<CT>::np_in_facet(m_subdivs_lvl));
+        int const first_index =  MeshT::cell_dim *
+                                  (  MeshT::verts_per_cell +
+                                      (MeshT::cell_dim <= 2 ? 0 : MeshT::ridges_per_cell * CTypeTraits<CT>::np_in_ridge(m_subdivs_lvl)) +
+                                      (MeshT::cell_dim <= 1 ? 0 : MeshT::facets_per_cell * CTypeTraits<CT>::np_in_facet(m_subdivs_lvl)) );
 
-        CTypeTraits<CT>::master_to_real(n_new_pts, m_ref_fpts.data() + first_index, vts, x);
+        CTypeTraits<CT>::master_to_real(n_new_pts, m_ref_cpts.data() + first_index, vts, x.data());
 
         for (int i = 0; i < n_new_pts; ++i)
           fi_printPointVtk(x[i].coord(), file_ptr);
@@ -251,7 +260,7 @@ void MeshIoVtk<CT>::writeVtk(double* time)
 
   int const n_cd   = CTypeTraits<CT>::n_sub_cells(m_subdivs_lvl);    // number of subcells
   int const n_pseudo_cells = m_mesh->numCells() * n_cd;
-  int const n_cells_total  = m_mesh->numCellsTotal();
+  //int const n_cells_total  = m_mesh->numCellsTotal();
   int const np_in_ridge = CTypeTraits<CT>::np_in_ridge(m_subdivs_lvl);
   int const np_in_facet = CTypeTraits<CT>::np_in_facet(m_subdivs_lvl);
   int const np_in_cell  = CTypeTraits<CT>::np_in_cell(m_subdivs_lvl);
@@ -259,20 +268,20 @@ void MeshIoVtk<CT>::writeVtk(double* time)
   int const n_vertices = m_mesh->numVertices();
   int const n_ridges   = m_mesh->numRidges();
   int const n_facets   = m_mesh->numFacets();
-  int const n_cells    = m_mesh->numCells();
+  //int const n_cells    = m_mesh->numCells();
   std::vector<index_t> dofs;
-  dofs.reserve(CTypeTraits<CT>::np_per_cell(m_subdivs_lvl));
+  dofs.reserve(np_per_cell);
 
 
   /// print cells
-  fprintf(file_ptr,"\nCELLS %d %d\n", n_pseudo_cells, MeshT::verts_per_cell + 1);
+  fprintf(file_ptr,"\nCELLS %d %d\n", n_pseudo_cells, (MeshT::verts_per_cell + 1)*n_pseudo_cells);
 
   //printf("DEBUG n_cells_total = %d\n", n_cells_total);
   CellH c = m_mesh->cellBegin();
   CellH cend = m_mesh->cellEnd();
   for (; c != cend; ++c)
   {
-    if (c.isDisabled())
+    if (c.isDisabled(m_mesh))
       continue;
 
     // getting "dofs"
@@ -281,9 +290,9 @@ void MeshIoVtk<CT>::writeVtk(double* time)
     index_t fts[MeshT::facets_per_cell+1];
 
     // vertices dofs
-    c.vertices(m_mesh, vts);
+    c.verticesContigId(m_mesh, vts);
     for (int i = 0; i < MeshT::verts_per_cell; ++i)
-      dofs.push_back(vts[i].id(m_mesh));
+      dofs.push_back(vts[i]);
 
     // ridges dofs
     if (MeshT::cell_dim > 2 && np_in_ridge > 0)
@@ -314,21 +323,22 @@ void MeshIoVtk<CT>::writeVtk(double* time)
         dofs.push_back(offset + np_in_cell*id + j);
     }
 
-    reorderDofsLagrange<CT>(m_mesh, c, m_subdivs_lvl, 1, dofs.data());
+    reorderDofsLagrange<CT,index_t>(m_mesh, c, m_subdivs_lvl, 1, dofs.data());
     
     fi_printCellVtk(dofs.data(), file_ptr);
     
-
+    dofs.clear();
   }
 
   // printing types
   int type = (int) VtkTraits<CT>::tag;
   fprintf(file_ptr,"\nCELL_TYPES %d\n", n_pseudo_cells);
+  unsigned long counter = 0;
   c = m_mesh->cellBegin();
   cend = m_mesh->cellEnd();
   for (; c != cend; ++c)
   {
-    if (c.isDisabled())
+    if (c.isDisabled(m_mesh))
       continue;
 
     for (int i = 0; i < n_cd; ++i)
@@ -339,7 +349,12 @@ void MeshIoVtk<CT>::writeVtk(double* time)
         fwrite(&tmp, sizeof(int), 1, file_ptr);
       }
       else
-        fprintf(file_ptr, "%d ", type);
+      {
+        if (((++counter)%50) == 0)
+          fprintf(file_ptr, "%d\n", type);
+        else
+          fprintf(file_ptr, "%d ", type);
+      }
     }
   }
   fprintf(file_ptr,"\n");
@@ -736,6 +751,11 @@ void MeshIoVtk::printCellIdVtk(const char* nome_var)
 
 
 #endif
+
+
+
+template class MeshIoVtk<TRIANGLE>   ;
+template class MeshIoVtk<TETRAHEDRON>;
 
 }
 

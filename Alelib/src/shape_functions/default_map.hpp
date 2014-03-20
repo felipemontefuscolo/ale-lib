@@ -96,7 +96,7 @@ void CTypeTraits<EDGE>::master_to_real(int n_pts,
     return;
   for (int i = 0; i < n_pts; ++i)
   {
-    Real const t = L[i];
+    Real const t = (L[i]+1.)/2.;
     Real const s = 1. - t;
 
     X[i][0] = verts[0][0]*s + verts[1][0]*t;
@@ -106,9 +106,9 @@ void CTypeTraits<EDGE>::master_to_real(int n_pts,
 }
 
 void CTypeTraits<TRIANGLE>::master_to_real(int n_pts,
-                                      Real const* L,          // pts in master cell
-                                      Point const* verts,
-                                      Point*       X)         // pts in real cell
+                                           Real const* L,          // pts in master cell
+                                           Point const* verts,
+                                           Point*       X)         // pts in real cell
 {
   if(n_pts <= 0)
     return;

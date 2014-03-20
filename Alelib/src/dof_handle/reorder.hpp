@@ -47,7 +47,7 @@ struct RDL_caller<TRIANGLE,T>
     if (n<3)
       return;
     
-    int const ndofs = (n+1)*(n+2)/2;
+    //int const ndofs = (n+1)*(n+2)/2;
     
     typedef Mesh<TRIANGLE> MeshT;
     typedef typename Mesh<TRIANGLE>::CellH CellH;
@@ -59,7 +59,7 @@ struct RDL_caller<TRIANGLE,T>
       int anchor;
       // check orientation
       c.adjSideAndAnchor(mp, i, &anchor);
-      if (anchor)
+      if (!anchor)
       {
         int k = ncomps*( MeshT::verts_per_cell + i*(n-1));
         int l = ncomps*( MeshT::verts_per_cell + (i+1)*(n-1) - 1);
@@ -77,6 +77,17 @@ struct RDL_caller<TRIANGLE,T>
   }
 };
 
+
+template<class T>
+struct RDL_caller<TETRAHEDRON,T>
+{
+inline
+  void operator() (Mesh<TETRAHEDRON> const* , typename Mesh<TETRAHEDRON>::CellH , int , int , T * ) const
+  {
+    // TODO
+  }  
+};
+
   
 }
 
@@ -84,7 +95,7 @@ template<ECellType CT, class T>
 void reorderDofsLagrange(Mesh<CT> const* mp, typename Mesh<CT>::CellH c, int n, int ncomps, T * dofs)
 {
   internal::RDL_caller<CT,T> caller;
-  return caller(mp, c, n, ncomps, dofs);
+  caller(mp, c, n, ncomps, dofs);
 }
 
 

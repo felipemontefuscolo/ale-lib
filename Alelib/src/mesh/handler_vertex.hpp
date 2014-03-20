@@ -86,23 +86,17 @@ public:
 //  inline int localId() const
 //  { return VertexH::localId(m_msh, m_id); };
 
-  inline Labelable& label(MeshT* mp)
-  { return VertexH::label(mp, m_id); }
-
-  inline Labelable const& label(MeshT const* mp) const
-  { return VertexH::label(mp, m_id); }
-
   inline void coord(MeshT const* mp, Real *coord) const
-  { return VertexH::coord(mp, coord, mp->spaceDim()); }
+  { return mp->m_points[m_id].coord(coord, mp->spaceDim()); }
   
   inline void coord(MeshT const* mp, Real *coord, int spacedim) const
-  { return VertexH::coord(mp, coord, spacedim); }
+  { return mp->m_points[m_id].coord(coord, spacedim); }
 
   inline Real coord(MeshT const* mp, int i) const
-  { return VertexH::coord(mp, m_id, i); }
+  { return mp->m_points[m_id].coord(i); }
 
   inline void setCoord(MeshT* mp, Real const* coord)
-  { return VertexH::setCoord(mp, m_id, coord); }
+  { return mp->m_points[m_id].setCoord(coord, mp->spaceDim()); }
 
   // number os cells that contain this vertex
   inline unsigned valency(MeshT const* mp) const
@@ -180,9 +174,6 @@ private:
 
   static inline bool isDisabled(MeshT const* mp, index_t vtx)
   { return mp->m_verts[vtx].isDisabled(); }
-
-  static inline void coord(MeshT const* mp, index_t vtx, Real *coord, int spacedim)
-  { return mp->m_points[vtx].coord(coord, spacedim); }
 
   static inline Real coord(MeshT const* mp, index_t vtx, int i)
   { return mp->m_points[vtx].coord(i);  }

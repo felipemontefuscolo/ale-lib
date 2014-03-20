@@ -31,7 +31,7 @@ class iPathHandle
 {
 public:
 
-  iPathHandle() : m_is_family(false)
+  iPathHandle() : m_is_family(false), m_name_padd(5)
   {
     setOutputFileName("untitled");
   }
@@ -44,6 +44,11 @@ public:
   bool isFamily() const
   {
     return m_is_family;
+  }
+
+  void setNamePadding(int i)
+  {
+    m_name_padd = i;
   }
 
   /** @param a file name (without extension) or a path in the form <tt>foo/bar/</tt>
@@ -81,7 +86,7 @@ protected:
   std::string m_out_path;     // eg.   /home/user/result/
   std::string m_out_extension;// eg.
   bool        m_is_family; // se o output sera impresso como familia
-
+  int         m_name_padd;
 
 };
 
