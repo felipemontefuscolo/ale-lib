@@ -126,10 +126,7 @@ void checkMesh(Mesh<T> const&m)
         EXPECT_TRUE((f_icells.first == c && f_icells.second == adj) || (f_icells.second == c && f_icells.first == adj))
           << f_icells.first<<" "<<f_icells.second<<" "<<c<<" "<<adj;
     }
-  }  
-
-  // TODO: check ridge adjacencies
-
+  }
 
   // check boundary vtcs
   for (VertexH v = m.vertexBegin(), vend = m.vertexEnd(); v!=vend; ++v)
@@ -151,6 +148,36 @@ void checkMesh(Mesh<T> const&m)
     EXPECT_EQ(is_boundary, v.isBoundary(&m));
     
   }
+
+  // Check ridge adjacencies
+  //  Warning: modify the vector stars
+  if (MeshT::cell_dim > 2)
+  {
+    stars.clear();
+    stars.resize(m.numRidgesTotal());
+    // compute the expected star
+    for (CellH c = m.cellBegin(), cend = m.cellEnd(); c != cend; ++c)
+    {
+      if (c.isDisabled(&m))
+        continue;
+      std::vector<VertexH> vv = c.ridges(&m);
+      for (unsigned i = 0; i < vv.size(); ++i)
+        stars.at(vv[i].id(&m)).insert(c);
+    }
+
+    // checking the star
+    for (RidgeH v = m.ridgeBegin(), vend = m.ridgeEnd(); v!=vend; ++v)
+    {
+      if (v.isDisabled(&m))
+        continue;
+      
+      std::vector<CellH> exact(stars.at(v.id(&m)).begin(), stars.at(v.id(&m)).end());
+      EXPECT_EQ(exact, v.star(&m));
+      EXPECT_EQ(exact.size(), v.valency(&m));
+    }
+    
+  }
+
 
 
 }

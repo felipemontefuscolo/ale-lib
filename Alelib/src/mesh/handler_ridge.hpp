@@ -69,6 +69,25 @@ public:
     return NULL_IDX;
   }
 
+  // number os cells that contain this vertex
+  inline unsigned valency(MeshT const* mp) const
+  { return mp->m_ridges[m_id].valency; }
+
+  inline std::vector<CellH> star(MeshT const* mp) const
+  {
+    VertexH verts[2];
+    vertices(mp, verts);
+    std::vector<CellH> star0 = verts[0].star(mp);
+    std::vector<CellH> star1 = verts[1].star(mp);
+    std::vector<CellH> s;
+    s.reserve(std::min(star0.size(), star1.size()));
+    std::set_intersection(star0.begin(), star0.end(),
+                          star1.begin(), star1.end(),
+                          std::back_inserter(s));
+    return s;
+  }
+
+
 
   bool operator != (Self const& x) const
   { return m_id != x.m_id; }

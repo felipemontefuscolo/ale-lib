@@ -88,6 +88,11 @@ public:
       ridges[i] = RidgeH(c.ridges[i]);
   }
 
+  inline std::vector<VertexH> ridges(MeshT const* mp) const
+  {
+    CellT const& c = mp->m_cells[m_id];
+    return std::vector<VertexH>(c.ridges, c.ridges+CellT::n_ridges);
+  }
 
   inline void verticesContigId(MeshT const* mp, index_t* ids) const
   {
