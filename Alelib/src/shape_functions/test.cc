@@ -104,8 +104,12 @@ void test_parametric_pts(bool print_geo)
   assert(Tet( 0).size() == 3*1);  
   assert(Tet( 1).size() == 3*4);  
   assert(Tet( 2).size() == 3*10);  
-  assert(Tet( 3).size() == 3*20);  
-  assert(Tet(10).size() == 3*11*12*13/6);
+  assert(Tet( 3).size() == 3*20);
+  assert(Tet( 4).size() == 3*35);  
+  assert(Tet( 9).size() == 3*10*11*12/6);
+
+	assert(TetSubcell(4).size() == 4* 4*4*4);
+	assert(TetSubcell(9).size() == 4* 9*9*9);
 
   if (print_geo)
   {
@@ -125,7 +129,8 @@ void test_parametric_pts(bool print_geo)
     print_tet_geo(Tet( 1), "tet1.geo");
     print_tet_geo(Tet( 2), "tet2.geo");
     print_tet_geo(Tet( 3), "tet3.geo");
-    print_tet_geo(Tet(10), "tet10.geo");
+    print_tet_geo(Tet( 4), "tet4.geo");
+    print_tet_geo(Tet( 9), "tet9.geo");
 
     print_tri_geo(TriReordered( 3, 0), "triRe03A0.geo");    
     print_tri_geo(TriReordered(10, 0), "triRe10A0.geo");
@@ -133,7 +138,7 @@ void test_parametric_pts(bool print_geo)
     print_tri_geo(TriReordered(10, 2), "triRe10A2.geo");
 
 		print_tri_subcell(Tri(2), TriSubcell(2), "trisubmesh.vtk");
-    print_tet_subcell(Tet(10), TetSubcell(10), "tetsubmesh.vtk");
+    print_tet_subcell(Tet(4), TetSubcell(4), "tetsubmesh.vtk");
 
   }
   
@@ -144,8 +149,7 @@ int main(int , char *[])
 {
 
   test_parametric_pts(false);
-  
-  
+    print_tet_subcell(Tet(4), TetSubcell(4), "tetsubmesh.vtk");
 }
 
 

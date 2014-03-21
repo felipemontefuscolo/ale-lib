@@ -285,6 +285,9 @@ private:
   /// @return the id of the added cell 
   CellH addCell_2D(VertexH const verts[]);
 
+  /// @return the id of the added cell 
+  CellH addCell_3D(VertexH const verts[]);
+
   /// remove a cell
   /// Obs: its vertices are not removed
   void removeCell_2D(CellH c, bool remove_unref_verts);

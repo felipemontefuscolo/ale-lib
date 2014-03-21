@@ -47,8 +47,7 @@ struct Ridge : public Labelable
         uint8_t   loc_id,
         uint8_t   tag = NO_TAG,
         Flags     flags = NO_FLAG,
-        uint8_t   stat = mk_none,
-        uint16_t  valency_ = 0) : Labelable(tag,flags), status(stat), local_id(loc_id), valency(valency_), icell(ic)
+        uint16_t  valency_ = 0) : Labelable(tag,flags), status(0), local_id(loc_id), valency(valency_), icell(ic)
   {};
 
   Ridge() : Labelable(), status(mk_none), local_id(NULL_IDX), valency(0), icell(NULL_IDX){}

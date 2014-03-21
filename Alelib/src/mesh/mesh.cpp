@@ -304,7 +304,7 @@ void Mesh<CT>::removeCell_2D(CellH ch, bool remove_unref_verts)
       else if (ics[1] == ch) I = 1;
       else if (ics[2] == ch) I = 2;
       int J=(I+1)%3, K=(I+2)%3;
-      
+
       --(f.valency);
       f.icell    = ics[J].id(this);
       f.opp_cell = ics[K].id(this);
@@ -334,6 +334,119 @@ void Mesh<CT>::removeCell_2D(CellH ch, bool remove_unref_verts)
 }
 
 
+template<ECellType CT>
+typename Mesh<CT>::CellH
+Mesh<CT>::addCell_3D(VertexH const verts[])
+{
+  //index_t verts[CellT::n_verts];
+  //for (unsigned i = 0; i < CellT::n_verts; ++i)
+  //  verts[i] = verts_[i].id(this);
+
+  // Some checks
+  for (unsigned i = 0; i < CellT::n_verts; ++i)
+  {
+    ALELIB_CHECK(verts[i].id(this) < (index_t)this->numVerticesTotal(), "Vertex index: out of range", std::invalid_argument);
+    ALELIB_CHECK(!verts[i].isDisabled(this), "Can not use disabled vertex", std::invalid_argument);
+  }
+
+  #define nvpc (CellT::n_verts)
+  #define nfpc (CellT::n_facets)
+
+  index_t const new_cid = pushCell();
+  CellT &new_c = m_cells[new_cid];
+  index_t adj_id;
+  index_t const* it;
+
+  // FIRST, SET UP ITSELF and other cells
+  for (unsigned i = 0; i < nfpc; ++i)
+  {
+    // loop on sides
+
+    VertexH f_vtcs[CellT::n_verts_p_facet];
+    for (int j = 0; j < (int)CellT::n_verts_p_facet; ++j)
+      f_vtcs[j] = verts[m_table_fC_x_vC(i,j)];
+
+    VertexT const &vi = m_verts[f_vtcs[0].id(this)];
+    VertexT const &vj = m_verts[f_vtcs[1].id(this)];
+    VertexT const &vk = m_verts[f_vtcs[2].id(this)];
+
+    it = set_1_intersection(vi.icells.begin(), vi.icells.end(),
+                            vj.icells.begin(), vj.icells.end(),
+                            vk.icells.begin(), vk.icells.end(), &adj_id);
+
+    if (it == &adj_id) // i.ei, no adj cell
+    {
+      // the new facet will always point to the new cell
+      new_c.facets[i] = pushFacet(FacetT(new_cid, i, NULL_IDX, NO_TAG, NO_FLAG, 1));
+    }
+    else // if there is an adj cell
+    {
+      int side;
+      bool const is_facet = CellH(adj_id).isFacet(this, f_vtcs, &side, NULL);
+      ALELIB_CHECK(is_facet, "maybe something is wrong with the function CellH::isFacet", std::runtime_error);
+
+      CellT& adj_c = m_cells[adj_id];
+      new_c.facets[i] = adj_c.facets[side];
+      FacetT& f = m_facets[new_c.facets[i]];
+      ++(f.valency);
+      // take the chance to set up the adjcent cell
+      f.opp_cell = new_cid;
+    }
+  }
+
+  // setting up ridges
+  for (int i = 0; i < (int)CellT::n_ridges; ++i)
+  {
+    VertexH r_vtcs[CellT::n_verts_p_ridge+1]; // +1 to avoid zero-size arrays
+    for (int j = 0; j < (int)CellT::n_verts_p_ridge; ++j)
+      r_vtcs[j] = verts[this->m_table_bC_x_vC(i,j)];
+
+    VertexT const &vi = m_verts[r_vtcs[0].id(this)];
+    VertexT const &vj = m_verts[r_vtcs[1].id(this)];
+
+    it = set_1_intersection(vi.icells.begin(), vi.icells.end(),
+                            vj.icells.begin(), vj.icells.end(), &adj_id);
+
+    if (it == &adj_id) // i.ei, no near cell
+    {
+      // the new facet will always point to the new cell
+      new_c.ridges[i] = pushRidge(RidgeT(new_cid, i, NO_TAG, NO_FLAG, 1));
+    }
+    else
+    {
+      int lid;
+      bool const is_ridge = CellH(adj_id).isRidge(this, r_vtcs, lid);
+      ALELIB_CHECK(is_ridge, "maybe something is wrong with the function CellH::isRidge", std::runtime_error);
+
+      CellT& adj_c = m_cells[adj_id];
+      new_c.ridges[i] = adj_c.ridges[abs(lid)];
+      RidgeT& r = m_ridges[new_c.ridges[i]];
+      ++(r.valency);
+    }
+
+  }
+
+  // Setting up vertices
+  for (unsigned i = 0; i < nvpc; ++i)
+  {
+    new_c.verts[i] = verts[i].id(this);
+    VertexT& vtx = m_verts[verts[i].id(this)];
+    vtx.icells.insert(new_cid);
+  }
+
+  #undef nvpc
+  #undef nfpc
+
+  return CellH(this, new_cid);
+
+}
+
+
+
+
+
+
+
 template<>
 Mesh<EDGE>::CellH
 Mesh<EDGE>::addCell(VertexH const [])
@@ -351,13 +464,13 @@ Mesh<QUADRANGLE>::addCell(VertexH const verts[])
 
 template<>
 Mesh<TETRAHEDRON>::CellH
-Mesh<TETRAHEDRON>::addCell(VertexH const[])
-{ return CellH(); }
+Mesh<TETRAHEDRON>::addCell(VertexH const verts[])
+{ return Mesh<TETRAHEDRON>::addCell_3D(verts); }
 
 template<>
 Mesh<HEXAHEDRON>::CellH
-Mesh<HEXAHEDRON>::addCell(VertexH const[])
-{ return CellH(); }
+Mesh<HEXAHEDRON>::addCell(VertexH const verts[])
+{ return Mesh<HEXAHEDRON>::addCell_3D(verts); }
 
 // ;;
 template<>

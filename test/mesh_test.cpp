@@ -274,6 +274,127 @@ class TriMesh1Tests : public testing::Test
 
 }; 
 
+
+class TetMesh1Tests : public testing::Test
+{
+ protected:  // You should make the members protected s.t. they can be
+             // accessed from sub-classes.
+
+  typedef MeshTet MeshT;
+  typedef typename MeshT::VertexH VertexH;
+  typedef typename MeshT::CellH CellH;
+  typedef typename MeshT::FacetH FacetH;
+  typedef typename MeshT::RidgeH RidgeH;
+  typedef MeshIoVtk<MeshT::CellType> MeshWriter;
+  
+  TetMesh1Tests() : m(dim3) {}
+  
+  MeshT m;
+
+  static void addTetMesh1(MeshTet &m, bool check = true)
+  {
+    typedef MeshTet MeshT;
+    typedef MeshT::VertexH VertexH;
+    typedef MeshT::CellH   CellH;
+
+    int const N = 14;
+
+    VertexH vts[N];
+                                    // tag
+    vts[ 0] = m.addVertex(Point(0,0,0), 0);
+    vts[ 1] = m.addVertex(Point(1,0,0), 1);
+    vts[ 2] = m.addVertex(Point(0,1,0), 2);
+    vts[ 3] = m.addVertex(Point(1,1,0), 3);
+    vts[ 4] = m.addVertex(Point(2,1,0), 4);
+    vts[ 5] = m.addVertex(Point(0,2,0), 5);
+    vts[ 6] = m.addVertex(Point(1,2,0), 6);
+    vts[ 7] = m.addVertex(Point(2,2,0), 7);
+    vts[ 8] = m.addVertex(Point(3,2,0), 8);
+    vts[ 9] = m.addVertex(Point(0,3,0), 9);
+    vts[10] = m.addVertex(Point(1,3,0),10);
+    vts[11] = m.addVertex(Point(2,3,0),11);
+    vts[12] = m.addVertex(Point(3,3,0),12);
+    vts[13] = m.addVertex(Point(1,2,1),13);
+
+    int const E = 11;
+
+    CellH cells[E];
+
+    cells[ 0] = m.addCell(listOf(vts[ 0], vts[ 1], vts[ 2])); //  0
+    cells[ 1] = m.addCell(listOf(vts[ 1], vts[ 3], vts[ 4])); //  1
+    cells[ 2] = m.addCell(listOf(vts[ 2], vts[ 6], vts[ 5])); //  2
+    cells[ 3] = m.addCell(listOf(vts[ 3], vts[ 4], vts[ 7])); //  3
+    cells[ 4] = m.addCell(listOf(vts[ 5], vts[10], vts[ 9])); //  4
+    cells[ 5] = m.addCell(listOf(vts[ 5], vts[ 6], vts[10])); //  5
+    cells[ 6] = m.addCell(listOf(vts[ 6], vts[11], vts[10])); //  6
+    cells[ 7] = m.addCell(listOf(vts[ 6], vts[ 7], vts[11])); //  7
+    cells[ 8] = m.addCell(listOf(vts[ 7], vts[ 8], vts[12])); //  8
+    cells[ 9] = m.addCell(listOf(vts[13], vts[ 6], vts[10])); //  9
+    cells[10] = m.addCell(listOf(vts[ 2], vts[ 7], vts[ 6])); // 10
+
+    // attention: this vertex is boundary because of the third triangle added to its edge
+    EXPECT_TRUE(vts[ 6].isBoundary(&m));
+    
+    // if we add the triangle:
+    m.addCell(listOf(vts[ 6], vts[ 7], vts[13]));
+
+    // now the vertex should not be boundary:
+    EXPECT_FALSE(vts[ 6].isBoundary(&m));
+
+    EXPECT_TRUE(cells[ 3].adjCell(&m, 0) == cells[ 1]);
+    EXPECT_TRUE(cells[ 1].adjCell(&m, 1) == cells[ 3]);
+
+
+    // specific checking
+    std::vector<VertexH> cverts(3);
+    
+
+    cverts[0] = vts[ 0]; cverts[1] = vts[ 1]; cverts[2] = vts[ 2]; EXPECT_TRUE(cverts == cells[0].vertices(&m));
+    cverts[0] = vts[ 1]; cverts[1] = vts[ 3]; cverts[2] = vts[ 4]; EXPECT_TRUE(cverts == cells[1].vertices(&m));
+    cverts[0] = vts[ 2]; cverts[1] = vts[ 6]; cverts[2] = vts[ 5]; EXPECT_TRUE(cverts == cells[2].vertices(&m));
+    cverts[0] = vts[ 3]; cverts[1] = vts[ 4]; cverts[2] = vts[ 7]; EXPECT_TRUE(cverts == cells[3].vertices(&m));
+    cverts[0] = vts[ 5]; cverts[1] = vts[10]; cverts[2] = vts[ 9]; EXPECT_TRUE(cverts == cells[4].vertices(&m));
+    cverts[0] = vts[ 5]; cverts[1] = vts[ 6]; cverts[2] = vts[10]; EXPECT_TRUE(cverts == cells[5].vertices(&m));
+    cverts[0] = vts[ 6]; cverts[1] = vts[11]; cverts[2] = vts[10]; EXPECT_TRUE(cverts == cells[6].vertices(&m));
+    cverts[0] = vts[ 6]; cverts[1] = vts[ 7]; cverts[2] = vts[11]; EXPECT_TRUE(cverts == cells[7].vertices(&m));
+    cverts[0] = vts[ 7]; cverts[1] = vts[ 8]; cverts[2] = vts[12]; EXPECT_TRUE(cverts == cells[8].vertices(&m));
+    cverts[0] = vts[13]; cverts[1] = vts[ 6]; cverts[2] = vts[10]; EXPECT_TRUE(cverts == cells[9].vertices(&m));
+
+    EXPECT_EQ(14u, m.numVertices());
+    EXPECT_EQ(12u, m.numCells());
+    EXPECT_EQ(26u, m.numFacets());
+
+    if (!check)
+      return;
+
+    checkMesh(m);
+
+
+  }
+
+  // virtual void SetUp() will be called before each test is run.  You
+  // should define it if you need to initialize the varaibles.
+  // Otherwise, this can be skipped.
+  virtual void SetUp() {
+    
+    addTetMesh1(m, true);
+    
+  }
+
+  // virtual void TearDown() will be called after each test is run.
+  // You should define it if there is cleanup work to do.  Otherwise,
+  // you don't have to provide it.
+  //
+  virtual void TearDown() {
+  }
+
+
+
+
+}; 
+
+
+
 TEST(MeshTest, Initialize2d)
 {
   MeshEdg m0(dim3);

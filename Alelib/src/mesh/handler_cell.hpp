@@ -258,6 +258,32 @@ public:
 #undef vpf
   }  
 
+  inline bool isRidge(MeshT const* mp, VertexH const verts[], int &ridge_pos) const
+  {
+    VertexH ridge_verts[2];
+
+    if (MeshT::cell_dim==3)
+    {
+      for (ridge_pos = 0; ridge_pos < MeshT::ridges_per_cell; ++ridge_pos)
+      {
+        for (int i = 0; i < MeshT::verts_per_ridge; ++i)
+          ridge_verts[i] = mp->m_cells[m_id].verts[mp->m_table_bC_x_vC(ridge_pos,i)];
+        
+        if (  (ridge_verts[0]==verts[0]) && (ridge_verts[1]==verts[1])  )
+          return true;
+        if (  (ridge_verts[0]==verts[1]) && (ridge_verts[1]==verts[0])  )
+        {
+          ridge_pos = -ridge_pos;
+          return true;
+        }
+      }
+    }
+    return false;
+
+  }
+
+
+
   std::vector<VertexH> facetVertices(MeshT const* mp, unsigned side) const
   {
     std::vector<VertexH> vts(CellT::n_verts_p_facet);

@@ -320,7 +320,7 @@ inline void genTetParametricPtsINT(int n, std::vector<int> & list)
   
   std::vector<int> face;
 
-  while (n > 0)
+  while (n >= 0)
   {
 
     if(n==0)
