@@ -382,8 +382,10 @@ Mesh<CT>::addCell_3D(VertexH const verts[])
     else // if there is an adj cell
     {
       int side;
+      std::reverse(f_vtcs, f_vtcs+CellT::n_verts_p_facet);
       bool const is_facet = CellH(adj_id).isFacet(this, f_vtcs, &side, NULL);
       ALELIB_CHECK(is_facet, "maybe something is wrong with the function CellH::isFacet", std::runtime_error);
+      ALELIB_CHECK(side >= 0, "maybe there is some inverted cell", std::runtime_error);
 
       CellT& adj_c = m_cells[adj_id];
       new_c.facets[i] = adj_c.facets[side];

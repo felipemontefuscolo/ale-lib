@@ -1,6 +1,7 @@
 #ifndef ALELIB_HANDLER_CELL
 #define ALELIB_HANDLER_CELL
 
+#include <iterator>     // std::iterator, std::input_iterator_tag
 
 namespace alelib
 {
@@ -202,6 +203,8 @@ public:
 
     VertexH  facet_verts[vpf]; //n_vertices_per_facet
     VertexH* facet_verts_end = facet_verts + vpf;
+    std::reverse_iterator<VertexH*> from(facet_verts_end);
+    std::reverse_iterator<VertexH*> to(facet_verts);
     CellH    cell(m_id);
     int  f, a;
 
@@ -224,7 +227,8 @@ public:
         }
         else
         {
-          std::rotate(facet_verts, facet_verts+1, facet_verts_end);
+          //std::rotate(facet_verts, facet_verts+1, facet_verts_end);
+          std::rotate(from, from+1, to);
           ++a;
         }
       }
@@ -247,7 +251,8 @@ public:
         }
         else
         {
-          std::rotate(facet_verts, facet_verts+1, facet_verts_end);
+          //std::rotate(facet_verts, facet_verts+1, facet_verts_end);
+          std::rotate(from, from+1, to);
           ++a;
         }
       }

@@ -149,7 +149,6 @@ int main(int , char *[])
 {
 
   test_parametric_pts(false);
-    print_tet_subcell(Tet(4), TetSubcell(4), "tetsubmesh.vtk");
 }
 
 

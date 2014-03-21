@@ -297,72 +297,148 @@ class TetMesh1Tests : public testing::Test
     typedef MeshT::VertexH VertexH;
     typedef MeshT::CellH   CellH;
 
-    int const N = 14;
+    int const N = 35;
 
     VertexH vts[N];
-                                    // tag
-    vts[ 0] = m.addVertex(Point(0,0,0), 0);
-    vts[ 1] = m.addVertex(Point(1,0,0), 1);
-    vts[ 2] = m.addVertex(Point(0,1,0), 2);
-    vts[ 3] = m.addVertex(Point(1,1,0), 3);
-    vts[ 4] = m.addVertex(Point(2,1,0), 4);
-    vts[ 5] = m.addVertex(Point(0,2,0), 5);
-    vts[ 6] = m.addVertex(Point(1,2,0), 6);
-    vts[ 7] = m.addVertex(Point(2,2,0), 7);
-    vts[ 8] = m.addVertex(Point(3,2,0), 8);
-    vts[ 9] = m.addVertex(Point(0,3,0), 9);
-    vts[10] = m.addVertex(Point(1,3,0),10);
-    vts[11] = m.addVertex(Point(2,3,0),11);
-    vts[12] = m.addVertex(Point(3,3,0),12);
-    vts[13] = m.addVertex(Point(1,2,1),13);
 
-    int const E = 11;
+    vts[ 0] = m.addVertex(Point(0   ,  0   ,  0   ));
+    vts[ 1] = m.addVertex(Point(1   ,  0   ,  0   ));
+    vts[ 2] = m.addVertex(Point(0   ,  1   ,  0   ));
+    vts[ 3] = m.addVertex(Point(0   ,  0   ,  1   ));
+    vts[ 4] = m.addVertex(Point(0.25,  0   ,  0   ));
+    vts[ 5] = m.addVertex(Point(0.5 ,  0   ,  0   ));
+    vts[ 6] = m.addVertex(Point(0.75,  0   ,  0   ));
+    vts[ 7] = m.addVertex(Point(0.75,  0.25,  0   ));
+    vts[ 8] = m.addVertex(Point(0.5 ,  0.5 ,  0   ));
+    vts[ 9] = m.addVertex(Point(0.25,  0.75,  0   ));
+    vts[10] = m.addVertex(Point(0   ,  0.75,  0   ));
+    vts[11] = m.addVertex(Point(0   ,  0.5 ,  0   ));
+    vts[12] = m.addVertex(Point(0   ,  0.25,  0   ));
+    vts[13] = m.addVertex(Point(0   ,  0   ,  0.75));
+    vts[14] = m.addVertex(Point(0   ,  0   ,  0.5 ));
+    vts[15] = m.addVertex(Point(0   ,  0   ,  0.25));
+    vts[16] = m.addVertex(Point(0   ,  0.25,  0.75));
+    vts[17] = m.addVertex(Point(0   ,  0.5 ,  0.5 ));
+    vts[18] = m.addVertex(Point(0   ,  0.75,  0.25));
+    vts[19] = m.addVertex(Point(0.25,  0   ,  0.75));
+    vts[20] = m.addVertex(Point(0.5 ,  0   ,  0.5 ));
+    vts[21] = m.addVertex(Point(0.75,  0   ,  0.25));
+    vts[22] = m.addVertex(Point(0.25,  0.5 ,  0   ));
+    vts[23] = m.addVertex(Point(0.5 ,  0.25,  0   ));
+    vts[24] = m.addVertex(Point(0.25,  0.25,  0   ));
+    vts[25] = m.addVertex(Point(0.25,  0   ,  0.5 ));
+    vts[26] = m.addVertex(Point(0.25,  0   ,  0.25));
+    vts[27] = m.addVertex(Point(0.5 ,  0   ,  0.25));
+    vts[28] = m.addVertex(Point(0   ,  0.5 ,  0.25));
+    vts[29] = m.addVertex(Point(0   ,  0.25,  0.5 ));
+    vts[30] = m.addVertex(Point(0   ,  0.25,  0.25));
+    vts[31] = m.addVertex(Point(0.5 ,  0.25,  0.25));
+    vts[32] = m.addVertex(Point(0.25,  0.5 ,  0.25));
+    vts[33] = m.addVertex(Point(0.25,  0.25,  0.5 ));
+    vts[34] = m.addVertex(Point(0.25,  0.25,  0.25));
+
+    int const E = 64;
 
     CellH cells[E];
 
-    cells[ 0] = m.addCell(listOf(vts[ 0], vts[ 1], vts[ 2])); //  0
-    cells[ 1] = m.addCell(listOf(vts[ 1], vts[ 3], vts[ 4])); //  1
-    cells[ 2] = m.addCell(listOf(vts[ 2], vts[ 6], vts[ 5])); //  2
-    cells[ 3] = m.addCell(listOf(vts[ 3], vts[ 4], vts[ 7])); //  3
-    cells[ 4] = m.addCell(listOf(vts[ 5], vts[10], vts[ 9])); //  4
-    cells[ 5] = m.addCell(listOf(vts[ 5], vts[ 6], vts[10])); //  5
-    cells[ 6] = m.addCell(listOf(vts[ 6], vts[11], vts[10])); //  6
-    cells[ 7] = m.addCell(listOf(vts[ 6], vts[ 7], vts[11])); //  7
-    cells[ 8] = m.addCell(listOf(vts[ 7], vts[ 8], vts[12])); //  8
-    cells[ 9] = m.addCell(listOf(vts[13], vts[ 6], vts[10])); //  9
-    cells[10] = m.addCell(listOf(vts[ 2], vts[ 7], vts[ 6])); // 10
+    cells[ 0] = m.addCell(listOf(vts[0 ], vts[4 ], vts[12], vts[15]));
+    cells[ 1] = m.addCell(listOf(vts[24], vts[30], vts[15], vts[26]));
+    cells[ 2] = m.addCell(listOf(vts[24], vts[15], vts[4 ], vts[26]));
+    cells[ 3] = m.addCell(listOf(vts[15], vts[30], vts[24], vts[12]));
+    cells[ 4] = m.addCell(listOf(vts[4 ], vts[15], vts[24], vts[12]));
+    cells[ 5] = m.addCell(listOf(vts[26], vts[24], vts[30], vts[34]));
+    cells[ 6] = m.addCell(listOf(vts[15], vts[26], vts[30], vts[14]));
+    cells[ 7] = m.addCell(listOf(vts[34], vts[29], vts[14], vts[25]));
+    cells[ 8] = m.addCell(listOf(vts[34], vts[14], vts[26], vts[25]));
+    cells[ 9] = m.addCell(listOf(vts[14], vts[29], vts[34], vts[30]));
+    cells[10] = m.addCell(listOf(vts[26], vts[14], vts[34], vts[30]));
+    cells[11] = m.addCell(listOf(vts[25], vts[34], vts[29], vts[33]));
+    cells[12] = m.addCell(listOf(vts[14], vts[25], vts[29], vts[13]));
+    cells[13] = m.addCell(listOf(vts[33], vts[16], vts[13], vts[19]));
+    cells[14] = m.addCell(listOf(vts[33], vts[13], vts[25], vts[19]));
+    cells[15] = m.addCell(listOf(vts[13], vts[16], vts[33], vts[29]));
+    cells[16] = m.addCell(listOf(vts[25], vts[13], vts[33], vts[29]));
+    cells[17] = m.addCell(listOf(vts[13], vts[19], vts[16], vts[3 ]));
+    cells[18] = m.addCell(listOf(vts[12], vts[24], vts[11], vts[30]));
+    cells[19] = m.addCell(listOf(vts[22], vts[28], vts[30], vts[34]));
+    cells[20] = m.addCell(listOf(vts[22], vts[30], vts[24], vts[34]));
+    cells[21] = m.addCell(listOf(vts[30], vts[28], vts[22], vts[11]));
+    cells[22] = m.addCell(listOf(vts[24], vts[30], vts[22], vts[11]));
+    cells[23] = m.addCell(listOf(vts[34], vts[22], vts[28], vts[32]));
+    cells[24] = m.addCell(listOf(vts[30], vts[34], vts[28], vts[29]));
+    cells[25] = m.addCell(listOf(vts[32], vts[17], vts[29], vts[33]));
+    cells[26] = m.addCell(listOf(vts[32], vts[29], vts[34], vts[33]));
+    cells[27] = m.addCell(listOf(vts[29], vts[17], vts[32], vts[28]));
+    cells[28] = m.addCell(listOf(vts[34], vts[29], vts[32], vts[28]));
+    cells[29] = m.addCell(listOf(vts[29], vts[33], vts[17], vts[16]));
+    cells[30] = m.addCell(listOf(vts[11], vts[22], vts[10], vts[28]));
+    cells[31] = m.addCell(listOf(vts[9 ], vts[18], vts[28], vts[32]));
+    cells[32] = m.addCell(listOf(vts[9 ], vts[28], vts[22], vts[32]));
+    cells[33] = m.addCell(listOf(vts[28], vts[18], vts[9 ], vts[10]));
+    cells[34] = m.addCell(listOf(vts[22], vts[28], vts[9 ], vts[10]));
+    cells[35] = m.addCell(listOf(vts[28], vts[32], vts[18], vts[17]));
+    cells[36] = m.addCell(listOf(vts[10], vts[9 ], vts[2 ], vts[18]));
+    cells[37] = m.addCell(listOf(vts[4 ], vts[5 ], vts[24], vts[26]));
+    cells[38] = m.addCell(listOf(vts[23], vts[34], vts[26], vts[27]));
+    cells[39] = m.addCell(listOf(vts[23], vts[26], vts[5 ], vts[27]));
+    cells[40] = m.addCell(listOf(vts[26], vts[34], vts[23], vts[24]));
+    cells[41] = m.addCell(listOf(vts[5 ], vts[26], vts[23], vts[24]));
+    cells[42] = m.addCell(listOf(vts[27], vts[23], vts[34], vts[31]));
+    cells[43] = m.addCell(listOf(vts[26], vts[27], vts[34], vts[25]));
+    cells[44] = m.addCell(listOf(vts[31], vts[33], vts[25], vts[20]));
+    cells[45] = m.addCell(listOf(vts[31], vts[25], vts[27], vts[20]));
+    cells[46] = m.addCell(listOf(vts[25], vts[33], vts[31], vts[34]));
+    cells[47] = m.addCell(listOf(vts[27], vts[25], vts[31], vts[34]));
+    cells[48] = m.addCell(listOf(vts[25], vts[20], vts[33], vts[19]));
+    cells[49] = m.addCell(listOf(vts[24], vts[23], vts[22], vts[34]));
+    cells[50] = m.addCell(listOf(vts[8 ], vts[32], vts[34], vts[31]));
+    cells[51] = m.addCell(listOf(vts[8 ], vts[34], vts[23], vts[31]));
+    cells[52] = m.addCell(listOf(vts[34], vts[32], vts[8 ], vts[22]));
+    cells[53] = m.addCell(listOf(vts[23], vts[34], vts[8 ], vts[22]));
+    cells[54] = m.addCell(listOf(vts[34], vts[31], vts[32], vts[33]));
+    cells[55] = m.addCell(listOf(vts[22], vts[8 ], vts[9 ], vts[32]));
+    cells[56] = m.addCell(listOf(vts[5 ], vts[6 ], vts[23], vts[27]));
+    cells[57] = m.addCell(listOf(vts[7 ], vts[31], vts[27], vts[21]));
+    cells[58] = m.addCell(listOf(vts[7 ], vts[27], vts[6 ], vts[21]));
+    cells[59] = m.addCell(listOf(vts[27], vts[31], vts[7 ], vts[23]));
+    cells[60] = m.addCell(listOf(vts[6 ], vts[27], vts[7 ], vts[23]));
+    cells[61] = m.addCell(listOf(vts[27], vts[21], vts[31], vts[20]));
+    cells[62] = m.addCell(listOf(vts[23], vts[7 ], vts[8 ], vts[31]));
+    cells[63] = m.addCell(listOf(vts[6 ], vts[1 ], vts[7 ], vts[21]));
 
-    // attention: this vertex is boundary because of the third triangle added to its edge
-    EXPECT_TRUE(vts[ 6].isBoundary(&m));
-    
-    // if we add the triangle:
-    m.addCell(listOf(vts[ 6], vts[ 7], vts[13]));
-
-    // now the vertex should not be boundary:
-    EXPECT_FALSE(vts[ 6].isBoundary(&m));
-
-    EXPECT_TRUE(cells[ 3].adjCell(&m, 0) == cells[ 1]);
-    EXPECT_TRUE(cells[ 1].adjCell(&m, 1) == cells[ 3]);
 
 
-    // specific checking
-    std::vector<VertexH> cverts(3);
-    
-
-    cverts[0] = vts[ 0]; cverts[1] = vts[ 1]; cverts[2] = vts[ 2]; EXPECT_TRUE(cverts == cells[0].vertices(&m));
-    cverts[0] = vts[ 1]; cverts[1] = vts[ 3]; cverts[2] = vts[ 4]; EXPECT_TRUE(cverts == cells[1].vertices(&m));
-    cverts[0] = vts[ 2]; cverts[1] = vts[ 6]; cverts[2] = vts[ 5]; EXPECT_TRUE(cverts == cells[2].vertices(&m));
-    cverts[0] = vts[ 3]; cverts[1] = vts[ 4]; cverts[2] = vts[ 7]; EXPECT_TRUE(cverts == cells[3].vertices(&m));
-    cverts[0] = vts[ 5]; cverts[1] = vts[10]; cverts[2] = vts[ 9]; EXPECT_TRUE(cverts == cells[4].vertices(&m));
-    cverts[0] = vts[ 5]; cverts[1] = vts[ 6]; cverts[2] = vts[10]; EXPECT_TRUE(cverts == cells[5].vertices(&m));
-    cverts[0] = vts[ 6]; cverts[1] = vts[11]; cverts[2] = vts[10]; EXPECT_TRUE(cverts == cells[6].vertices(&m));
-    cverts[0] = vts[ 6]; cverts[1] = vts[ 7]; cverts[2] = vts[11]; EXPECT_TRUE(cverts == cells[7].vertices(&m));
-    cverts[0] = vts[ 7]; cverts[1] = vts[ 8]; cverts[2] = vts[12]; EXPECT_TRUE(cverts == cells[8].vertices(&m));
-    cverts[0] = vts[13]; cverts[1] = vts[ 6]; cverts[2] = vts[10]; EXPECT_TRUE(cverts == cells[9].vertices(&m));
-
-    EXPECT_EQ(14u, m.numVertices());
-    EXPECT_EQ(12u, m.numCells());
-    EXPECT_EQ(26u, m.numFacets());
+    //// attention: this vertex is boundary because of the third triangle added to its edge
+    //EXPECT_TRUE(vts[ 6].isBoundary(&m));
+    //
+    //// if we add the triangle:
+    //m.addCell(listOf(vts[ 6], vts[ 7], vts[13]));
+    //
+    //// now the vertex should not be boundary:
+    //EXPECT_FALSE(vts[ 6].isBoundary(&m));
+    //
+    //EXPECT_TRUE(cells[ 3].adjCell(&m, 0) == cells[ 1]);
+    //EXPECT_TRUE(cells[ 1].adjCell(&m, 1) == cells[ 3]);
+    //
+    //
+    //// specific checking
+    //std::vector<VertexH> cverts(3);
+    //
+    //
+    //cverts[0] = vts[ 0]; cverts[1] = vts[ 1]; cverts[2] = vts[ 2]; EXPECT_TRUE(cverts == cells[0].vertices(&m));
+    //cverts[0] = vts[ 1]; cverts[1] = vts[ 3]; cverts[2] = vts[ 4]; EXPECT_TRUE(cverts == cells[1].vertices(&m));
+    //cverts[0] = vts[ 2]; cverts[1] = vts[ 6]; cverts[2] = vts[ 5]; EXPECT_TRUE(cverts == cells[2].vertices(&m));
+    //cverts[0] = vts[ 3]; cverts[1] = vts[ 4]; cverts[2] = vts[ 7]; EXPECT_TRUE(cverts == cells[3].vertices(&m));
+    //cverts[0] = vts[ 5]; cverts[1] = vts[10]; cverts[2] = vts[ 9]; EXPECT_TRUE(cverts == cells[4].vertices(&m));
+    //cverts[0] = vts[ 5]; cverts[1] = vts[ 6]; cverts[2] = vts[10]; EXPECT_TRUE(cverts == cells[5].vertices(&m));
+    //cverts[0] = vts[ 6]; cverts[1] = vts[11]; cverts[2] = vts[10]; EXPECT_TRUE(cverts == cells[6].vertices(&m));
+    //cverts[0] = vts[ 6]; cverts[1] = vts[ 7]; cverts[2] = vts[11]; EXPECT_TRUE(cverts == cells[7].vertices(&m));
+    //cverts[0] = vts[ 7]; cverts[1] = vts[ 8]; cverts[2] = vts[12]; EXPECT_TRUE(cverts == cells[8].vertices(&m));
+    //cverts[0] = vts[13]; cverts[1] = vts[ 6]; cverts[2] = vts[10]; EXPECT_TRUE(cverts == cells[9].vertices(&m));
+    //
+    //EXPECT_EQ(14u, m.numVertices());
+    //EXPECT_EQ(12u, m.numCells());
+    //EXPECT_EQ(26u, m.numFacets());
 
     if (!check)
       return;
@@ -576,4 +652,7 @@ TEST_F(TriMesh1Tests, PrintVtkBinSplitEdge)
   checkMesh(m);
 }
 
-
+TEST_F(TetMesh1Tests, AddCell)
+{
+  
+}
