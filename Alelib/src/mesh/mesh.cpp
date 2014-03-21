@@ -186,80 +186,6 @@ Mesh<CT>* Mesh<CT>::create(unsigned spacedim)
 }
 
 template<ECellType CT>
-typename Mesh<CT>::CellH
-Mesh<CT>::addCell_2D(VertexH const verts[])
-{
-  //index_t verts[CellT::n_verts];
-  //for (unsigned i = 0; i < CellT::n_verts; ++i)
-  //  verts[i] = verts_[i].id(this);
-
-  // Some checks
-  for (unsigned i = 0; i < CellT::n_verts; ++i)
-  {
-    ALELIB_CHECK(verts[i].id(this) < (index_t)this->numVerticesTotal(), "Vertex index: out of range", std::invalid_argument);
-    ALELIB_CHECK(!verts[i].isDisabled(this), "Can not use disabled vertex", std::invalid_argument);
-  }
-
-  #define nvpc (CellT::n_verts)
-  #define nfpc (CellT::n_verts)
-
-  index_t const new_cid = pushCell();
-  CellT &new_c = m_cells[new_cid];
-  index_t adj_id;
-  index_t const* it;
-
-  // FIRST, SET UP ITSELF and other cells
-  for (unsigned i = 0; i < nvpc; ++i)
-  {
-    // loop on sides
-
-    VertexH const f_vtcs[] = {verts[i], verts[(i+1)%nvpc]};
-    //index_t const f_vtcs[] = {verts[i], verts[(i+1)%nvpc]};
-
-    VertexT const &vi = m_verts[f_vtcs[0].id(this)];
-    VertexT const &vj = m_verts[f_vtcs[1].id(this)];
-
-    new_c.verts[i] = verts[i].id(this);
-
-    it = set_1_intersection(vi.icells.begin(), vi.icells.end(),
-                            vj.icells.begin(), vj.icells.end(), &adj_id);
-
-    if (it == &adj_id) // i.ei, no adj cell
-    {
-      // the new facet will always point to the new cell
-      new_c.facets[i] = pushFacet(FacetT(new_cid, i, NULL_IDX, NO_TAG, NO_FLAG, 1));
-    }
-    else // if there is an adj cell
-    {
-      int side;
-      bool const is_facet = CellH(adj_id).isFacet(this, f_vtcs, &side, NULL);
-      ALELIB_CHECK(is_facet, "maybe something is wrong with the function CellH::isFacet", std::runtime_error);
-
-      CellT& adj_c = m_cells[adj_id];
-      new_c.facets[i] = adj_c.facets[side];
-      FacetT& f = m_facets[new_c.facets[i]];
-      ++(f.valency);
-      // take the chance to set up the adjcent cell
-      f.opp_cell = new_cid;
-    }
-  }
-
-  // Setting up vertices
-  for (unsigned i = 0; i < nvpc; ++i)
-  {
-    VertexT& vtx = m_verts[verts[i].id(this)];
-    vtx.icells.insert(new_cid);
-  }
-
-
-  #undef nvpc
-  #undef nfpc
-
-  return CellH(this, new_cid);
-}
-
-
-template<ECellType CT>
 void Mesh<CT>::removeCell_2D(CellH ch, bool remove_unref_verts)
 {
   // Some checks
@@ -333,10 +259,9 @@ void Mesh<CT>::removeCell_2D(CellH ch, bool remove_unref_verts)
   #undef nfpc
 }
 
-
 template<ECellType CT>
 typename Mesh<CT>::CellH
-Mesh<CT>::addCell_3D(VertexH const verts[])
+Mesh<CT>::addCell(VertexH const verts[])
 {
   //index_t verts[CellT::n_verts];
   //for (unsigned i = 0; i < CellT::n_verts; ++i)
@@ -366,13 +291,20 @@ Mesh<CT>::addCell_3D(VertexH const verts[])
     for (int j = 0; j < (int)CellT::n_verts_p_facet; ++j)
       f_vtcs[j] = verts[m_table_fC_x_vC(i,j)];
 
-    VertexT const &vi = m_verts[f_vtcs[0].id(this)];
-    VertexT const &vj = m_verts[f_vtcs[1].id(this)];
-    VertexT const &vk = m_verts[f_vtcs[2].id(this)];
+    // get the vertices of the facet
+    VertexT const* vt[3];
+    for (int k = 0; k < (int)CellT::dim; ++k)
+      vt[k] = &m_verts[f_vtcs[k].id(this)];
 
-    it = set_1_intersection(vi.icells.begin(), vi.icells.end(),
-                            vj.icells.begin(), vj.icells.end(),
-                            vk.icells.begin(), vk.icells.end(), &adj_id);
+    if (CellT::dim == 2)
+      it = set_1_intersection((*vt[0]).icells.begin(), (*vt[0]).icells.end(),
+                              (*vt[1]).icells.begin(), (*vt[1]).icells.end(), &adj_id);
+    else if (CellT::dim == 3)
+      it = set_1_intersection((*vt[0]).icells.begin(), (*vt[0]).icells.end(),
+                              (*vt[1]).icells.begin(), (*vt[1]).icells.end(),
+                              (*vt[2]).icells.begin(), (*vt[2]).icells.end(), &adj_id);
+    else
+      throw; // EDGE NOT IMPLEMENTED
 
     if (it == &adj_id) // i.ei, no adj cell
     {
@@ -397,35 +329,38 @@ Mesh<CT>::addCell_3D(VertexH const verts[])
   }
 
   // setting up ridges
-  for (int i = 0; i < (int)CellT::n_ridges; ++i)
+  if (CellT::dim==3)
   {
-    VertexH r_vtcs[CellT::n_verts_p_ridge+1]; // +1 to avoid zero-size arrays
-    for (int j = 0; j < (int)CellT::n_verts_p_ridge; ++j)
-      r_vtcs[j] = verts[this->m_table_bC_x_vC(i,j)];
-
-    VertexT const &vi = m_verts[r_vtcs[0].id(this)];
-    VertexT const &vj = m_verts[r_vtcs[1].id(this)];
-
-    it = set_1_intersection(vi.icells.begin(), vi.icells.end(),
-                            vj.icells.begin(), vj.icells.end(), &adj_id);
-
-    if (it == &adj_id) // i.ei, no near cell
+    for (int i = 0; i < (int)CellT::n_ridges; ++i)
     {
-      // the new facet will always point to the new cell
-      new_c.ridges[i] = pushRidge(RidgeT(new_cid, i, NO_TAG, NO_FLAG, 1));
-    }
-    else
-    {
-      int lid;
-      bool const is_ridge = CellH(adj_id).isRidge(this, r_vtcs, lid);
-      ALELIB_CHECK(is_ridge, "maybe something is wrong with the function CellH::isRidge", std::runtime_error);
+      VertexH r_vtcs[CellT::n_verts_p_ridge+1]; // +1 to avoid zero-size arrays
+      for (int j = 0; j < (int)CellT::n_verts_p_ridge; ++j)
+        r_vtcs[j] = verts[this->m_table_bC_x_vC(i,j)];
 
-      CellT& adj_c = m_cells[adj_id];
-      new_c.ridges[i] = adj_c.ridges[abs(lid)];
-      RidgeT& r = m_ridges[new_c.ridges[i]];
-      ++(r.valency);
-    }
+      VertexT const &vi = m_verts[r_vtcs[0].id(this)];
+      VertexT const &vj = m_verts[r_vtcs[1].id(this)];
 
+      it = set_1_intersection(vi.icells.begin(), vi.icells.end(),
+                              vj.icells.begin(), vj.icells.end(), &adj_id);
+
+      if (it == &adj_id) // i.ei, no near cell
+      {
+        // the new facet will always point to the new cell
+        new_c.ridges[i] = pushRidge(RidgeT(new_cid, i, NO_TAG, NO_FLAG, 1));
+      }
+      else
+      {
+        int lid;
+        bool const is_ridge = CellH(adj_id).isRidge(this, r_vtcs, lid);
+        ALELIB_CHECK(is_ridge, "maybe something is wrong with the function CellH::isRidge", std::runtime_error);
+
+        CellT& adj_c = m_cells[adj_id];
+        new_c.ridges[i] = adj_c.ridges[abs(lid)];
+        RidgeT& r = m_ridges[new_c.ridges[i]];
+        ++(r.valency);
+      }
+
+    }
   }
 
   // Setting up vertices
@@ -444,35 +379,6 @@ Mesh<CT>::addCell_3D(VertexH const verts[])
 }
 
 
-
-
-
-
-
-template<>
-Mesh<EDGE>::CellH
-Mesh<EDGE>::addCell(VertexH const [])
-{ return CellH(); }
-
-template<>
-Mesh<TRIANGLE>::CellH
-Mesh<TRIANGLE>::addCell(VertexH const verts[])
-{ return Mesh<TRIANGLE>::addCell_2D(verts); }
-
-template<>
-Mesh<QUADRANGLE>::CellH
-Mesh<QUADRANGLE>::addCell(VertexH const verts[])
-{ return Mesh<QUADRANGLE>::addCell_2D(verts); }
-
-template<>
-Mesh<TETRAHEDRON>::CellH
-Mesh<TETRAHEDRON>::addCell(VertexH const verts[])
-{ return Mesh<TETRAHEDRON>::addCell_3D(verts); }
-
-template<>
-Mesh<HEXAHEDRON>::CellH
-Mesh<HEXAHEDRON>::addCell(VertexH const verts[])
-{ return Mesh<HEXAHEDRON>::addCell_3D(verts); }
 
 // ;;
 template<>
