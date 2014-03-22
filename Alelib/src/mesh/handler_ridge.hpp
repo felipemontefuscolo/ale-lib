@@ -87,7 +87,27 @@ public:
     return s;
   }
 
+  void first2icells(MeshT const* mp, CellH ics[]) const
+  {
+    ALELIB_CHECK(CellT::dim == 3, "FacetH::first2icells only can be called by 3-cell meshes", std::invalid_argument);
+    
+    VertexH vts[2];
+    this->vertices(mp, vts);
+    typedef typename VertexT::VectorT VectorT;
+    typedef typename VectorT::const_iterator iterator;
+    
+    VectorT const& star0 = mp->m_verts[vts[0].id(mp)].icells;
+    VectorT const& star1 = mp->m_verts[vts[1].id(mp)].icells;
+    
+     // put index_t conversion here because g++ complains
+    index_t intersect[2] = {index_t(NULL_IDX), index_t(NULL_IDX)};
 
+    set_2_intersection(star0.begin(), star0.end(),
+                       star1.begin(), star1.end(), intersect);
+                       
+    ics[0] = CellH(intersect[0]);
+    ics[1] = CellH(intersect[1]);
+  }
 
   bool operator != (Self const& x) const
   { return m_id != x.m_id; }

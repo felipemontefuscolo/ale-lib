@@ -61,6 +61,9 @@ public:
   inline FacetH facet(MeshT const* mp, unsigned side) const
   { return FacetH(mp->m_cells[m_id].facets[side]);}
 
+  inline RidgeH ridge(MeshT const* mp, unsigned i) const
+  { return RidgeH(mp->m_cells[m_id].ridges[i]);}
+
   inline std::vector<VertexH> vertices(MeshT const* mp) const
   {
     CellT const& c = mp->m_cells[m_id];
@@ -319,6 +322,20 @@ public:
     }
     return NULL_IDX;
   }
+
+  /// return the local id of the facet f
+  int ridgeLocalId(MeshT const* mp, RidgeH r) const
+  {
+    CellT const& c = mp->m_cells[m_id];
+    for (int i = 0; i < (int)CellT::n_ridges; ++i)
+    {
+      if (r.id(mp) == c.ridges[i])
+        return i;
+    }
+    return NULL_IDX;
+  }
+
+
 
   bool operator != (Self const& x) const
   { return m_id != x.m_id; }

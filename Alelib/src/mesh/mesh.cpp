@@ -186,7 +186,7 @@ Mesh<CT>* Mesh<CT>::create(unsigned spacedim)
 }
 
 template<ECellType CT>
-void Mesh<CT>::removeCell_2D(CellH ch, bool remove_unref_verts)
+void Mesh<CT>::removeCell(CellH ch, bool remove_unref_verts)
 {
   // Some checks
   ALELIB_CHECK(!ch.isDisabled(this) && ch.isValid(this), "This cell can not be deleted", std::invalid_argument);
@@ -221,7 +221,7 @@ void Mesh<CT>::removeCell_2D(CellH ch, bool remove_unref_verts)
       --(f.valency);
       f.opp_cell = NULL_IDX;
     }
-    else // singular facet
+    else // it happens only in 2D-cells case
     {
       CellH ics[3];
       fh.first3icells(this, ics);
@@ -237,6 +237,34 @@ void Mesh<CT>::removeCell_2D(CellH ch, bool remove_unref_verts)
       f.local_id = ics[J].facetLocalId(this, fh);
     }
   }
+
+  // RIDGES
+  if (CellT::dim>2)
+  {
+    // the ridges
+    for (int i = 0; i < (int)CellT::n_ridges; ++i)
+    {
+      RidgeH rh = ch.ridge(this, i);
+      RidgeT &r = this->m_ridges[rh.id(this)];
+
+      // Update facets and remove unref facets
+
+      if (r.valency == 1) // delete it
+        m_ridges.disable(rh.id(this));
+      else // if (r.valency > 1)
+      {
+        CellH ics[2];
+        rh.first2icells(this, ics);
+        int I = 0;
+        if (ics[0] == ch)
+          I = 1;
+        --(r.valency);
+        r.icell    = ics[I].id(this);
+        r.local_id = ics[I].ridgeLocalId(this, rh);
+      }
+    }
+  }
+
 
   // Remove this cell from the stars
   for (unsigned i = 0; i < nvpc; ++i)
@@ -323,8 +351,10 @@ Mesh<CT>::addCell(VertexH const verts[])
       new_c.facets[i] = adj_c.facets[side];
       FacetT& f = m_facets[new_c.facets[i]];
       ++(f.valency);
+      ALELIB_ASSERT(!(CellT::dim == 3 && f.valency > 2), "Oops, can not insert singular facets in 3d-cells!", std::invalid_argument);
       // take the chance to set up the adjcent cell
       f.opp_cell = new_cid;
+
     }
   }
 
@@ -377,34 +407,6 @@ Mesh<CT>::addCell(VertexH const verts[])
   return CellH(this, new_cid);
 
 }
-
-
-
-// ;;
-template<>
-void
-Mesh<EDGE>::removeCell(CellH , bool )
-{  }
-
-template<>
-void
-Mesh<TRIANGLE>::removeCell(CellH ch, bool remove_unref_verts)
-{ return Mesh<TRIANGLE>::removeCell_2D(ch, remove_unref_verts); }
-
-template<>
-void
-Mesh<QUADRANGLE>::removeCell(CellH ch, bool remove_unref_verts)
-{ return Mesh<QUADRANGLE>::removeCell_2D(ch, remove_unref_verts); }
-
-template<>
-void
-Mesh<TETRAHEDRON>::removeCell(CellH , bool )
-{  }
-
-template<>
-void
-Mesh<HEXAHEDRON>::removeCell(CellH , bool )
-{  }
 
 
 

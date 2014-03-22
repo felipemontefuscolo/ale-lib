@@ -681,5 +681,35 @@ TEST_F(TriMesh1Tests, PrintVtkBinSplitEdge)
 
 TEST_F(TetMesh1Tests, AddCell)
 {
+  // constructors already do that
+}
+
+
+TEST_F(TetMesh1Tests, RemoveCell)
+{
+  vector<CellH> star34 = VertexH(34).star(&m);
+  
+  for (int i = 0; i < (int)star34.size(); ++i)
+    m.removeCell(star34[i], true);
+
+  checkMesh(m);
+
+  for(CellH c = m.cellBegin(); c != m.cellEnd(); ++c)
+  {
+    if (c.isDisabled(&m))
+      continue;
+    
+    m.removeCell(c, true);
+    checkMesh(m);
+  }
+  
+  // add again to be sure
+  addTetMesh1(m, true);
   
 }
+
+
+
+
+
+
