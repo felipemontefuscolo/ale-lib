@@ -684,7 +684,6 @@ TEST_F(TetMesh1Tests, AddCell)
   // constructors already do that
 }
 
-
 TEST_F(TetMesh1Tests, RemoveCell)
 {
   vector<CellH> star34 = VertexH(34).star(&m);
@@ -694,13 +693,15 @@ TEST_F(TetMesh1Tests, RemoveCell)
 
   checkMesh(m);
 
+  unsigned kk = 0;
   for(CellH c = m.cellBegin(); c != m.cellEnd(); ++c)
   {
     if (c.isDisabled(&m))
       continue;
     
     m.removeCell(c, true);
-    checkMesh(m);
+    if ((++kk)%2==0)
+      checkMesh(m);
   }
   
   // add again to be sure
@@ -708,7 +709,50 @@ TEST_F(TetMesh1Tests, RemoveCell)
   
 }
 
+TEST_F(TetMesh1Tests, PrintVtkAscii)
+{
+  MeshWriter writer(&m);
+  
+  writer.setOutputFileName("output/tetmesh1.vtk");
+  
+  double time = 1.2345;
+  writer.writeVtk(&time);  
+}
 
+TEST_F(TetMesh1Tests, PrintVtkBinSplitEdge)
+{
+  MeshWriter writer(&m);
+  
+  writer.setOutputFileName("output/tetmesh1.vtk");
+  writer.setBinaryOutput(false);
+  writer.setFamily(true);
+  
+  writer.setNamePadding(2);
+  
+  double time = 1.1;
+  writer.splitEdge(4);
+  writer.writeVtk(&time);
+  
+  //m.removeCell(CellH(9), true);
+  //
+  //time = 1.2;
+  //writer.splitEdge(3);
+  //writer.writeVtk(&time);
+  //
+  //m.removeCell(CellH(5), true);
+  //
+  //time = 1.3;
+  //writer.splitEdge(4);
+  //writer.writeVtk(&time);
+  //
+  //m.removeCell(CellH(1), true);
+  //
+  //time = 1.4;
+  //writer.splitEdge(5);
+  //writer.writeVtk(&time);
+  //
+  //checkMesh(m);
+}
 
 
 

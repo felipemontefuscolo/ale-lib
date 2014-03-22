@@ -311,6 +311,13 @@ public:
       *vts++ = VertexH(mp->m_cells[m_id].verts[mp->m_table_fC_x_vC(side,i)]);    
   }
 
+  void ridgeVertices(MeshT const* mp, unsigned ridge_pos, VertexH* vts) const
+  {
+    ALELIB_CHECK(ridge_pos < CellT::n_ridges, "invalid ridge_pos", std::invalid_argument);
+    for (int i = 0; i < (int)CellT::n_verts_p_ridge; ++i)
+      *vts++ = VertexH(mp->m_cells[m_id].verts[mp->m_table_bC_x_vC(ridge_pos,i)]);    
+  }
+
   /// return the local id of the facet f
   int facetLocalId(MeshT const* mp, FacetH f) const
   {

@@ -222,8 +222,6 @@ void MeshIoVtk<CT>::writeVtk(double* time)
     }
   } // Points inside facets
 
-
-
   // Points inside cells
   {
     int const n_new_pts = CTypeTraits<CT>::np_in_cell(m_subdivs_lvl); // number of pts that will be created
