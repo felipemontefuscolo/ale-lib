@@ -146,6 +146,11 @@ void MeshIoVtk<CT>::writeVtk(double* time)
                                           CTypeTraits<CT>::np_in_facet(m_subdivs_lvl) * m_mesh->numFacets() +
                                           CTypeTraits<CT>::np_in_cell (m_subdivs_lvl) * m_mesh->numCells();
 
+  //
+  //  PRINT POINTS
+  //
+
+
   fprintf(file_ptr, "POINTS %u double\n", n_pts);
 
   // Points on vertices
@@ -255,6 +260,9 @@ void MeshIoVtk<CT>::writeVtk(double* time)
 
 
 
+  //
+  //  PRINT CELLS
+  //
 
   int const n_cd   = CTypeTraits<CT>::n_sub_cells(m_subdivs_lvl);    // number of subcells
   int const n_pseudo_cells = m_mesh->numCells() * n_cd;
@@ -321,6 +329,7 @@ void MeshIoVtk<CT>::writeVtk(double* time)
         dofs.push_back(offset + np_in_cell*id + j);
     }
 
+    // AQUIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
     reorderDofsLagrange<CT,index_t>(m_mesh, c, m_subdivs_lvl, 1, dofs.data());
     
     fi_printCellVtk(dofs.data(), file_ptr);

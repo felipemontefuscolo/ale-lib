@@ -496,6 +496,78 @@ class TetMesh1Tests : public testing::Test
 
 }; 
 
+class TetMesh2Tests : public testing::Test
+{
+ protected:  // You should make the members protected s.t. they can be
+             // accessed from sub-classes.
+
+  typedef MeshTet MeshT;
+  typedef typename MeshT::VertexH VertexH;
+  typedef typename MeshT::CellH CellH;
+  typedef typename MeshT::FacetH FacetH;
+  typedef typename MeshT::RidgeH RidgeH;
+  typedef MeshIoVtk<MeshT::CellType> MeshWriter;
+  
+  TetMesh2Tests() : m(dim3) {}
+  
+  MeshT m;
+
+  static void addTetMesh(MeshTet &m, bool check = true)
+  {
+    typedef MeshTet MeshT;
+    typedef MeshT::VertexH VertexH;
+    typedef MeshT::CellH   CellH;
+
+    int const N = 5;
+
+    VertexH vts[N];
+                                    // tag
+    vts[ 0] = m.addVertex(Point(0,0,0), 0);
+    vts[ 1] = m.addVertex(Point(1,0,0), 1);
+    vts[ 2] = m.addVertex(Point(0,1,0), 2);
+    vts[ 3] = m.addVertex(Point(0,0,1), 3);
+    vts[ 4] = m.addVertex(Point(0,-1,0), 4);
+    
+    int const E = 2;
+    
+    CellH cells[E];
+    
+    //cells[ 0] = m.addCell(listOf(vts[ 0], vts[ 1], vts[ 2], vts[ 3])); //  0
+    //cells[ 0] = m.addCell(listOf(vts[ 1], vts[ 2], vts[ 0], vts[ 3])); //  0
+    cells[ 0] = m.addCell(listOf(vts[ 2], vts[ 3], vts[ 0], vts[ 1])); //  0
+    //cells[ 0] = m.addCell(listOf(vts[ 1], vts[ 3], vts[ 2], vts[ 0])); //  0
+    //cells[ 0] = m.addCell(listOf(vts[ 1], vts[ 3], vts[ 2], vts[ 0])); //  0
+    //cells[ 0] = m.addCell(listOf(vts[ 1], vts[ 3], vts[ 2], vts[ 0])); //  0
+    
+    cells[ 1] = m.addCell(listOf(vts[ 0], vts[ 4], vts[ 1], vts[ 3])); //  1
+
+    if (!check)
+      return;
+
+    checkMesh(m);
+  }
+
+  // virtual void SetUp() will be called before each test is run.  You
+  // should define it if you need to initialize the varaibles.
+  // Otherwise, this can be skipped.
+  virtual void SetUp() {
+    
+    addTetMesh(m, true);
+    
+  }
+
+  // virtual void TearDown() will be called after each test is run.
+  // You should define it if there is cleanup work to do.  Otherwise,
+  // you don't have to provide it.
+  //
+  virtual void TearDown() {
+  }
+
+
+
+
+}; 
+
 
 
 TEST(MeshTest, Initialize2d)
@@ -724,32 +796,37 @@ TEST_F(TetMesh1Tests, PrintVtkBinSplitEdge)
   MeshWriter writer(&m);
   
   writer.setOutputFileName("output/tetmesh1.vtk");
-  writer.setBinaryOutput(false);
+  writer.setBinaryOutput(true);
   writer.setFamily(true);
   
   writer.setNamePadding(2);
   
+  // remove some cells for better visibility
+  for (int i = 0; i < 50; ++i)
+    m.removeCell(CellH(i), true);
+  
+  
   double time = 1.1;
-  writer.splitEdge(4);
+  writer.splitEdge(2);
   writer.writeVtk(&time);
   
   //m.removeCell(CellH(9), true);
   //
-  //time = 1.2;
-  //writer.splitEdge(3);
-  //writer.writeVtk(&time);
+  time = 1.2;
+  writer.splitEdge(3);
+  writer.writeVtk(&time);
   //
   //m.removeCell(CellH(5), true);
   //
-  //time = 1.3;
-  //writer.splitEdge(4);
-  //writer.writeVtk(&time);
+  time = 1.3;
+  writer.splitEdge(4);
+  writer.writeVtk(&time);
   //
   //m.removeCell(CellH(1), true);
   //
-  //time = 1.4;
-  //writer.splitEdge(5);
-  //writer.writeVtk(&time);
+  time = 1.4;
+  writer.splitEdge(5);
+  writer.writeVtk(&time);
   //
   //checkMesh(m);
 }

@@ -382,68 +382,60 @@ inline void genTetParametricPtsINT(int n, std::vector<int> & list)
       vi[0] = b-2; vi[1] = a+1; vi[2] = a;
       vj[0] = a+1; vj[1] = a+1; vj[2] = a;
       vk[0] = a+1; vk[1] = b-2; vk[2] = a;
-
       for (int i = 0; i < (int)face.size()/2; i++)
       {
         int N = n==3 ? 1 : (n-3);
         int x = face[2*i];
         int y = face[2*i+1];
-
-        list.push_back( (x*(vi[0]-vk[0]) + y*(vj[0]-vk[0]))/N + vk[0] );
-        list.push_back( (x*(vi[1]-vk[1]) + y*(vj[1]-vk[1]))/N + vk[1] );
-        list.push_back( (x*(vi[2]-vk[2]) + y*(vj[2]-vk[2]))/N + vk[2] );
-
+        
+        list.push_back( (x*(vj[0]-vi[0]) + y*(vk[0]-vi[0]))/N + vi[0] );
+        list.push_back( (x*(vj[1]-vi[1]) + y*(vk[1]-vi[1]))/N + vi[1] );
+        list.push_back( (x*(vj[2]-vi[2]) + y*(vk[2]-vi[2]))/N + vi[2] );
       }
 
       // face 1 {0,1,3}
       vi[0] = a+1; vi[1] = a; vi[2] = a+1;
       vj[0] = b-2; vj[1] = a; vj[2] = a+1;
       vk[0] = a+1; vk[1] = a; vk[2] = b-2;
-
       for (int i = 0; i < (int)face.size()/2; i++)
       {
         int N = n==3 ? 1 : (n-3);
         int x = face[2*i];
         int y = face[2*i+1];
 
-        list.push_back( (x*(vi[0]-vk[0]) + y*(vj[0]-vk[0]))/N + vk[0] );
-        list.push_back( (x*(vi[1]-vk[1]) + y*(vj[1]-vk[1]))/N + vk[1] );
-        list.push_back( (x*(vi[2]-vk[2]) + y*(vj[2]-vk[2]))/N + vk[2] );
-
+        list.push_back( (x*(vj[0]-vi[0]) + y*(vk[0]-vi[0]))/N + vi[0] );
+        list.push_back( (x*(vj[1]-vi[1]) + y*(vk[1]-vi[1]))/N + vi[1] );
+        list.push_back( (x*(vj[2]-vi[2]) + y*(vk[2]-vi[2]))/N + vi[2] );
       }
 
       // face 2 {3,2,0}
       vi[0] = a; vi[1] = a+1; vi[2] = b-2;
-      vj[0] = a; vj[1] = a+1; vj[2] = a+1;
-      vk[0] = a; vk[1] = b-2; vk[2] = a+1;
-
+      vj[0] = a; vj[1] = b-2; vj[2] = a+1;
+      vk[0] = a; vk[1] = a+1; vk[2] = a+1;
       for (int i = 0; i < (int)face.size()/2; i++)
       {
         int N = n==3 ? 1 : (n-3);
         int x = face[2*i];
         int y = face[2*i+1];
 
-        list.push_back( (x*(vi[0]-vk[0]) + y*(vj[0]-vk[0]))/N + vk[0] );
-        list.push_back( (x*(vi[1]-vk[1]) + y*(vj[1]-vk[1]))/N + vk[1] );
-        list.push_back( (x*(vi[2]-vk[2]) + y*(vj[2]-vk[2]))/N + vk[2] );
-
+        list.push_back( (x*(vj[0]-vi[0]) + y*(vk[0]-vi[0]))/N + vi[0] );
+        list.push_back( (x*(vj[1]-vi[1]) + y*(vk[1]-vi[1]))/N + vi[1] );
+        list.push_back( (x*(vj[2]-vi[2]) + y*(vk[2]-vi[2]))/N + vi[2] );
       }
 
       // face 3 {2,3,1}
       vi[0] = a+1; vi[1] = b-2; vi[2] = a+1;
       vj[0] = a+1; vj[1] = a+1; vj[2] = b-2;
       vk[0] = b-2; vk[1] = a+1; vk[2] = a+1;
-      
       for (int i = 0; i < (int)face.size()/2; i++)
       {
         int N = n==3 ? 1 : (n-3);
         int x = face[2*i];
         int y = face[2*i+1];
 
-        list.push_back( (x*(vi[0]-vk[0]) + y*(vj[0]-vk[0]))/N + vk[0] );
-        list.push_back( (x*(vi[1]-vk[1]) + y*(vj[1]-vk[1]))/N + vk[1] );
-        list.push_back( (x*(vi[2]-vk[2]) + y*(vj[2]-vk[2]))/N + vk[2] );
-
+        list.push_back( (x*(vj[0]-vi[0]) + y*(vk[0]-vi[0]))/N + vi[0] );
+        list.push_back( (x*(vj[1]-vi[1]) + y*(vk[1]-vi[1]))/N + vi[1] );
+        list.push_back( (x*(vj[2]-vi[2]) + y*(vk[2]-vi[2]))/N + vi[2] );
       }
     }
 
@@ -649,3 +641,6 @@ inline void subCellsTet(int n, std::vector<int> &connectivity)
 
 
 #endif
+
+
+

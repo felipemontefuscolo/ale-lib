@@ -139,7 +139,7 @@ inline
 
     if (n<4)
       return;
-
+    
     // NOW THE FACETS
     std::vector<int> map;
     int const map_size = (n-1)*(n-2)/2;

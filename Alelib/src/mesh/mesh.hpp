@@ -113,6 +113,20 @@ public:
   // Dimensional Unstructured Meshes".
   //
 
+  void clear()
+  {
+    for (index_t i = 0; i < (index_t)m_cells.totalSize(); ++i)
+      m_cells.disable(i);
+    for (index_t i = 0; i < (index_t)m_verts.totalSize(); ++i)
+      m_verts.disable(i);
+    if (cell_dim > 1)
+      for (index_t i = 0; i < (index_t)m_facets.totalSize(); ++i)
+        m_facets.disable(i);
+    if (cell_dim > 2)
+      for (index_t i = 0; i < (index_t)m_ridges.totalSize(); ++i)
+        m_ridges.disable(i);
+  }
+
   /// @return the id of the added vertex
   inline VertexH addVertex()
   { return VertexH(this, pushVertex()); }
