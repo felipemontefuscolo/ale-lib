@@ -23,7 +23,7 @@ public:
   Point(Real x)
   { m_coord[0]=x; m_coord[1]=0; m_coord[2]=0;}
   
-  Point() {}
+  Point() : m_coord(){}
   
   /// Define a coordenada deste ponto.
   /// @param coord um vetor com a coordenada.

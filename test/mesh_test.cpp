@@ -302,6 +302,64 @@ class TriMesh1Tests : public testing::Test
 
 };
 
+class TriMesh2Tests : public testing::Test
+{
+ protected:  // You should make the members protected s.t. they can be
+             // accessed from sub-classes.
+
+  typedef MeshTri MeshT;
+  typedef typename MeshT::VertexH VertexH;
+  typedef typename MeshT::CellH CellH;
+  typedef typename MeshT::FacetH FacetH;
+  typedef typename MeshT::RidgeH RidgeH;
+  typedef MeshIoVtk<MeshT::CellType> MeshWriter;
+
+  TriMesh2Tests() : m(dim3) {}
+
+  MeshT m;
+
+  static void addTriMesh(MeshTri &m)
+  {
+    typedef MeshTri MeshT;
+    typedef MeshT::VertexH VertexH;
+    typedef MeshT::CellH   CellH;
+
+    int const N = 4;
+
+    VertexH vts[N];
+                                    // tag
+    vts[ 0] = m.addVertex(Point(0,0), 0);
+    vts[ 1] = m.addVertex(Point(1,0), 1);
+    vts[ 2] = m.addVertex(Point(0,1), 2);
+    vts[ 3] = m.addVertex(Point(1,1), 3);
+
+    int const E = 2;
+
+    CellH cells[E];
+
+    cells[ 0] = m.addCell(listOf(vts[ 0], vts[ 1], vts[ 2])); //  0
+    cells[ 1] = m.addCell(listOf(vts[ 2], vts[ 1], vts[ 3])); //  1
+
+    checkMesh(m);
+  }
+
+  // virtual void SetUp() will be called before each test is run.  You
+  // should define it if you need to initialize the varaibles.
+  // Otherwise, this can be skipped.
+  virtual void SetUp() {
+    addTriMesh(m);
+  }
+
+  // virtual void TearDown() will be called after each test is run.
+  // You should define it if there is cleanup work to do.  Otherwise,
+  // you don't have to provide it.
+  //
+  virtual void TearDown() {
+  }
+
+
+};
+
 
 class TetMesh1Tests : public testing::Test
 {
@@ -839,15 +897,12 @@ struct MyPrinterTet2 : public DefaultGetDataVtk
   MeshTet const& m;
   MyPrinterTet2(MeshTet const& m_) : DefaultGetDataVtk(), m(m_) {}
 
-  virtual void getData(index_t id, Real *value) const
+  virtual void getData(index_t id, Real *values) const
   {
-    Real x[3];
-    VertexH(id).coord(&m, x);
-
-    *value = sqrt(x[0]*x[0] + x[1]*x[1] + x[2]*x[2]);
+    VertexH(id).coord(&m, values);
   }
 
-  virtual void getData(Real const *x_local, index_t cell_id, int /*ith*/, Real *value) const
+  virtual void getData(Real const *x_local, index_t cell_id, int /*ith*/, Real *values) const
   {
     Real x[4][3];
     CellH c(cell_id);
@@ -868,24 +923,26 @@ struct MyPrinterTet2 : public DefaultGetDataVtk
       for (int j = 0; j < 3; ++j)
         x_real[j] += L[i]*x[i][j];
 
-    *value = sqrt(x_real[0]*x_real[0] + x_real[1]*x_real[1] + x_real[2]*x_real[2]);
+    values[0] = x_real[0];
+    values[1] = x_real[1];
+    values[2] = x_real[2];
 
   }
 
   virtual int numComps() const
-  { return 1; }
+  { return 3; }
 };
 
 TEST_F(TetMesh2Tests, PrintNodalFieldVtk)
 {
   MeshWriter writer;
   writer.attachMesh(&m);
-  writer.setBinaryOutput(true);
+  writer.setBinaryOutput(false);
   writer.setFamily(true);
   
   writer.setNamePadding(2);
   writer.setOutputFileName("output/tetmesh.vtk");
-
+  
   writer.splitMeshEdges(1);
   writer.writeMesh();
   writer.addNodalScalarField("radial", MyPrinterTet2(m));
@@ -907,4 +964,81 @@ TEST_F(TetMesh2Tests, PrintNodalFieldVtk)
   writer.addNodalScalarField("radial", MyPrinterTet2(m));
 
 }
+
+
+struct MyPrinterTri2 : public DefaultGetDataVtk
+{
+  typedef typename MeshTri::VertexH VertexH;
+  typedef typename MeshTri::CellH CellH;
+  MeshTri const& m;
+  MyPrinterTri2(MeshTri const& m_) : DefaultGetDataVtk(), m(m_) {}
+
+  virtual void getData(index_t id, Real *values) const
+  {
+    VertexH(id).coord(&m, values, 2);
+  }
+
+  virtual void getData(Real const *x_local, index_t cell_id, int /*ith*/, Real *values) const
+  {
+    Real x[3][2];
+    CellH c(cell_id);
+    VertexH vts[3];
+    c.vertices(&m, vts);
+    for (int i = 0; i < 3; ++i)
+      vts[i].coord(&m, x[i]);
+
+    Real L[3];
+    L[0] = 1;
+    for (int i = 1; i <= 2; ++i) {
+      L[i] = x_local[i-1];
+      L[0] -= L[i];
+    }
+
+    Real x_real[3] = {0,0,0};
+    for (int i = 0; i < 3; ++i)
+      for (int j = 0; j < 2; ++j)
+        x_real[j] += L[i]*x[i][j];
+
+    values[0] = x_real[0];
+    values[1] = x_real[1];
+
+  }
+
+  virtual int numComps() const
+  { return 2; }
+};
+
+TEST_F(TriMesh2Tests, PrintNodalFieldVtk)
+{
+  MeshWriter writer;
+  writer.attachMesh(&m);
+  writer.setBinaryOutput(false);
+  writer.setFamily(true);
+  
+  writer.setNamePadding(2);
+  writer.setOutputFileName("output/trimesh.vtk");
+  
+  writer.splitMeshEdges(1);
+  writer.writeMesh();
+  writer.addNodalScalarField("radial", MyPrinterTri2(m));
+  
+  writer.splitMeshEdges(2);
+  writer.writeMesh();
+  writer.addNodalScalarField("radial", MyPrinterTri2(m));
+  
+  writer.splitMeshEdges(3);
+  writer.writeMesh();
+  writer.addNodalScalarField("radial", MyPrinterTri2(m));
+  
+  writer.splitMeshEdges(4);
+  writer.writeMesh();
+  writer.addNodalScalarField("radial", MyPrinterTri2(m));
+  
+  writer.splitMeshEdges(5);
+  writer.writeMesh();
+  writer.addNodalScalarField("radial", MyPrinterTri2(m));
+
+}
+
+
 

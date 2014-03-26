@@ -98,9 +98,22 @@ void MeshIoVtk<ECT>::fi_printCellVtk(index_t const* ids, FILE *fp) const
   }
 }
 
-
-
-
+template<ECellType ECT>
+void MeshIoVtk<ECT>::fi_printNodeData(double tmp[], int ncomps, FILE *file_ptr) const
+{
+  if (m_is_binary)
+  {
+    for (int k = 0; k < ncomps; ++k)
+      tmp[k] = reverseEndian(tmp[k]);
+    fwrite(tmp, sizeof(Real), ncomps, file_ptr);
+  }
+  else
+  {
+    for (int k = 0; k < ncomps-1; ++k)
+      fprintf(file_ptr,"%.14e ", tmp[k]);
+    fprintf(file_ptr,"%.14e\n", tmp[ncomps-1]);
+  }
+}
 ///  Print mesh in vtk file format.
 /// @param flinear if the mesh has higher order elements and this flag is false, than
 /// the mesh print each higher order cell as a compound of linear cells, otherwise the
@@ -364,7 +377,7 @@ void MeshIoVtk<CT>::writeMesh(double* time)
       }
     }
   }
-  fprintf(file_ptr,"\n");
+  fprintf(file_ptr,"\n\n");
 
   fclose(file_ptr);
 }
@@ -379,6 +392,8 @@ void MeshIoVtk<CT>::addNodalScalarField(const char* nome_var, DefaultGetDataVtk 
   FILE * file_ptr = fopen(ss.c_str(), "a");
 
   ALELIB_ASSERT(file_ptr != NULL, "could not open the file", std::runtime_error);
+  ALELIB_ASSERT(data.numComps() > 0, "invalid number of components", std::invalid_argument);
+
 
   index_t n_pts = m_mesh->numVertices() + CTypeTraits<CT>::np_in_ridge(m_subdivs_lvl) * m_mesh->numRidges() +
                                           CTypeTraits<CT>::np_in_facet(m_subdivs_lvl) * m_mesh->numFacets() +
@@ -389,7 +404,12 @@ void MeshIoVtk<CT>::addNodalScalarField(const char* nome_var, DefaultGetDataVtk 
   }
   m_add_node_scalar_n_calls++;
 
-  fprintf(file_ptr,"SCALARS %s double\nLOOKUP_TABLE default\n", nome_var);
+  int const n_comps = data.numComps()==2 ? 3 : data.numComps(); // this is because VisIt does not support 2d variables :(
+  std::vector<double> tmp(n_comps);
+  tmp.back() = 0;
+
+  fprintf(file_ptr,"SCALARS %s double %d\n", nome_var, n_comps);
+  fprintf(file_ptr,"LOOKUP_TABLE default\n");
 
   // Points on vertices
   {
@@ -400,15 +420,8 @@ void MeshIoVtk<CT>::addNodalScalarField(const char* nome_var, DefaultGetDataVtk 
     {
       if (v.isDisabled(m_mesh))
         continue;
-      double tmp;
-      data.getData(v.id(m_mesh), &tmp);
-      if (m_is_binary)
-      {
-        tmp = reverseEndian(tmp);
-        fwrite(&tmp, sizeof(Real), 1, file_ptr);
-      }
-      else
-        fprintf(file_ptr,"%.14e\n", tmp);
+      data.getData(v.id(m_mesh), tmp.data());
+      fi_printNodeData(tmp.data(), tmp.size(), file_ptr);
     }
   }
 
@@ -424,21 +437,14 @@ void MeshIoVtk<CT>::addNodalScalarField(const char* nome_var, DefaultGetDataVtk 
       {
         if (r.isDisabled(m_mesh))
           continue;
-          
+
         int const pos = r.localId(m_mesh);
         int const first_dof = MeshT::verts_per_cell + (n-1)*pos;
         for (Real i = 0; i < nvir; ++i)
         {
-          double tmp;
           Real * x_ref = &m_ref_cpts[MeshT::cell_dim*(first_dof + i)];
-          data.getData(x_ref, r.icell(m_mesh).id(m_mesh), first_dof + i, &tmp);
-          if (m_is_binary)
-          {
-            tmp = reverseEndian(tmp);
-            fwrite(&tmp, sizeof(Real), 1, file_ptr);
-          }
-          else
-            fprintf(file_ptr,"%.14e\n", tmp);
+          data.getData(x_ref, r.icell(m_mesh).id(m_mesh), first_dof + i, tmp.data());
+          fi_printNodeData(tmp.data(), tmp.size(), file_ptr);
         }
       }
     }
@@ -463,16 +469,9 @@ void MeshIoVtk<CT>::addNodalScalarField(const char* nome_var, DefaultGetDataVtk 
         int const first_dof = MeshT::verts_per_cell + (n-1)*MeshT::ridges_per_cell + n_new_pts*pos;
         for (int i = 0; i < n_new_pts; ++i)
         {
-          double tmp;
           Real * x_ref = &m_ref_cpts[MeshT::cell_dim*(first_dof + i)];
-          data.getData(x_ref, f.icellSide0(m_mesh).id(m_mesh), first_dof + i, &tmp);
-          if (m_is_binary)
-          {
-            tmp = reverseEndian(tmp);
-            fwrite(&tmp, sizeof(Real), 1, file_ptr);
-          }
-          else
-            fprintf(file_ptr,"%.14e\n", tmp);
+          data.getData(x_ref, f.icellSide0(m_mesh).id(m_mesh), first_dof + i, tmp.data());
+          fi_printNodeData(tmp.data(), tmp.size(), file_ptr);
         }
       }
     }
@@ -496,16 +495,9 @@ void MeshIoVtk<CT>::addNodalScalarField(const char* nome_var, DefaultGetDataVtk 
         int const first_dof = MeshT::verts_per_cell + (n-1)*MeshT::ridges_per_cell + np_in_facet*MeshT::facets_per_cell;
         for (int i = 0; i < n_new_pts; ++i)
         {
-          double tmp;
           Real * x_ref = &m_ref_cpts[MeshT::cell_dim*(first_dof + i)];
-          data.getData(x_ref, c.id(m_mesh), first_dof + i, &tmp);
-          if (m_is_binary)
-          {
-            tmp = reverseEndian(tmp);
-            fwrite(&tmp, sizeof(Real), 1, file_ptr);
-          }
-          else
-            fprintf(file_ptr,"%.14e\n", tmp);
+          data.getData(x_ref, c.id(m_mesh), first_dof + i, tmp.data());
+          fi_printNodeData(tmp.data(), tmp.size(), file_ptr);
         }
       }
     }

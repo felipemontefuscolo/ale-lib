@@ -152,6 +152,7 @@ protected:
 
   void fi_printPointVtk(double x[], FILE *fp) const;
   void fi_printCellVtk(index_t const* ids, FILE *fp) const;
+  void fi_printNodeData(double x[], int ncomps, FILE *fp) const;
 
   static int getVtkTag(ECellType type);
 
