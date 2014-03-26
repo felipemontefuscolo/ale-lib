@@ -38,6 +38,7 @@
 #include <tr1/tuple>
 #include <algorithm>
 #include <tr1/memory>
+#include <cmath>
 
 using namespace alelib;
 using namespace std;
@@ -78,28 +79,28 @@ void checkMesh(Mesh<T> const&m)
   {
     if (v.isDisabled(&m))
       continue;
-    
+
     std::vector<CellH> exact(stars[v.id(&m)].begin(), stars[v.id(&m)].end());
     EXPECT_EQ(exact, v.star(&m));
     EXPECT_EQ(exact.size(), v.valency(&m));
   }
-  
+
   // check cell adjacencies
   for (CellH c = m.cellBegin(), cend = m.cellEnd(); c != cend; ++c)
   {
     if (c.isDisabled(&m))
       continue;
-    
+
     std::vector<VertexH> vts = c.vertices(&m);
     // check vertices indices
     for (int i = 0; i < MeshT::verts_per_cell; ++i)
       EXPECT_TRUE((vts[i].id(&m) < (index_t)m.numVerticesTotal()) && (vts[i].id(&m) >= 0));
-      
+
     for (unsigned side = 0; side < c.numFacets(&m); ++side)
     {
       FacetH facet = c.facet(&m,side);
       std::pair<CellH, CellH> f_icells = facet.icellAndMate(&m);
-      
+
       CellH adj = c.adjCell(&m, side);
       if (!adj.isValid())
       {
@@ -108,7 +109,7 @@ void checkMesh(Mesh<T> const&m)
         EXPECT_TRUE(f_icells.second == NULL_IDX);
         continue;
       }
-        
+
       int anch;
       std::vector<VertexH> f_vtcs = c.facetVertices(&m, side);
       int other_side = c.adjSideAndAnchor(&m, side, &anch);
@@ -116,12 +117,12 @@ void checkMesh(Mesh<T> const&m)
 
       if (facet.valency(&m) < 3) // if it is not singular
         EXPECT_EQ(c, adj.adjCell(&m, abs(other_side)) ) << "adj is " << adj;
-      
+
       if (other_side>=0)
         std::reverse(adj_f_vtcs.begin(), adj_f_vtcs.end());
       std::rotate(adj_f_vtcs.begin(), adj_f_vtcs.begin()+anch, adj_f_vtcs.end());
       EXPECT_EQ(f_vtcs, adj_f_vtcs) << "ANCH = " << anch << endl;
-      
+
       if (facet.valency(&m) < 3) // if it is not singular
         EXPECT_TRUE((f_icells.first == c && f_icells.second == adj) || (f_icells.second == c && f_icells.first == adj))
           << f_icells.first<<" "<<f_icells.second<<" "<<c<<" "<<adj;
@@ -131,8 +132,8 @@ void checkMesh(Mesh<T> const&m)
   // check boundary vtcs
   for (VertexH v = m.vertexBegin(), vend = m.vertexEnd(); v!=vend; ++v)
   {
-    std::vector<CellH> star = v.star(&m); 
-    
+    std::vector<CellH> star = v.star(&m);
+
     bool is_interior = 1;
     for (unsigned i = 0; i < star.size(); ++i)
     {
@@ -146,7 +147,7 @@ void checkMesh(Mesh<T> const&m)
     }
     bool is_boundary = !is_interior;
     EXPECT_EQ(is_boundary, v.isBoundary(&m));
-    
+
   }
 
   // Check ridge adjacencies
@@ -170,12 +171,12 @@ void checkMesh(Mesh<T> const&m)
     {
       if (v.isDisabled(&m))
         continue;
-      
+
       std::vector<CellH> exact(stars.at(v.id(&m)).begin(), stars.at(v.id(&m)).end());
       EXPECT_EQ(exact, v.star(&m));
       EXPECT_EQ(exact.size(), v.valency(&m));
     }
-    
+
   }
 
 
@@ -194,9 +195,9 @@ class TriMesh1Tests : public testing::Test
   typedef typename MeshT::FacetH FacetH;
   typedef typename MeshT::RidgeH RidgeH;
   typedef MeshIoVtk<MeshT::CellType> MeshWriter;
-  
+
   TriMesh1Tests() : m(dim3) {}
-  
+
   MeshT m;
 
   static void addTriMesh1(MeshTri &m, bool check = true)
@@ -242,7 +243,7 @@ class TriMesh1Tests : public testing::Test
 
     // attention: this vertex is boundary because of the third triangle added to its edge
     EXPECT_TRUE(vts[ 6].isBoundary(&m));
-    
+
     // if we add the triangle:
     m.addCell(listOf(vts[ 6], vts[ 7], vts[13]));
 
@@ -255,7 +256,7 @@ class TriMesh1Tests : public testing::Test
 
     // specific checking
     std::vector<VertexH> cverts(3);
-    
+
 
     cverts[0] = vts[ 0]; cverts[1] = vts[ 1]; cverts[2] = vts[ 2]; EXPECT_TRUE(cverts == cells[0].vertices(&m));
     cverts[0] = vts[ 1]; cverts[1] = vts[ 3]; cverts[2] = vts[ 4]; EXPECT_TRUE(cverts == cells[1].vertices(&m));
@@ -284,9 +285,9 @@ class TriMesh1Tests : public testing::Test
   // should define it if you need to initialize the varaibles.
   // Otherwise, this can be skipped.
   virtual void SetUp() {
-    
+
     addTriMesh1(m, true);
-    
+
   }
 
   // virtual void TearDown() will be called after each test is run.
@@ -299,7 +300,7 @@ class TriMesh1Tests : public testing::Test
 
 
 
-}; 
+};
 
 
 class TetMesh1Tests : public testing::Test
@@ -313,9 +314,9 @@ class TetMesh1Tests : public testing::Test
   typedef typename MeshT::FacetH FacetH;
   typedef typename MeshT::RidgeH RidgeH;
   typedef MeshIoVtk<MeshT::CellType> MeshWriter;
-  
+
   TetMesh1Tests() : m(dim3) {}
-  
+
   MeshT m;
 
   static void addTetMesh1(MeshTet &m, bool check = true)
@@ -479,9 +480,9 @@ class TetMesh1Tests : public testing::Test
   // should define it if you need to initialize the varaibles.
   // Otherwise, this can be skipped.
   virtual void SetUp() {
-    
+
     addTetMesh1(m, true);
-    
+
   }
 
   // virtual void TearDown() will be called after each test is run.
@@ -494,7 +495,7 @@ class TetMesh1Tests : public testing::Test
 
 
 
-}; 
+};
 
 class TetMesh2Tests : public testing::Test
 {
@@ -507,9 +508,9 @@ class TetMesh2Tests : public testing::Test
   typedef typename MeshT::FacetH FacetH;
   typedef typename MeshT::RidgeH RidgeH;
   typedef MeshIoVtk<MeshT::CellType> MeshWriter;
-  
+
   TetMesh2Tests() : m(dim3) {}
-  
+
   MeshT m;
 
   static void addTetMesh(MeshTet &m, bool check = true)
@@ -527,18 +528,18 @@ class TetMesh2Tests : public testing::Test
     vts[ 2] = m.addVertex(Point(0,1,0), 2);
     vts[ 3] = m.addVertex(Point(0,0,1), 3);
     vts[ 4] = m.addVertex(Point(0,-1,0), 4);
-    
+
     int const E = 2;
-    
+
     CellH cells[E];
-    
+
     //cells[ 0] = m.addCell(listOf(vts[ 0], vts[ 1], vts[ 2], vts[ 3])); //  0
     //cells[ 0] = m.addCell(listOf(vts[ 1], vts[ 2], vts[ 0], vts[ 3])); //  0
     cells[ 0] = m.addCell(listOf(vts[ 2], vts[ 3], vts[ 0], vts[ 1])); //  0
     //cells[ 0] = m.addCell(listOf(vts[ 1], vts[ 3], vts[ 2], vts[ 0])); //  0
     //cells[ 0] = m.addCell(listOf(vts[ 1], vts[ 3], vts[ 2], vts[ 0])); //  0
     //cells[ 0] = m.addCell(listOf(vts[ 1], vts[ 3], vts[ 2], vts[ 0])); //  0
-    
+
     cells[ 1] = m.addCell(listOf(vts[ 0], vts[ 4], vts[ 1], vts[ 3])); //  1
 
     if (!check)
@@ -551,9 +552,9 @@ class TetMesh2Tests : public testing::Test
   // should define it if you need to initialize the varaibles.
   // Otherwise, this can be skipped.
   virtual void SetUp() {
-    
+
     addTetMesh(m, true);
-    
+
   }
 
   // virtual void TearDown() will be called after each test is run.
@@ -566,7 +567,7 @@ class TetMesh2Tests : public testing::Test
 
 
 
-}; 
+};
 
 
 
@@ -661,7 +662,7 @@ TEST_F(TriMesh1Tests, RemoveSingularCell)
   EXPECT_EQ(11u, m.numCells());
   EXPECT_EQ(25u, m.numFacets());
   checkMesh(m);
-  
+
   // now, if we remove the cell 11, vtx 6 must be non-boundary
   m.removeCell(CellH(11), false);
   EXPECT_FALSE(VertexH(6).isBoundary(&m));
@@ -669,16 +670,16 @@ TEST_F(TriMesh1Tests, RemoveSingularCell)
   EXPECT_EQ(10u, m.numCells());
   EXPECT_EQ(23u, m.numFacets());
   checkMesh(m);
-  
+
   EXPECT_TRUE( m.removeUnrefVertex(13) );
   EXPECT_EQ(13u, m.numVertices());
-  
+
   m.removeCell(CellH(5), true);
   EXPECT_TRUE(VertexH(6).isBoundary(&m));
   EXPECT_EQ(13u, m.numVertices());
   EXPECT_EQ(9u, m.numCells());
-  EXPECT_EQ(23u, m.numFacets());  
-  checkMesh(m);   
+  EXPECT_EQ(23u, m.numFacets());
+  checkMesh(m);
 }
 
 TEST_F(TriMesh1Tests, AddAndRemoveCell)
@@ -688,7 +689,7 @@ TEST_F(TriMesh1Tests, AddAndRemoveCell)
   {
     if (ch.isDisabled(&m))
       continue;
-      
+
     m.removeCell(ch, true);
     ++k;
     EXPECT_EQ(12u-k, m.numCells());
@@ -697,57 +698,57 @@ TEST_F(TriMesh1Tests, AddAndRemoveCell)
 
   EXPECT_EQ(0u, m.numVertices());
   EXPECT_EQ(0u, m.numCells());
-  EXPECT_EQ(0u, m.numFacets());  
-  
-  
+  EXPECT_EQ(0u, m.numFacets());
+
+
   // add again:
   addTriMesh1(m, false);
-  checkMesh(m);  
+  checkMesh(m);
 }
 
 TEST_F(TriMesh1Tests, PrintVtkAscii)
 {
   MeshWriter writer(&m);
-  
+
   writer.setOutputFileName("output/trimesh1.vtk");
-  
+
   double time = 1.2345;
-  writer.writeVtk(&time);
-  
+  writer.writeMesh(&time);
+
 }
 
 TEST_F(TriMesh1Tests, PrintVtkBinSplitEdge)
 {
   MeshWriter writer(&m);
-  
+
   writer.setOutputFileName("output/trimesh1.vtk");
   writer.setBinaryOutput(true);
   writer.setFamily(true);
-  
+
   writer.setNamePadding(2);
-  
+
   double time = 1.1;
-  writer.splitEdge(2);
-  writer.writeVtk(&time);
-  
+  writer.splitMeshEdges(2);
+  writer.writeMesh(&time);
+
   m.removeCell(CellH(9), true);
-  
+
   time = 1.2;
-  writer.splitEdge(3);
-  writer.writeVtk(&time);
-  
+  writer.splitMeshEdges(3);
+  writer.writeMesh(&time);
+
   m.removeCell(CellH(5), true);
-  
+
   time = 1.3;
-  writer.splitEdge(4);
-  writer.writeVtk(&time);
-  
+  writer.splitMeshEdges(4);
+  writer.writeMesh(&time);
+
   m.removeCell(CellH(1), true);
-  
+
   time = 1.4;
-  writer.splitEdge(5);
-  writer.writeVtk(&time);
-  
+  writer.splitMeshEdges(5);
+  writer.writeMesh(&time);
+
   checkMesh(m);
 }
 
@@ -759,7 +760,7 @@ TEST_F(TetMesh1Tests, AddCell)
 TEST_F(TetMesh1Tests, RemoveCell)
 {
   vector<CellH> star34 = VertexH(34).star(&m);
-  
+
   for (int i = 0; i < (int)star34.size(); ++i)
     m.removeCell(star34[i], true);
 
@@ -770,67 +771,140 @@ TEST_F(TetMesh1Tests, RemoveCell)
   {
     if (c.isDisabled(&m))
       continue;
-    
+
     m.removeCell(c, true);
     if ((++kk)%2==0)
       checkMesh(m);
   }
-  
+
   // add again to be sure
   addTetMesh1(m, true);
-  
+
 }
 
 TEST_F(TetMesh1Tests, PrintVtkAscii)
 {
   MeshWriter writer(&m);
-  
+
   writer.setOutputFileName("output/tetmesh1.vtk");
-  
+
   double time = 1.2345;
-  writer.writeVtk(&time);  
+  writer.writeMesh(&time);
 }
 
 TEST_F(TetMesh1Tests, PrintVtkBinSplitEdge)
 {
   MeshWriter writer(&m);
-  
+
   writer.setOutputFileName("output/tetmesh1.vtk");
   writer.setBinaryOutput(true);
   writer.setFamily(true);
-  
+
   writer.setNamePadding(2);
-  
+
   // remove some cells for better visibility
   for (int i = 0; i < 50; ++i)
     m.removeCell(CellH(i), true);
-  
-  
+
+
   double time = 1.1;
-  writer.splitEdge(2);
-  writer.writeVtk(&time);
-  
+  writer.splitMeshEdges(2);
+  writer.writeMesh(&time);
+
   //m.removeCell(CellH(9), true);
   //
   time = 1.2;
-  writer.splitEdge(3);
-  writer.writeVtk(&time);
+  writer.splitMeshEdges(3);
+  writer.writeMesh(&time);
   //
   //m.removeCell(CellH(5), true);
   //
   time = 1.3;
-  writer.splitEdge(4);
-  writer.writeVtk(&time);
+  writer.splitMeshEdges(4);
+  writer.writeMesh(&time);
   //
   //m.removeCell(CellH(1), true);
   //
   time = 1.4;
-  writer.splitEdge(5);
-  writer.writeVtk(&time);
+  writer.splitMeshEdges(5);
+  writer.writeMesh(&time);
   //
   //checkMesh(m);
 }
 
+struct MyPrinterTet2 : public DefaultGetDataVtk
+{
+  typedef typename MeshTet::VertexH VertexH;
+  typedef typename MeshTet::CellH CellH;
+  MeshTet const& m;
+  MyPrinterTet2(MeshTet const& m_) : DefaultGetDataVtk(), m(m_) {}
 
+  virtual void getData(index_t id, Real *value) const
+  {
+    Real x[3];
+    VertexH(id).coord(&m, x);
 
+    *value = sqrt(x[0]*x[0] + x[1]*x[1] + x[2]*x[2]);
+  }
+
+  virtual void getData(Real const *x_local, index_t cell_id, int /*ith*/, Real *value) const
+  {
+    Real x[4][3];
+    CellH c(cell_id);
+    VertexH vts[4];
+    c.vertices(&m, vts);
+    for (int i = 0; i < 4; ++i)
+      vts[i].coord(&m, x[i]);
+
+    Real L[4];
+    L[0] = 1;
+    for (int i = 1; i <= 3; ++i) {
+      L[i] = x_local[i-1];
+      L[0] -= L[i];
+    }
+
+    Real x_real[3] = {0,0,0};
+    for (int i = 0; i < 4; ++i)
+      for (int j = 0; j < 3; ++j)
+        x_real[j] += L[i]*x[i][j];
+
+    *value = sqrt(x_real[0]*x_real[0] + x_real[1]*x_real[1] + x_real[2]*x_real[2]);
+
+  }
+
+  virtual int numComps() const
+  { return 1; }
+};
+
+TEST_F(TetMesh2Tests, PrintNodalFieldVtk)
+{
+  MeshWriter writer;
+  writer.attachMesh(&m);
+  writer.setBinaryOutput(true);
+  writer.setFamily(true);
+  
+  writer.setNamePadding(2);
+  writer.setOutputFileName("output/tetmesh.vtk");
+
+  writer.splitMeshEdges(1);
+  writer.writeMesh();
+  writer.addNodalScalarField("radial", MyPrinterTet2(m));
+  
+  writer.splitMeshEdges(2);
+  writer.writeMesh();
+  writer.addNodalScalarField("radial", MyPrinterTet2(m));
+  
+  writer.splitMeshEdges(3);
+  writer.writeMesh();
+  writer.addNodalScalarField("radial", MyPrinterTet2(m));
+  
+  writer.splitMeshEdges(4);
+  writer.writeMesh();
+  writer.addNodalScalarField("radial", MyPrinterTet2(m));
+  
+  writer.splitMeshEdges(5);
+  writer.writeMesh();
+  writer.addNodalScalarField("radial", MyPrinterTet2(m));
+
+}
 

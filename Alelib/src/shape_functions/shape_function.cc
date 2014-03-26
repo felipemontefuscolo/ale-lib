@@ -4,7 +4,11 @@
 #include <sstream>
 #include <algorithm>
 
-#ifndef FEPIC_DOXYGEN_DEV
+#ifndef ALELIB_DOXYGEN_DEV
+
+
+namespace alelib
+{
 
 
 ShapeFunction::ShapeFunction() : m_pimpl(0), m_gdisc(false)
@@ -86,7 +90,7 @@ void ShapeFunction::setType(const char* type, int dim, int degree)
   }
   
   
-  m_pimpl = new SfSimplexLagrange(2,1,false);
+  //m_pimpl = new SfSimplexLagrange(2,1,false);
 }
 
 Real ShapeFunction::value(Real const*x, unsigned ith) const
@@ -157,7 +161,7 @@ int  ShapeFunction::numDofsPerFacet()   const
   
 
 
-
+}
 
 #endif
 

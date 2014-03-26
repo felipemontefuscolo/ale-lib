@@ -69,6 +69,12 @@ public:
     return NULL_IDX;
   }
 
+  // in this version the cell is the icell
+  inline int localId(MeshT const* mp) const
+  {
+    return mp->m_ridges[m_id].local_id;
+  }
+
   // number os cells that contain this vertex
   inline unsigned valency(MeshT const* mp) const
   { return mp->m_ridges[m_id].valency; }

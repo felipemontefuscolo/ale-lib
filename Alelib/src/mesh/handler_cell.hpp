@@ -313,7 +313,8 @@ public:
 
   void ridgeVertices(MeshT const* mp, int ridge_pos, VertexH* vts) const
   {
-    ALELIB_CHECK((unsigned)ridge_pos < CellT::n_ridges, "invalid ridge_pos", std::invalid_argument);
+    // the compiler complais here when CellT::n_ridges=0
+    ALELIB_CHECK((unsigned)ridge_pos < (CellT::n_ridges>0u?CellT::n_ridges:1u), "invalid ridge_pos", std::invalid_argument);
     for (int i = 0; i < (int)CellT::n_verts_p_ridge; ++i)
       *vts++ = VertexH(mp->m_cells[m_id].verts[mp->m_table_bC_x_vC(ridge_pos,i)]);    
   }

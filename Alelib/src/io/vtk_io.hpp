@@ -39,36 +39,40 @@ public:
   /**
    */  
 
-  DefaultGetDataVtk(Real * r = NULL, int * i = NULL, Real * vec = NULL, int vsize = 2)
-                                          : data_r(r), data_i(i), data_vec(vec), vec_size_(vsize) {}
-  //DefaultGetDataVtk(int * i = NULL, Real * r = NULL) : data_r(r), data_i(i) {}
+  DefaultGetDataVtk(Real * r = NULL, int ncomps_ = 1) : data_r(r), ncomps(ncomps_) {}
   
-  virtual Real get_data_r(index_t id) const
+  /// @param id id of the vertex or cell
+  /// @param values the data
+  virtual void getData(index_t id, Real *values) const
   {
-    return data_r[id];
+    for (int i = 0; i < ncomps; ++i)
+      *values++ = data_r[ncomps*id + i];
   }
-  virtual int get_data_i(index_t id) const
+
+  // This function is called when printing higher-order meshes.
+  // The default behaviour is to printing zero at high-order nodes.
+  /// @param x_local the coordinate in the cell reference from where data is extracted
+  /// @param cell_id the cell from where data is extracted
+  /// @param ith number of the correspondent Lagrange degree of freedom in the cell reference.
+  /// @param[out] values the values of the data at `x_local'.
+  virtual void getData(Real const *x_local, index_t cell_id, int ith, Real *values) const
   {
-    return data_i[id];
+    for (int i = 0; i < ncomps; ++i)
+      *values++ = 0;
+    // the next lines are added to avoid compiler warnings:
+    ++x_local;
+    ++cell_id;
+    ++ith;
   }
-  // returns vec_out size
-  virtual void get_vec(index_t id, Real * vec_out) const
-  {
-    for (int i = 0; i < vec_size_; ++i)
-      vec_out[i] = data_vec[id*vec_size_ + i];
-  }
-  virtual int vec_ncomps() const
-  {
-    return vec_size_;
-  }
+
+  virtual int numComps() const
+  { return ncomps; }
   
-  virtual ~DefaultGetDataVtk() {}
+  virtual ~DefaultGetDataVtk() {data_r = NULL;}
   
 protected:
   Real * data_r;
-  int  * data_i;
-  Real * data_vec;
-  int    vec_size_;
+  int    ncomps;
 };
 
 
@@ -103,14 +107,13 @@ public:
   MeshIoVtk() : m_is_binary(false), m_filenum(0), m_add_node_scalar_n_calls(0), m_add_cell_scalar_n_calls(0),
                 m_spacedim(0), m_mesh(NULL)
   {
-    splitEdge(1);
+    splitMeshEdges(1);
   };
 
-  explicit MeshIoVtk(MeshT const* mesh) : m_is_binary(false), m_filenum(0), m_add_node_scalar_n_calls(0), m_add_cell_scalar_n_calls(0),
-                                          m_subdivs_lvl(1)
+  explicit MeshIoVtk(MeshT const* mesh) : m_is_binary(false), m_filenum(0), m_add_node_scalar_n_calls(0), m_add_cell_scalar_n_calls(0)
   {
     attachMesh(mesh);
-    splitEdge(1);
+    splitMeshEdges(1);
   }
 
   MeshIoVtk(MeshIoVtk const&) {};
@@ -132,12 +135,12 @@ public:
     return this->paddedName(this->m_filenum, ".vtk");
   }
 
-  void splitEdge(unsigned n_parts);
+  void splitMeshEdges(unsigned n_parts);
   
-  void writeVtk(double* time = NULL); // time = optional parameter
-  void addNodeScalarVtk(const char* nome_var, DefaultGetDataVtk const& data);
-  void addNodeVectorVtk(const char* nome_var, DefaultGetDataVtk const& data);
-  void addCellScalarVtk(const char* nome_var, DefaultGetDataVtk const& data);
+  void writeMesh(double* time = NULL); // time = optional parameter
+  void addNodalScalarField(const char* nome_var, DefaultGetDataVtk const& data);
+  void addNodalVectorField(const char* nome_var, DefaultGetDataVtk const& data);
+  void addCellScalarField(const char* nome_var, DefaultGetDataVtk const& data);
   void addNodeIntVtk(const char* nome_var, DefaultGetDataVtk const& data);
   void addCellIntVtk(const char* nome_var, DefaultGetDataVtk const& data);
   void printPointTagVtk(const char* nome_var="node_labels"); //  debug

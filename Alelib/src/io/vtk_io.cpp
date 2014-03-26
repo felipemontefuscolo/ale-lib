@@ -36,7 +36,7 @@ T reverseEndian( T aa)
 }
 
 template<ECellType CT>
-void MeshIoVtk<CT>::splitEdge(unsigned n_parts)
+void MeshIoVtk<CT>::splitMeshEdges(unsigned n_parts)
 {
   static ECellType const FT = CTypeTraits<CT>::EFacetType;
 
@@ -107,7 +107,7 @@ void MeshIoVtk<ECT>::fi_printCellVtk(index_t const* ids, FILE *fp) const
 /// cells are printed as if lienar cells, disregarding high order nodes..
 ///
 template<ECellType CT>
-void MeshIoVtk<CT>::writeVtk(double* time)
+void MeshIoVtk<CT>::writeMesh(double* time)
 {
   ///
   /// DISABLE entities are not printed.
@@ -331,9 +331,9 @@ void MeshIoVtk<CT>::writeVtk(double* time)
 
     // AQUIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
     reorderDofsLagrange<CT,index_t>(m_mesh, c, m_subdivs_lvl, 1, dofs.data());
-    
+
     fi_printCellVtk(dofs.data(), file_ptr);
-    
+
     dofs.clear();
   }
 
@@ -370,44 +370,155 @@ void MeshIoVtk<CT>::writeVtk(double* time)
 }
 
 
-#if 0
-
-void MeshIoVtk::addNodeScalarVtk(const char* nome_var, DefaultGetDataVtk const& data)
+template<ECellType CT>
+void MeshIoVtk<CT>::addNodalScalarField(const char* nome_var, DefaultGetDataVtk const& data)
 {
 
-  std::string ss = this->paddedName(this->m_filenum-1, ".vtk");
+  std::string ss = this->paddedName(this->m_filenum-1, ".vtk", m_name_padd);
 
   FILE * file_ptr = fopen(ss.c_str(), "a");
 
   ALELIB_ASSERT(file_ptr != NULL, "could not open the file", std::runtime_error);
 
-  const int num_pts_total = m_mesh->numNodesTotal();
-  const int num_pts       = m_mesh->numNodes();
+  index_t n_pts = m_mesh->numVertices() + CTypeTraits<CT>::np_in_ridge(m_subdivs_lvl) * m_mesh->numRidges() +
+                                          CTypeTraits<CT>::np_in_facet(m_subdivs_lvl) * m_mesh->numFacets() +
+                                          CTypeTraits<CT>::np_in_cell (m_subdivs_lvl) * m_mesh->numCells();
   if (m_add_node_scalar_n_calls==0)
   {
-    fprintf(file_ptr,"POINT_DATA %d\n", num_pts);
+    fprintf(file_ptr,"POINT_DATA %d\n", n_pts);
   }
   m_add_node_scalar_n_calls++;
 
   fprintf(file_ptr,"SCALARS %s double\nLOOKUP_TABLE default\n", nome_var);
 
-  for (int i=0; i<num_pts_total; ++i)
-    if (!(m_mesh->getNodePtr(i)->isDisabled()))
+  // Points on vertices
+  {
+    VertexH v = m_mesh->vertexBegin();
+    VertexH vend = m_mesh->vertexEnd();
+
+    for (; v!=vend ; ++v)
     {
+      if (v.isDisabled(m_mesh))
+        continue;
+      double tmp;
+      data.getData(v.id(m_mesh), &tmp);
       if (m_is_binary)
       {
-        double tmp = reverseEndian(data.get_data_r(i));
-        fwrite(&tmp, sizeof(double), 1, file_ptr);
+        tmp = reverseEndian(tmp);
+        fwrite(&tmp, sizeof(Real), 1, file_ptr);
       }
       else
-        fprintf(file_ptr,"%.14e\n", data.get_data_r(i));
+        fprintf(file_ptr,"%.14e\n", tmp);
     }
-  fprintf(file_ptr,"\n\n");
+  }
+
+  // Points on ridges (3d cells)
+  {
+    int const n = m_subdivs_lvl;
+    int const nvir = CTypeTraits<CT>::np_in_ridge(n); // number of pts that will be created
+    if (MeshT::cell_dim > 2 && nvir > 0)
+    {
+      RidgeH r = m_mesh->ridgeBegin();
+      RidgeH rend = m_mesh->ridgeEnd();
+      for (; r != rend; ++r)
+      {
+        if (r.isDisabled(m_mesh))
+          continue;
+          
+        int const pos = r.localId(m_mesh);
+        int const first_dof = MeshT::verts_per_cell + (n-1)*pos;
+        for (Real i = 0; i < nvir; ++i)
+        {
+          double tmp;
+          Real * x_ref = &m_ref_cpts[MeshT::cell_dim*(first_dof + i)];
+          data.getData(x_ref, r.icell(m_mesh).id(m_mesh), first_dof + i, &tmp);
+          if (m_is_binary)
+          {
+            tmp = reverseEndian(tmp);
+            fwrite(&tmp, sizeof(Real), 1, file_ptr);
+          }
+          else
+            fprintf(file_ptr,"%.14e\n", tmp);
+        }
+      }
+    }
+  }
+
+  // Points inside facets
+  {
+    int const n = m_subdivs_lvl;
+    int const n_new_pts = CTypeTraits<CT>::np_in_facet(n); // number of pts that will be created
+    if (MeshT::cell_dim > 1 && n_new_pts > 0)
+    {
+  //    static const ECellType FT = CTypeTraits<CT>::EFacetType;
+
+      FacetH f = m_mesh->facetBegin();
+      FacetH fend = m_mesh->facetEnd();
+      for (; f != fend; ++f)
+      {
+        if (f.isDisabled(m_mesh))
+          continue;
+
+        int const pos = f.localId(m_mesh);
+        int const first_dof = MeshT::verts_per_cell + (n-1)*MeshT::ridges_per_cell + n_new_pts*pos;
+        for (int i = 0; i < n_new_pts; ++i)
+        {
+          double tmp;
+          Real * x_ref = &m_ref_cpts[MeshT::cell_dim*(first_dof + i)];
+          data.getData(x_ref, f.icellSide0(m_mesh).id(m_mesh), first_dof + i, &tmp);
+          if (m_is_binary)
+          {
+            tmp = reverseEndian(tmp);
+            fwrite(&tmp, sizeof(Real), 1, file_ptr);
+          }
+          else
+            fprintf(file_ptr,"%.14e\n", tmp);
+        }
+      }
+    }
+  } // Points inside facets
+
+  // Points inside cells
+  {
+    int const n = m_subdivs_lvl;
+    int const np_in_facet = CTypeTraits<CT>::np_in_facet(n); // number of pts that will be created
+    int const n_new_pts = CTypeTraits<CT>::np_in_cell(n); // number of pts that will be created
+    if (n_new_pts > 0)
+    {
+
+      CellH c = m_mesh->cellBegin();
+      CellH cend = m_mesh->cellEnd();
+      for (; c != cend; ++c)
+      {
+        if (c.isDisabled(m_mesh))
+          continue;
+
+        int const first_dof = MeshT::verts_per_cell + (n-1)*MeshT::ridges_per_cell + np_in_facet*MeshT::facets_per_cell;
+        for (int i = 0; i < n_new_pts; ++i)
+        {
+          double tmp;
+          Real * x_ref = &m_ref_cpts[MeshT::cell_dim*(first_dof + i)];
+          data.getData(x_ref, c.id(m_mesh), first_dof + i, &tmp);
+          if (m_is_binary)
+          {
+            tmp = reverseEndian(tmp);
+            fwrite(&tmp, sizeof(Real), 1, file_ptr);
+          }
+          else
+            fprintf(file_ptr,"%.14e\n", tmp);
+        }
+      }
+    }
+  } // Points inside cells
+
 
   fclose(file_ptr);
 }
 
-void MeshIoVtk::addNodeVectorVtk(const char* nome_var, DefaultGetDataVtk const& data)
+
+#if 0
+
+void MeshIoVtk::addNodalVectorField(const char* nome_var, DefaultGetDataVtk const& data)
 {
 
   std::string ss = this->paddedName(this->m_filenum-1, ".vtk");
@@ -464,7 +575,7 @@ void MeshIoVtk::addNodeVectorVtk(const char* nome_var, DefaultGetDataVtk const& 
 }
 
 
-void MeshIoVtk::addCellScalarVtk(const char* nome_var, DefaultGetDataVtk const& data)
+void MeshIoVtk::addCellScalarField(const char* nome_var, DefaultGetDataVtk const& data)
 {
 
   std::string ss = this->paddedName(this->m_filenum-1, ".vtk");

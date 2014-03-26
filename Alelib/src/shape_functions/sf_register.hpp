@@ -1,5 +1,5 @@
-#ifndef FEPIC_SF_REGISTER_HPP
-#define FEPIC_SF_REGISTER_HPP
+#ifndef ALELIB_SF_REGISTER_HPP
+#define ALELIB_SF_REGISTER_HPP
 
 #include <map>
 #include <vector>
@@ -38,4 +38,4 @@ std::map<std::string, SfStaticMemFn> init_register()
 
 
 
-#endif // FEPIC_SF_REGISTER_HPP
+#endif // ALELIB_SF_REGISTER_HPP

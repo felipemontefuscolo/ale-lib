@@ -1,6 +1,6 @@
 include $(ALELIB_DIR)/conf/variables
 
-SUBDIRS = mesh util io
+SUBDIRS = mesh util io shape_functions
 
 .PHONY: subdirs $(SUBDIRS)
 

@@ -47,6 +47,12 @@ public:
   CellH icellSide1(MeshT const* mp) const
   { return CellH(mp->m_facets[m_id].opp_cell); }
 
+  // in this version the cell is the icell
+  inline int localId(MeshT const* mp) const
+  {
+    return mp->m_facets[m_id].local_id;
+  }
+
   /// return the third cell connects to this facet (singular facet).
   /// If a third cell does not exist, then return NULL_IDX
   void first3icells(MeshT const* mp, CellH ics[]) const

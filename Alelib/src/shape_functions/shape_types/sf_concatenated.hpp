@@ -1,5 +1,5 @@
-#ifndef FEPIC_SF_CONCATENATED_HPP
-#define FEPIC_SF_CONCATENATED_HPP
+#ifndef ALELIB_SF_CONCATENATED_HPP
+#define ALELIB_SF_CONCATENATED_HPP
 
 #include "shape_impl.hpp"  // the interface
 #include <vector>

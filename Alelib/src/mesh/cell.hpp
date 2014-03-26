@@ -112,8 +112,8 @@ struct Cell<TRIANGLE>  : public Labelable
   static const unsigned n_verts_p_facet    = 2;
   static const unsigned n_verts_p_ridge    = 1;
   static const unsigned n_facets           = 3;
-  static const unsigned n_ridges           = 3;
-  static const unsigned n_ridges_p_facet   = 2;
+  static const unsigned n_ridges           = 0;
+  static const unsigned n_ridges_p_facet   = 0;
 
   ALE_DEF_2D_CELLS_MEMBERS
 
@@ -129,8 +129,8 @@ struct Cell<QUADRANGLE>  : public Labelable
   static const unsigned n_verts_p_facet    = 2;
   static const unsigned n_verts_p_ridge    = 1;
   static const unsigned n_facets           = 4;
-  static const unsigned n_ridges           = 4;
-  static const unsigned n_ridges_p_facet   = 2;
+  static const unsigned n_ridges           = 0;
+  static const unsigned n_ridges_p_facet   = 0;
 
   ALE_DEF_2D_CELLS_MEMBERS
 

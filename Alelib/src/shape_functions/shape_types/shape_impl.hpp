@@ -1,8 +1,12 @@
-#ifndef FEPIC_SHAPE_IMPL_HPP
-#define FEPIC_SHAPE_IMPL_HPP
+#ifndef ALELIB_SHAPE_IMPL_HPP
+#define ALELIB_SHAPE_IMPL_HPP
 /* Every Shape type must include this file */
 
-#ifndef FEPIC_SCALAR_TYPE
+namespace alelib
+{
+
+
+#ifndef ALELIB_SCALAR_TYPE
 typedef double Real;
 #endif
 
@@ -20,6 +24,7 @@ public:
   virtual bool isTauEquivalent() const = 0;
   virtual bool isLinear() const = 0;
   virtual bool isConforming() const = 0;
+  virtual bool isInterpolator() const = 0;
   virtual int numDofs() const = 0;
   virtual int dim()    const = 0;
 
@@ -37,10 +42,10 @@ public:
 
 }; // end class ShapeFunction
 
+}
 
 
-
-#endif
+#endif // ALELIB_SHAPE_IMPL_HPP
 
 
 

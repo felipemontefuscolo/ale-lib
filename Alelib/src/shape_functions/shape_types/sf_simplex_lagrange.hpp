@@ -1,9 +1,12 @@
-#ifndef FEPIC_SF_SIMPLEX_LAGRANGE
-#define FEPIC_SF_SIMPLEX_LAGRANGE
+#ifndef ALELIB_SF_SIMPLEX_LAGRANGE
+#define ALELIB_SF_SIMPLEX_LAGRANGE
 
 #include "shape_impl.hpp"  // the interface
 #include <vector>
 #include <string>
+
+namespace alelib
+{
 
 class SfSimplexLagrange : public ShapeFuncImpl
 {  
@@ -33,6 +36,7 @@ public:
   virtual bool isTauEquivalent() const;
   virtual bool isLinear() const;
   virtual bool isConforming() const;
+  virtual bool isInterpolator() const;
   
   virtual int numDofs() const;
   virtual int dim()    const;
@@ -65,10 +69,10 @@ private:
 
 
 
+} // namespace alelib
 
 
 
-
-#endif // FEPIC_SF_SIMPLEX_LAGRANGE
+#endif // ALELIB_SF_SIMPLEX_LAGRANGE
 
 

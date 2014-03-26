@@ -79,7 +79,7 @@ TOBJECTS = $(CPPSOURCES:.cpp=.o)
 all: gtest.a gtest_main.a $(CPPSOURCES:.cpp=.o) $(CPPSOURCES:.cpp=.d) alltests.exe
 
 %.o: %.cpp $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< $(LDFLAGS) -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< $(LDFLAGS) -o $@ gtest.a gtest_main.a
 
 
 alltests.exe: $(TOBJECTS) gtest.a gtest_main.a libalelib.a

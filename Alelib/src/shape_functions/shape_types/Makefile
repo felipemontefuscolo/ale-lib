@@ -2,7 +2,7 @@ include $(ALELIB_DIR)/conf/variables
 
 CPPSOURCES = $(wildcard *.cpp)
 
-SUBDIRS = shape_types
+SUBDIRS =
 
 .PHONY: subdirs $(SUBDIRS)
 
