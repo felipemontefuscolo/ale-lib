@@ -479,6 +479,7 @@ void MeshIoMsh::readFileMsh(const char* filename, Mesh * mesh)
 
 template class MeshIoMsh<EDGE>       ;
 template class MeshIoMsh<TRIANGLE>   ;
+template class MeshIoMsh<QUADRANGLE> ;
 template class MeshIoMsh<TETRAHEDRON>;
 template class MeshIoMsh<HEXAHEDRON> ;
 

@@ -1057,8 +1057,8 @@ TEST(MshIoTests, IdentifiesMeshTypeTest)
   ct = R2.identifiesMeshType("meshes/simple_tri0.msh", &sdim);
   EXPECT_EQ(TRIANGLE, ct);
   
-  //ct = R3.identifiesMeshType("simple_quad0.msh", &sdim);
-  //EXPECT_EQ(ct, EDGE);
+  ct = R3.identifiesMeshType("meshes/simple_quad0.msh", &sdim);
+  EXPECT_EQ(QUADRANGLE, ct);
   
   ct = R4.identifiesMeshType("meshes/simple_tet0.msh", &sdim);
   EXPECT_EQ(TETRAHEDRON, ct);
