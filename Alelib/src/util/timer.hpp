@@ -98,8 +98,9 @@ public:
     if (print_now)
       printf("%s", buff);
 
-    if (m_list.size() <= LimitPushBacks)
-      m_list.push_back(Item(m_elapsed, buff));
+    if (m_list.size() >= LimitPushBacks)
+      m_list.pop_front();
+    m_list.push_back(Item(m_elapsed, buff));
   
     return m_elapsed;
   }
