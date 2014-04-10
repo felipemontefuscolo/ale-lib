@@ -24,5 +24,6 @@
 
 #include "Mesh"
 #include "Alelib/src/io/vtk_io.hpp"
+#include "Alelib/src/io/msh_io.hpp"
 
 #endif

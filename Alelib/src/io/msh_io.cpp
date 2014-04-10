@@ -1,16 +1,19 @@
 #include <tr1/memory>
-#include "meshiomsh.hpp"
+#include "msh_io.hpp"
 #include <cstdio>
-#include "../../util/assert.hpp"
+#include "../util/assert.hpp"
+#include "msh_tags.hpp"
+#include "alelib_tags.hpp"
 
 namespace alelib
 {
 
-ECellType MeshIoMsh::identifiesMeshType(const char* filename, int &space_dim) const
+template<ECellType CT>
+ECellType MeshIoMsh<CT>::identifiesMeshType(const char* filename, int* space_dim_) const
 {
   FILE * file_ptr = fopen(filename, "r");
 
-  FEPIC_ASSERT(file_ptr, "can not find mesh file", std::invalid_argument);
+  ALELIB_ASSERT(file_ptr, "can not find mesh file", std::invalid_argument);
 
   double  coord[3];
   int     type_tag;
@@ -19,37 +22,41 @@ ECellType MeshIoMsh::identifiesMeshType(const char* filename, int &space_dim) co
   long    nodes_file_pos;  // $Nodes
   long    elems_file_pos;  // $Elements
 
-  // nós
-  nodes_file_pos = find_keyword("$Nodes", 6, file_ptr);
-  //nodes_file_pos++;  // only to avoid gcc warning: variable ‘nodes_file_pos’ set but not used [-Wunused-but-set-variable]
-
-  FEPIC_ASSERT(nodes_file_pos>0, "invalid file format", std::invalid_argument);
-
-  space_dim = 1;
-
-  int num_pts(0);
-  int node_number(0);
-  fscanf(file_ptr, "%d", &num_pts);
-
-  fgets(buffer, sizeof(buffer), file_ptr); // escapa do \n
-  for (int i=0; i< num_pts; ++i)
+  if (space_dim_ != NULL)
   {
-    fgets(buffer, sizeof(buffer), file_ptr);
-    sscanf(buffer, "%d %lf %lf %lf", &node_number, &coord[0], &coord[1], &coord[2]);
-    FEPIC_ASSERT(node_number==i+1, "wrong file format", std::invalid_argument);
-    if (coord[1] != 0)
-      space_dim = 2;
-    if (coord[2] != 0)
+    int& space_dim = *space_dim_;
+    // nós
+    nodes_file_pos = find_keyword("$Nodes", 6, file_ptr);
+    //nodes_file_pos++;  // only to avoid gcc warning: variable ‘nodes_file_pos’ set but not used [-Wunused-but-set-variable]
+
+    ALELIB_ASSERT(nodes_file_pos>0, "invalid file format", std::invalid_argument);
+
+    space_dim = 1;
+
+    int num_pts(0);
+    int node_number(0);
+    fscanf(file_ptr, "%d", &num_pts);
+
+    fgets(buffer, sizeof(buffer), file_ptr); // escapa do \n
+    for (int i=0; i< num_pts; ++i)
     {
-      space_dim = 3;
-      break;
+      fgets(buffer, sizeof(buffer), file_ptr);
+      sscanf(buffer, "%d %lf %lf %lf", &node_number, &coord[0], &coord[1], &coord[2]);
+      ALELIB_ASSERT(node_number==i+1, "wrong file format", std::invalid_argument);
+      if (coord[1] != 0)
+        space_dim = 2;
+      if (coord[2] != 0)
+      {
+        space_dim = 3;
+        break;
+      }
     }
   }
 
   // contagem de elementos e alocação
   elems_file_pos = find_keyword("$Elements", 9, file_ptr);
 
-  FEPIC_ASSERT(elems_file_pos>0, "invalid file format", std::invalid_argument);
+  ALELIB_ASSERT(elems_file_pos>0, "invalid file format", std::invalid_argument);
 
 //  int num_cells=0;
   int num_elms;
@@ -71,7 +78,7 @@ ECellType MeshIoMsh::identifiesMeshType(const char* filename, int &space_dim) co
     fscanf(file_ptr, "%d %d %d %d", &elem_number, &type_tag, &numm_tags, &physical);
 
     //// sincronização
-    FEPIC_ASSERT(elem_number==k+1, "invalid file format", std::invalid_argument);
+    ALELIB_ASSERT(elem_number==k+1, "invalid file format", std::invalid_argument);
 
     for (int j=1; j<numm_tags; ++j)
     {
@@ -115,7 +122,7 @@ void MeshIoMsh::readFileMsh(const char* filename, Mesh * mesh)
    *
    * */
 
-  FEPIC_ASSERT(mesh, "invalid mesh pointer", std::invalid_argument);
+  ALELIB_ASSERT(mesh, "invalid mesh pointer", std::invalid_argument);
 
 
   this->fi_registerFile(filename, ".msh");
@@ -129,7 +136,7 @@ void MeshIoMsh::readFileMsh(const char* filename, Mesh * mesh)
   std::tr1::shared_ptr<Cell> c_ptr(mesh->createCell());
 
   int const spacedim = mesh->spaceDim();
-  FEPIC_ASSERT(spacedim>0 && spacedim < 4, "mesh has invalid spacedim", std::invalid_argument);
+  ALELIB_ASSERT(spacedim>0 && spacedim < 4, "mesh has invalid spacedim", std::invalid_argument);
 
   long    nodes_file_pos;  // $Nodes
   long    elems_file_pos;  // $Elements
@@ -138,12 +145,12 @@ void MeshIoMsh::readFileMsh(const char* filename, Mesh * mesh)
   nodes_file_pos = find_keyword("$Nodes", 6, file_ptr);
   //nodes_file_pos++;  // only to avoid gcc warning: variable ‘nodes_file_pos’ set but not used [-Wunused-but-set-variable]
 
-  FEPIC_ASSERT(nodes_file_pos>0, "invalid file format", std::invalid_argument);
+  ALELIB_ASSERT(nodes_file_pos>0, "invalid file format", std::invalid_argument);
 
   int num_pts(0);
   int node_number(0);
   if ( EOF == fscanf(file_ptr, "%d", &num_pts) )
-    FEPIC_ASSERT(false, "invalid msh format", std::runtime_error);
+    ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
 
   //mesh->resizePointL(num_pts);
   
@@ -152,13 +159,13 @@ void MeshIoMsh::readFileMsh(const char* filename, Mesh * mesh)
   //printf("DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGG num_pts=%d; numNodesTotal()=%d; numNodes()=%d\n",num_pts,mesh->numNodesTotal(), mesh->numNodes());
   
   if (NULL == fgets(buffer, sizeof(buffer), file_ptr)) // escapa do \n
-    FEPIC_ASSERT(false, "invalid msh format", std::runtime_error);
+    ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
   for (int i=0; i< num_pts; ++i)
   {
     if ( NULL == fgets(buffer, sizeof(buffer), file_ptr) )
-      FEPIC_ASSERT(false, "invalid msh format", std::runtime_error);
+      ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
     sscanf(buffer, "%d %lf %lf %lf", &node_number, &coord[0], &coord[1], &coord[2]);
-    FEPIC_ASSERT(node_number==i+1, "wrong file format", std::invalid_argument);
+    ALELIB_ASSERT(node_number==i+1, "wrong file format", std::invalid_argument);
     p_ptr->setCoord(coord, spacedim);
     //mesh->getNodePtr(i)->setCoord(coord,spacedim);
     mesh->pushPoint(p_ptr.get());
@@ -169,13 +176,13 @@ void MeshIoMsh::readFileMsh(const char* filename, Mesh * mesh)
   
   elems_file_pos = find_keyword("$Elements", 9, file_ptr);
 
-  FEPIC_ASSERT(elems_file_pos>0, "invalid file format", std::invalid_argument);
+  ALELIB_ASSERT(elems_file_pos>0, "invalid file format", std::invalid_argument);
 
   int num_cells=0;
   int num_elms;
 
   if (EOF == fscanf(file_ptr, "%d", &num_elms) )
-    FEPIC_ASSERT(false, "invalid msh format", std::runtime_error);
+    ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
 
   /* ---------------------------------------
    * Detectando a ordem da malha, verificando sequencia dos elementos,
@@ -185,7 +192,7 @@ void MeshIoMsh::readFileMsh(const char* filename, Mesh * mesh)
   
   if (mshTag2ctype(EMshTag(meshm_cell_msh_tag)) != mesh->cellType())
   {
-    //FEPIC_ASSERT(false, "invalid msh format", std::runtime_error);
+    //ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
     printf("ERROR: ctype2mshTag() = %d\n", ctype2mshTag(mesh->cellType()));
     printf("ERROR: cell->getMshTag() = %d\n", c_ptr->getMshTag());
     throw;
@@ -198,7 +205,7 @@ void MeshIoMsh::readFileMsh(const char* filename, Mesh * mesh)
   {
     
     if (EOF == fscanf(file_ptr, "%d %d", &elem_number, &type_tag) )
-      FEPIC_ASSERT(false, "invalid msh format", std::runtime_error);
+      ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
   
     // check sequence
     if (elem_number != k+1)
@@ -221,7 +228,7 @@ void MeshIoMsh::readFileMsh(const char* filename, Mesh * mesh)
     }
     
   }
-  FEPIC_ASSERT(!wrong_file_err, "Wrong file format. Make sure you created the mesh with correct file format. ", std::invalid_argument);
+  ALELIB_ASSERT(!wrong_file_err, "Wrong file format. Make sure you created the mesh with correct file format. ", std::invalid_argument);
 
   Cell*  cell;
   //cell = Cell::create(mesh->cellType());
@@ -233,7 +240,7 @@ void MeshIoMsh::readFileMsh(const char* filename, Mesh * mesh)
    * -------------------------------------- */
   fseek (file_ptr , elems_file_pos , SEEK_SET );
   if (EOF == fscanf(file_ptr, "%d", &num_elms) )
-    FEPIC_ASSERT(false, "invalid msh format", std::runtime_error);
+    ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
 
   this->timer.restart();
 
@@ -248,15 +255,15 @@ void MeshIoMsh::readFileMsh(const char* filename, Mesh * mesh)
   for (int k=0; k < num_elms; ++k)
   {
     if ( EOF == fscanf(file_ptr, "%d %d %d %d", &elem_number, &type_tag, &numm_tags, &physical) )
-      FEPIC_ASSERT(false, "invalid msh format", std::runtime_error);
+      ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
 
     // sincronização
-    FEPIC_ASSERT(elem_number==k+1, "invalid file format", std::invalid_argument);
+    ALELIB_ASSERT(elem_number==k+1, "invalid file format", std::invalid_argument);
 
     for (int j=1; j<numm_tags; ++j)
     {
       if ( EOF == fscanf(file_ptr, "%s", buffer) )
-        FEPIC_ASSERT(false, "invalid msh format", std::runtime_error);
+        ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
     }
 
     elm_dim = dimForMshTag(EMshTag(type_tag));
@@ -264,7 +271,7 @@ void MeshIoMsh::readFileMsh(const char* filename, Mesh * mesh)
     if (elm_dim==0)
     {
       if ( EOF == fscanf(file_ptr, "%d", &id_aux) )
-        FEPIC_ASSERT(false, "invalid msh format", std::runtime_error);
+        ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
       --id_aux;
       mesh->getNodePtr(id_aux)->setTag(physical);
     }
@@ -272,11 +279,11 @@ void MeshIoMsh::readFileMsh(const char* filename, Mesh * mesh)
     {
       cell = mesh->pushCell((int*)0);
       ++inc;
-      FEPIC_ASSERT(cell_msh_tag == type_tag, "Invalid cell or invalid mesh", std::runtime_error);
+      ALELIB_ASSERT(cell_msh_tag == type_tag, "Invalid cell or invalid mesh", std::runtime_error);
       for (int i=0; i< nodes_per_cell; ++i)
       {
         if ( EOF == fscanf(file_ptr, "%d", &id_aux) )
-          FEPIC_ASSERT(false, "invalid msh format", std::runtime_error);
+          ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
         cell->setNodeId(i, id_aux-1);
       }
       cell->setTag(physical);
@@ -285,7 +292,7 @@ void MeshIoMsh::readFileMsh(const char* filename, Mesh * mesh)
     else
     {
       if ( NULL == fgets(buffer, sizeof(buffer), file_ptr) )
-        FEPIC_ASSERT(false, "invalid msh format", std::runtime_error);
+        ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
     }
   }// end for k
 
@@ -336,7 +343,7 @@ void MeshIoMsh::readFileMsh(const char* filename, Mesh * mesh)
     fscanf(file_ptr, "%d %d %d %d", &elem_number, &type_tag, &numm_tags, &physical);
 
     //// sincronização
-    //FEPIC_ASSERT(elem_number==k+1, "invalid file format", std::invalid_argument);
+    //ALELIB_ASSERT(elem_number==k+1, "invalid file format", std::invalid_argument);
 
     for (int j=1; j<numm_tags; ++j)
     {
@@ -468,6 +475,12 @@ void MeshIoMsh::readFileMsh(const char* filename, Mesh * mesh)
 
 
 #endif
+
+
+template class MeshIoMsh<EDGE>       ;
+template class MeshIoMsh<TRIANGLE>   ;
+template class MeshIoMsh<TETRAHEDRON>;
+template class MeshIoMsh<HEXAHEDRON> ;
 
 
 } // end namespace alelib

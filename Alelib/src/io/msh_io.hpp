@@ -19,22 +19,30 @@
 // License and a copy of the GNU General Public License along with
 // Alelib. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef FEPIC_MESHIOMSH_HPP
-#define FEPIC_MESHIOMSH_HPP
+#ifndef ALELIB_MESHIOMSH_HPP
+#define ALELIB_MESHIOMSH_HPP
 
-#include "../mesh.hpp"
-#include "../../util/timer.hpp"
-#include "meshnamehandler.hpp"
+#include "../mesh/mesh.hpp"
+#include "../util/timer.hpp"
+#include "path_handle.hpp"
 
 namespace alelib
 {
 
+template<ECellType ECT>
 class MeshIoMsh : public iPathHandle
 {
 public:
   
-  void readFileMsh(const char* filename, Mesh * mesh);
-  ECellType identifiesMeshType(const char* filename, int &space_dim) const;
+  typedef Mesh<ECT> MeshT;
+  typedef MeshIoMsh<ECT> Self;
+  typedef typename MeshT::VertexH VertexH;
+  typedef typename MeshT::RidgeH RidgeH;
+  typedef typename MeshT::FacetH FacetH;
+  typedef typename MeshT::CellH CellH;  
+  
+  //void readFileMsh(const char* filename, MeshT * mesh);
+  ECellType identifiesMeshType(const char* filename, int* space_dim = NULL) const;
   
   Timer timer;
 };
