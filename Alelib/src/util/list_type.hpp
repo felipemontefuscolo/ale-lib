@@ -114,6 +114,9 @@ public:
   //  return static_cast<int>(std::distance(m_data.begin(), DataConstIterator(v)));
   //}
 
+  void reserve(size_type n)
+  { m_data.reserve(n); }
+
   size_type size() const
   {return m_data.size() - m_disabled_idcs.size();};
 

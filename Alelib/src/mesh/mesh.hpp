@@ -113,6 +113,26 @@ public:
   // Dimensional Unstructured Meshes".
   //
 
+  void reserveCells(index_t n)
+  { m_cells.reserve(n); }
+  
+  void reserveVerts(index_t n)
+  { m_verts.reserve(n); }
+  
+  void reserveFacets(index_t n)
+  {
+    if (cell_dim > 1)
+      m_facets.reserve(n);
+  }
+  
+  void reserveRidges(index_t n)
+  {
+    if (cell_dim > 2)
+      m_ridges.reserve(n);
+  }
+  
+  
+
   void clear()
   {
     for (index_t i = 0; i < (index_t)m_cells.totalSize(); ++i)

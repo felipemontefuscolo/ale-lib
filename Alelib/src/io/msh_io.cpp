@@ -109,8 +109,8 @@ ECellType MeshIoMsh<CT>::identifiesMeshType(const char* filename, int* space_dim
 
 #if 0
 
-/* A malha deve estar alocada.
- * */
+// A malha deve estar alocada.
+//
 void MeshIoMsh::readFileMsh(const char* filename, Mesh * mesh)
 {
   /*
