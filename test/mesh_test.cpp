@@ -1042,29 +1042,29 @@ TEST_F(TriMesh2Tests, PrintNodalFieldVtk)
 
 TEST(MshIoTests, IdentifiesMeshTypeTest)
 {
-  MeshIoMsh<EDGE>        R1;
+  //MeshIoMsh<EDGE>        R1;
   MeshIoMsh<TRIANGLE>    R2;
-  MeshIoMsh<QUADRANGLE>  R3;
+  //MeshIoMsh<QUADRANGLE>  R3;
   MeshIoMsh<TETRAHEDRON> R4;
-  MeshIoMsh<HEXAHEDRON>  R5;
+  //MeshIoMsh<HEXAHEDRON>  R5;
   
   int sdim;
   ECellType ct;
   
-  ct = R1.identifiesMeshType("meshes/simple_edge0.msh", &sdim);
-  EXPECT_EQ(EDGE, ct);
+  //ct = R1.identifiesMeshType("meshes/simple_edge0.msh", &sdim);
+  //EXPECT_EQ(EDGE, ct);
   
   ct = R2.identifiesMeshType("meshes/simple_tri0.msh", &sdim);
   EXPECT_EQ(TRIANGLE, ct);
   
-  ct = R3.identifiesMeshType("meshes/simple_quad0.msh", &sdim);
-  EXPECT_EQ(QUADRANGLE, ct);
+  //ct = R3.identifiesMeshType("meshes/simple_quad0.msh", &sdim);
+  //EXPECT_EQ(QUADRANGLE, ct);
   
   ct = R4.identifiesMeshType("meshes/simple_tet0.msh", &sdim);
   EXPECT_EQ(TETRAHEDRON, ct);
   
-  ct = R5.identifiesMeshType("meshes/simple_hex0.msh", &sdim);
-  EXPECT_EQ(HEXAHEDRON, ct);
+  //ct = R5.identifiesMeshType("meshes/simple_hex0.msh", &sdim);
+  //EXPECT_EQ(HEXAHEDRON, ct);
   
 }
 

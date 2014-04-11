@@ -11,6 +11,7 @@ namespace alelib
 template<ECellType CT>
 ECellType MeshIoMsh<CT>::identifiesMeshType(const char* filename, int* space_dim_) const
 {
+  
   FILE * file_ptr = fopen(filename, "r");
 
   ALELIB_ASSERT(file_ptr, "can not find mesh file", std::invalid_argument);
@@ -106,12 +107,11 @@ ECellType MeshIoMsh<CT>::identifiesMeshType(const char* filename, int* space_dim
 }
 
 
-
 #if 0
-
 // A malha deve estar alocada.
 //
-void MeshIoMsh::readFileMsh(const char* filename, Mesh * mesh)
+template<ECellType CT>
+void MeshIoMsh<CT>::readFileMsh(const char* filename, MeshT * mesh)
 {
   /*
    * O que é feito:
@@ -124,19 +124,19 @@ void MeshIoMsh::readFileMsh(const char* filename, Mesh * mesh)
 
   ALELIB_ASSERT(mesh, "invalid mesh pointer", std::invalid_argument);
 
+  CellH fff;
 
-  this->fi_registerFile(filename, ".msh");
+  //this->fi_registerFile(filename, ".msh");
 
   FILE * file_ptr = fopen(filename, "r");
 
   double  coord[3];
-  int     type_tag;
+//  int     type_tag;
   char    buffer[256];
-  std::tr1::shared_ptr<Point> p_ptr(new Point());
-  std::tr1::shared_ptr<Cell> c_ptr(mesh->createCell());
+  //std::tr1::shared_ptr<Point> p_ptr(new Point());
+  //std::tr1::shared_ptr<Cell> c_ptr(mesh->createCell());
 
-  int const spacedim = mesh->spaceDim();
-  ALELIB_ASSERT(spacedim>0 && spacedim < 4, "mesh has invalid spacedim", std::invalid_argument);
+//  int const spacedim = MeshT::cell_dim;
 
   long    nodes_file_pos;  // $Nodes
   long    elems_file_pos;  // $Elements
@@ -154,10 +154,6 @@ void MeshIoMsh::readFileMsh(const char* filename, Mesh * mesh)
 
   //mesh->resizePointL(num_pts);
   
-  //mesh->printInfo();
-  //std::cout << "DEBUGGGGGGGGGGGGGGGGGGG:  "<<mesh << std::endl;
-  //printf("DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGG num_pts=%d; numNodesTotal()=%d; numNodes()=%d\n",num_pts,mesh->numNodesTotal(), mesh->numNodes());
-  
   if (NULL == fgets(buffer, sizeof(buffer), file_ptr)) // escapa do \n
     ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
   for (int i=0; i< num_pts; ++i)
@@ -166,11 +162,13 @@ void MeshIoMsh::readFileMsh(const char* filename, Mesh * mesh)
       ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
     sscanf(buffer, "%d %lf %lf %lf", &node_number, &coord[0], &coord[1], &coord[2]);
     ALELIB_ASSERT(node_number==i+1, "wrong file format", std::invalid_argument);
-    p_ptr->setCoord(coord, spacedim);
-    //mesh->getNodePtr(i)->setCoord(coord,spacedim);
-    mesh->pushPoint(p_ptr.get());
+
+    mesh->addVertex(Point(0,0,0), 0);
+    
   }
   // os pontos não estão completas: falta atribuir os labels
+
+#if 0
 
   // contagem de elementos e alocação
   
@@ -462,7 +460,7 @@ void MeshIoMsh::readFileMsh(const char* filename, Mesh * mesh)
     } // end loop
   } // endif
 
-  fclose(file_ptr);
+  //fclose(file_ptr);
   //File.close();
 
   delete [] nodes;
@@ -471,17 +469,20 @@ void MeshIoMsh::readFileMsh(const char* filename, Mesh * mesh)
   //delete [] bvtcs;
 
   mesh->timer.addItems(this->timer);
-}
-
 
 #endif
 
+  fclose(file_ptr);
 
-template class MeshIoMsh<EDGE>       ;
+}
+
+#endif
+
+//template class MeshIoMsh<EDGE>       ;
 template class MeshIoMsh<TRIANGLE>   ;
-template class MeshIoMsh<QUADRANGLE> ;
+//template class MeshIoMsh<QUADRANGLE> ;
 template class MeshIoMsh<TETRAHEDRON>;
-template class MeshIoMsh<HEXAHEDRON> ;
+//template class MeshIoMsh<HEXAHEDRON> ;
 
 
 } // end namespace alelib
