@@ -23,10 +23,6 @@
 #define ALE_REORDER_HPP
 
 #include "../mesh/mesh.hpp"
-#include "../mesh/handler_cell.hpp"
-#include "../mesh/handler_facet.hpp"
-#include "../mesh/handler_ridge.hpp"
-#include "../mesh/handler_vertex.hpp"
 
 namespace alelib
 {

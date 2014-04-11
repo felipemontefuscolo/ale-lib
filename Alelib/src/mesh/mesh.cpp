@@ -1,8 +1,4 @@
 #include "mesh.hpp"
-#include "handler_cell.hpp"
-#include "handler_vertex.hpp"
-#include "handler_facet.hpp"
-#include "handler_ridge.hpp"
 #include "../util/misc2.hpp"
 #include "../util/assert.hpp"
 #include "../util/algorithm.hpp"

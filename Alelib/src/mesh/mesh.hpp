@@ -328,7 +328,10 @@ private:
 } // end namespace
 
 
-
+#include "handle_cell.hpp"
+#include "handle_facet.hpp"
+#include "handle_ridge.hpp"
+#include "handle_vertex.hpp"
 
 
 

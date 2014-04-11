@@ -24,10 +24,6 @@
 
 #include "conf/directives.hpp"
 #include "Alelib/src/mesh/mesh.hpp"
-#include "Alelib/src/mesh/handler_cell.hpp"
-#include "Alelib/src/mesh/handler_vertex.hpp"
-#include "Alelib/src/mesh/handler_facet.hpp"
-#include "Alelib/src/mesh/handler_ridge.hpp"
 //#include "Alelib/src/mesh_tools/mesh_tools.hpp"
 //#include "Alelib/src/mesh/io/meshiomsh.hpp"
 //#include "Alelib/src/mesh/io/meshiovtk.hpp"
