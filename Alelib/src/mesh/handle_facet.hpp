@@ -29,6 +29,12 @@ public:
   inline index_t id(MeshT const*) const
   { return m_id; }
 
+  void setTag(MeshT* mp, int tag)
+  { mp->m_facets[m_id].setTag(tag); }
+
+  int tag(MeshT* mp) const
+  { return mp->m_facets[m_id].getTag(); }
+
   bool isValid() const
   { return m_id != (index_t)NULL_IDX; }
 
@@ -96,6 +102,20 @@ public:
       facet_points[i] = mp->m_points[vs[i].id(mp)];
   }
 
+  void ridges(MeshT const* mp, RidgeH * ridges)
+  {
+    FacetT const& fct = mp->m_facets[m_id];
+    //index_t const cell = fct.incidCell();
+    CellT const& cell = mp->m_cells[fct.icell];
+    int const f_pos = fct.local_id;
+
+    if (MeshT::cell_dim == 3)
+      // note: n_ridges_per_facet = n_vertices_per_facet
+      for (int i = 0; i < MeshT::verts_per_facet; ++i)
+        *ridges++ = cell.ridges[ mp->m_table_fC_x_bC(f_pos,i) ];
+  }
+
+
   static inline void verticesId(MeshT const* mp, index_t facet, index_t * facet_verts)
   {
     FacetT const& fct = mp->m_facets[facet];
@@ -105,6 +125,9 @@ public:
     for (int i = 0; i < (int)CellT::n_verts_p_facet; ++i)
       *facet_verts++ = mp->m_cells[cell].verts[mp->m_table_fC_x_vC(f_pos,i)];
   }
+
+
+
   
   bool operator != (Self const& x) const
   { return m_id != x.m_id; }
@@ -188,19 +211,7 @@ public:
 //
 
 //
-//  static inline void ridgesId(MeshT const* mp, index_t facet, index_t * ridges)
-//  {
-//    Facet const& fct = mp->m_facets[facet];
-//    index_t const cell = fct.incidCell();
-//    int const f_pos = fct.localId();
-//
-//    if (mp->m_cell_dim == 3)
-//      // note: n_ridges_per_facet = n_vertices_per_facet
-//      for (int i = 0; i < mp->m_verts_per_facet; ++i)
-//        *ridges++ = mp->m_cells[cell].ridges[ mp->m_table_fC_x_bC(f_pos,i) ];
-//    else
-//      FacetH::verticesId(mp, facet, ridges);
-//  }
+
 //
 //  static inline Labelable& label(MeshT* mp, index_t facet)
 //  { return mp->m_facets[facet]; } // conversion

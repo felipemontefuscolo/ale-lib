@@ -46,9 +46,8 @@ public:
 
   static const ECellType CellType = ECT;
 
-  MeshIoMsh(MeshT const*) {}
   
-  void readFileMsh(const char* filename, MeshT * mesh);
+  void readFile(const char* filename, MeshT * mesh);
   ECellType identifiesMeshType(const char* filename, int* space_dim = NULL) const;
   
   Timer timer;

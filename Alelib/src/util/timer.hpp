@@ -29,6 +29,7 @@
 #include <iostream>
 #include <string>
 
+
 #ifdef ALE_HAS_OPENMP
 //#if 0
 #  define TIMER_HAS_OPENMP ALE_HAS_OPENMP
@@ -39,6 +40,8 @@
 #else
 #  include <ctime>
 #endif
+
+namespace alelib {
 
 namespace fi_FepTimer
 {
@@ -136,6 +139,8 @@ protected:
 
 
 };
+
+} // end namespace alelib
 
 
 #endif

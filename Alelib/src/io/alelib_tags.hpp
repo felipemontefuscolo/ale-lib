@@ -31,6 +31,7 @@ namespace alelib {
 
 namespace fi_AlelibTagsInitializers
 {
+  static inline
   std::tr1::array<int, N_CELL_TYPES> ctypeNumNodes_ini()
   {
     std::tr1::array<int, N_CELL_TYPES> tab;
@@ -45,6 +46,7 @@ namespace fi_AlelibTagsInitializers
     return tab;
   }
 
+  static inline
   std::tr1::array<int, N_CELL_TYPES> ctypeDim_ini()
   {
     std::tr1::array<int, N_CELL_TYPES> tab;
@@ -59,6 +61,7 @@ namespace fi_AlelibTagsInitializers
     return tab;
   }
 
+  static inline
   std::tr1::array<const char*, N_CELL_TYPES> ctypeName_ini()
   {
     std::tr1::array<const char*, N_CELL_TYPES> tab;
@@ -73,6 +76,7 @@ namespace fi_AlelibTagsInitializers
     return tab;
   }
 
+  static inline
   std::tr1::array<ECellType, MSH_MAX_INDEX+1> mshTag2ctype_ini()
   {
     std::tr1::array<ECellType, MSH_MAX_INDEX+1> tab;
@@ -87,6 +91,7 @@ namespace fi_AlelibTagsInitializers
     return tab;
   }
 
+  static inline
   std::tr1::array<EMshTag, N_CELL_TYPES> ctype2mshTag_ini()
   {
     std::tr1::array<EMshTag, N_CELL_TYPES> tab;
@@ -101,7 +106,8 @@ namespace fi_AlelibTagsInitializers
     return tab;
   }
 
-    std::tr1::array<ECellFamily, N_CELL_TYPES> ctype2cfamily_ini()
+  static inline
+  std::tr1::array<ECellFamily, N_CELL_TYPES> ctype2cfamily_ini()
   {
     std::tr1::array<ECellFamily, N_CELL_TYPES> tab;
 
@@ -115,7 +121,8 @@ namespace fi_AlelibTagsInitializers
     return tab;
   }
 
-    std::tr1::array<ECellType, N_CELL_TYPES> facetof_ini()
+  static inline
+  std::tr1::array<ECellType, N_CELL_TYPES> facetof_ini()
   {
     std::tr1::array<ECellType, N_CELL_TYPES> tab;
 
@@ -131,6 +138,7 @@ namespace fi_AlelibTagsInitializers
 
 }
 
+static inline
 int ctypeNumNodes(ECellType type)
 {
   static const
@@ -147,6 +155,7 @@ int ctypeNumNodes(ECellType type)
 
 }
 
+static inline
 int ctypeDim(ECellType type)
 {
 
@@ -163,6 +172,7 @@ int ctypeDim(ECellType type)
   return dims[idx];
 }
 
+static inline
 const char* ctypeName(ECellType type)
 {
   static const
@@ -178,6 +188,7 @@ const char* ctypeName(ECellType type)
   return names[idx];
 }
 
+static inline
 ECellType mshTag2ctype(EMshTag type)
 {
   static const
@@ -194,6 +205,7 @@ ECellType mshTag2ctype(EMshTag type)
 
 }
 
+static inline
 EMshTag ctype2mshTag(ECellType type)
 {
   static const
@@ -209,7 +221,7 @@ EMshTag ctype2mshTag(ECellType type)
   return tab[idx];
 }
 
-
+static inline
 ECellFamily ctype2cfamily(ECellType type)
 {
   std::tr1::array<ECellFamily, N_CELL_TYPES> tab = fi_AlelibTagsInitializers::ctype2cfamily_ini();
@@ -223,6 +235,7 @@ ECellFamily ctype2cfamily(ECellType type)
   return tab[idx];
 }
 
+static inline
 ECellType facetof(ECellType type)
 {
   std::tr1::array<ECellType, N_CELL_TYPES> tab = fi_AlelibTagsInitializers::facetof_ini();

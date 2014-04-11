@@ -1069,7 +1069,64 @@ TEST(MshIoTests, IdentifiesMeshTypeTest)
 }
 
 
+TEST(MshIoTests, ReadFileTest)
+{
+  //MeshIoMsh<EDGE>        R1;
+  MeshIoMsh<TRIANGLE>    R2;
+  //MeshIoMsh<QUADRANGLE>  R3;
+  MeshIoMsh<TETRAHEDRON> R4;
+  //MeshIoMsh<HEXAHEDRON>  R5;
 
+  MeshTri m2;
+  MeshTet m4;
+
+  R2.readFile("meshes/simple_tri0.msh", &m2);
+  R4.readFile("meshes/simple_tet0.msh", &m4);
+
+  EXPECT_EQ(13u, m2.numVertices());
+  EXPECT_EQ(16u, m2.numCells());
+  EXPECT_EQ(28u, m2.numFacets());
+
+  EXPECT_EQ(27u,  m4.numVertices());
+  EXPECT_EQ(48u,  m4.numCells());
+  EXPECT_EQ(120u, m4.numFacets());
+  EXPECT_EQ(98u,  m4.numRidges());
+  
+  
+  for (index_t i = 0; i < 13; ++i)
+    EXPECT_TRUE(MeshTri::VertexH(i).tag(&m2) > 0);
+
+  for (index_t i = 0; i < 16; ++i)
+    EXPECT_TRUE(MeshTri::CellH(i).tag(&m2) > 0);
+
+  for (index_t i = 0; i < 28; ++i)
+    EXPECT_TRUE(MeshTri::FacetH(i).tag(&m2) > 0);
+
+  
+  
+  EXPECT_EQ(1 , MeshTet::VertexH(0).tag(&m4));
+  EXPECT_EQ(2 , MeshTet::VertexH(1).tag(&m4));
+  EXPECT_EQ(4 , MeshTet::VertexH(2).tag(&m4));
+  EXPECT_EQ(3 , MeshTet::VertexH(3).tag(&m4));
+  EXPECT_EQ(13, MeshTet::VertexH(4).tag(&m4));
+  EXPECT_EQ(10, MeshTet::VertexH(5).tag(&m4));
+  EXPECT_EQ(11, MeshTet::VertexH(6).tag(&m4));
+  EXPECT_EQ(12, MeshTet::VertexH(7).tag(&m4));
+
+  for (index_t i = 0; i < 27; ++i)
+    EXPECT_TRUE(MeshTet::VertexH(i).tag(&m4) > 0);
+
+  for (index_t i = 0; i < 48; ++i)
+    EXPECT_TRUE(MeshTet::CellH(i).tag(&m4) > 0);
+
+  for (index_t i = 0; i < 120; ++i)
+    EXPECT_TRUE(MeshTet::FacetH(i).tag(&m4) > 0);
+
+  for (index_t i = 0; i < 98; ++i)
+    EXPECT_TRUE(MeshTet::RidgeH(i).tag(&m4) > 0);
+  
+  
+}
 
 
 

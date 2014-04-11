@@ -43,6 +43,12 @@ public:
   bool isDisabled(MeshT const* mp) const
   { return mp->m_cells[m_id].isDisabled();};
 
+  void setTag(MeshT* mp, int tag)
+  { mp->m_cells[m_id].setTag(tag); }
+
+  int tag(MeshT* mp) const
+  { return mp->m_cells[m_id].getTag(); }
+
   inline unsigned numVertices(MeshT const*) const
   { return CellT::n_verts; }
 
@@ -271,6 +277,7 @@ public:
 #undef vpf
   }  
 
+  // TODO: ridge_pos must be optional
   inline bool isRidge(MeshT const* mp, VertexH const verts[], int &ridge_pos) const
   {
     VertexH ridge_verts[2];

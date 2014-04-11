@@ -13,6 +13,8 @@
 #include "../util/list_type.hpp"
 #include "../util/initializer_list.hpp"
 #include "AssocVector.hpp"
+#include "../io/alelib_tags.hpp"
+#include "../util/timer.hpp"
 
 #ifdef ALELIB_DEBUG_ON
 # define AT__(x) [(x)]
@@ -77,8 +79,9 @@ class Mesh
   marray::Array<int, 2> const m_table_bC_x_vC;
   marray::Array<int, 2> const m_table_bC_x_fC;
 
-
 public:
+
+  Timer timer;
 
   // Cell attributes
   static const int cell_dim         = CellT::dim             ;
@@ -99,7 +102,7 @@ public:
   typedef std::size_t size_type;
 
 
-  Mesh(unsigned spacedim);
+  Mesh(unsigned spacedim = ctypeDim(CellType));
 
   ~Mesh() {}
 
@@ -266,6 +269,39 @@ public:
   { return RidgeH(this, numRidgesTotal()); }
 
  
+  /// @param vs the vertices
+  /// @return The facet. If the facet is not found, return an invalid facet. Check with facet.isValid()
+  FacetH getFacetFromVertices(VertexH const* vs) const
+  {
+    std::vector<CellH> star = vs[0].star(this); // the facet is in one of these cells
+    
+    int ff;
+    
+    for (unsigned i = 0; i < star.size(); ++i)
+    {
+      if(star[i].isFacet(this, vs, &ff))
+        return star[i].facet(this, abs(ff));
+    }
+    
+    return FacetH(NULL_IDX);
+  }
+
+  /// @param vs the vertices
+  /// @return The ridge. If the ridge is not found, return an invalid ridge. Check with ridge.isValid()
+  RidgeH getRidgeFromVertices(VertexH const* vs) const
+  {
+    std::vector<CellH> star = vs[0].star(this); // the ridge is in one of these cells
+    
+    int rr;
+    
+    for (unsigned i = 0; i < star.size(); ++i)
+    {
+      if(star[i].isRidge(this, vs, rr))
+        return star[i].ridge(this, abs(rr));
+    }
+    
+    return RidgeH(NULL_IDX);
+  } 
 
 
   // DEBUG purposes
