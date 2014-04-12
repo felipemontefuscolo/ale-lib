@@ -3,6 +3,7 @@
 #include "sf_simplex_lagrange.hpp"
 #include <stdexcept>
 #include <cstdlib> // atoi
+#include <cmath>
 
 #define ALELIB_LAGRANGE_DEG_LIMIT 30
 
@@ -63,6 +64,13 @@ void SfSimplexLagrange::computeDenominators()
 
   int const dim = Self::dim();
 
+  // rescale 1d case
+  if (dim == 1)
+  {
+    for (int i = 0; i < (int)m_integer_pts.size(); ++i)
+      m_integer_pts[i] = (m_integer_pts[i] + degree())/2;
+  }
+
   m_denominator.resize( m_integer_pts.size()/dim );
 
   // compute `denominator` for each point i
@@ -90,15 +98,21 @@ void SfSimplexLagrange::computeDenominators()
 
 }
 
-Real SfSimplexLagrange::value(Real const*x, unsigned ith) const
+Real SfSimplexLagrange::value(Real const*x__, unsigned ith) const
 {
   const int n_dofs = Self::numDofs();
   const int degree = Self::degree();
   const int dim    = Self::dim();
 
-
   if (degree == 0)
     return 1.;
+
+  Real x[3];
+  for (int i = 0; i < 3; ++i)
+    x[i] = x__[i];
+
+  if (dim==1) // rescale
+    x[0] = 0.5*(1.+x[0]);
 
   if (ith >= (unsigned)n_dofs)
     throw std::out_of_range("SfSimplexLagrange::value: invalid index");
@@ -126,7 +140,7 @@ Real SfSimplexLagrange::value(Real const*x, unsigned ith) const
   return numerator/m_denominator.at(ith);
 }
 
-Real SfSimplexLagrange::grad(Real const*x, unsigned ith, unsigned c) const
+Real SfSimplexLagrange::grad(Real const*x__, unsigned ith, unsigned c) const
 {
   const int n_dofs = Self::numDofs();
   const int degree = Self::degree();
@@ -134,6 +148,13 @@ Real SfSimplexLagrange::grad(Real const*x, unsigned ith, unsigned c) const
 
   if (degree == 0)
     return 0.;
+
+  Real x[3];
+  for (int i = 0; i < dim; ++i)
+    x[i] = x__[i];
+
+  if (dim==1) // rescale
+    x[0] = 0.5*(1.+x[0]);
 
   if (ith >= (unsigned)n_dofs)
     throw std::out_of_range("SfSimplexLagrange::grad: invalid index");
@@ -171,7 +192,10 @@ Real SfSimplexLagrange::grad(Real const*x, unsigned ith, unsigned c) const
     numerator *= temp1;
   }
 
-  return numeratord/m_denominator.at(ith);
+  if (dim!=1)
+    return numeratord/m_denominator.at(ith);
+  else
+    return 0.5*numeratord/m_denominator.at(ith);
 }
 
 bool SfSimplexLagrange::isTauEquivalent() const

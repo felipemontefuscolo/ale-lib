@@ -28,11 +28,19 @@
 
 namespace alelib {
 
-void igetQuadrPtsHypercube(int n, int dim, Real **points, Real *weights, int &nm_points);
-
 class Quadrature
 {
 public:
+
+  struct Vec3 {
+    Real z[3];
+    Real& operator[] (int i) {return z[i];}
+    Real const& operator[] (int i) const {return z[i];}
+    operator Real* () {return z;}
+    operator Real const* () const {return z;}
+  }; 
+
+  static void igetQuadrPtsHypercube(int n, int dim, std::vector<Vec3>& points, std::vector<Real>& weights);
 
   Quadrature(ECellType ct, int degree);
 
@@ -40,49 +48,23 @@ public:
   
 
   Real const* point(int qp) const
-  {
-    return m_points[qp];
-  }
+  { return m_points[qp]; }
+  
   Real weight(int qp) const
-  {
-    return m_weights[qp];
-  }
+  { return m_weights[qp]; }
 
   int numPoints() const
-  {
-    return m_points.size();
-  }
+  { return m_points.size(); }
 
   int degree() const
-  {
-    return m_degree;
-  }
+  { return m_degree; }
 
 protected:
   int m_degree;
   
-  typedef Real Vec3[3];
-  
   std::vector<Vec3> m_points;
   std::vector<Real> m_weights;
 };
-
-
-
-// =============================================
-
-//typedef Quadrature_<EDGE2,        1, 5  > Quadrature_EDGE;
-//typedef Quadrature_<TRIANGLE3,    2, 25 > Quadrature_TRIANGLE;
-//typedef Quadrature_<QUADRANGLE4,  2, 25 > Quadrature_QUADRANGLE;
-//typedef Quadrature_<TETRAHEDRON4, 3, 46 > Quadrature_TETRAHEDRON;
-//typedef Quadrature_<HEXAHEDRON8,  3, 125> Quadrature_HEXAHEDRON;
-
-#define Quadrature_POINT       Quadrature_<POINT,       0, 1  , 10>
-#define Quadrature_EDGE        Quadrature_<EDGE,        1, 5  , 9 >
-#define Quadrature_TRIANGLE    Quadrature_<TRIANGLE,    2, 25 , 10>
-#define Quadrature_QUADRANGLE  Quadrature_<QUADRANGLE,  2, 25 , 9 >
-#define Quadrature_TETRAHEDRON Quadrature_<TETRAHEDRON, 3, 46 , 8 >
-#define Quadrature_HEXAHEDRON  Quadrature_<HEXAHEDRON,  3, 125, 9 >
 
 } // end namespace alelib
 

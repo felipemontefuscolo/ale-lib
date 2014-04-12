@@ -73,33 +73,125 @@ typedef Mesh<HEXAHEDRON>  MeshHex;
 template<class F>
 Real diff_(F const& f, Real const*x, int c, int Dim)
 {
-	//Real h = MAX(fabs(x[c]), 1.)*pow(ALE_EPS, 1./3.);
-  //Real h = 0.41*pow(ALE_EPS, 1./3.); // for 2-points method
-  Real h = 11*pow(ALE_EPS, 1./3.); // for 4-points method
-	volatile Real t = h + x[c];
-	h = t - x[c];
-
-	Real y[Dim];
-	Real z[Dim];
-	Real zz[Dim]; // high order
-	Real yy[Dim];
-
-  for (int i = 0; i < Dim; ++i)
+	
+  if (0) // two points
   {
-    y[i] = x[i];
-    z[i] = x[i];
-    yy[i] = x[i];
-    zz[i] = x[i];
+    Real h = 0.41*pow(ALE_EPS, 1./3.); // for 2-points method
+    volatile Real t = h + x[c];
+    h = t - x[c];
+
+    Real y[Dim];
+    Real z[Dim];
+
+    for (int i = 0; i < Dim; ++i)
+    {
+      y[i] = x[i];
+      z[i] = x[i];
+    }
+
+    y[c]  += h;
+    z[c]  -= h;
+
+    return (f(y)-f(z))/(2.*h);
+  }
+  else // four points
+  {
+    
+    Real h = 11*pow(ALE_EPS, 1./3.); // for 4-points method
+    volatile Real t = h + x[c];
+    h = t - x[c];
+
+    Real y[Dim];
+    Real z[Dim];
+    Real zz[Dim]; // high order
+    Real yy[Dim];
+
+    for (int i = 0; i < Dim; ++i)
+    {
+      y[i] = x[i];
+      z[i] = x[i];
+      yy[i] = x[i];
+      zz[i] = x[i];
+    }
+
+    y[c]  += h;
+    z[c]  -= h;
+    yy[c] += 2.*h;
+    zz[c] -= 2.*h;
+
+    return (-f(yy) + 8.*(f(y) - f(z)) + f(zz))/(12.*h); // for higher order    
+  }
+}
+
+TEST(ShapeEdge1Tests, LagrangeDeltaProperty)
+{
+  //Real x[3] = {0.0,0.0,0.0};
+
+  std::vector<double> xyz;
+  ShapeFunction sf;
+
+  for (int k = 1; k < 10; ++k)
+  {
+    sf.setType("Lagrange", /*dim*/1, /*degree*/k);
+    genLineParametricPts(k, xyz);
+
+    ASSERT_EQ((int)xyz.size(), sf.numDofs());
+
+    for (int i = 0; i < (int)xyz.size(); ++i)
+    {
+      for (int j = 0; j < (int)xyz.size(); ++j)
+      {
+        if (i==j)
+          ASSERT_NEAR(1, sf.value(listOf(xyz[j]), j), ALE_TOL) << "i=" << i << "\nj=" << j << "\nxyz[i]=" << xyz[i];
+        else
+          ASSERT_NEAR(0, sf.value(listOf(xyz[i]), j), ALE_TOL) << "i=" << i << "\nj=" << j << "\nxyz[i]=" << xyz[i];
+        //cout << sf.value(&xyz[i], j) << " pp:" << xyz[i] <<endl;
+      }
+      //cout << endl;
+    }
+  }
+  
+}
+
+TEST(ShapeEdge1Tests, LagrangeGradient)
+{
+
+  std::vector<double> xyz;
+  ShapeFunction sf;
+  int const sdim = 1;
+
+  // Shape function placeholder
+  std::tr1::function<Real (Real const*)> Func;
+
+  for (int degree = 1; degree < 8; ++degree)
+  {
+    sf.setType("Lagrange", /*dim*/1, degree);
+    genLineParametricPts(degree, xyz);
+
+    for (int dof = 0; dof < (int)xyz.size(); ++dof)
+    {
+      for (int i = 0; i < (int)xyz.size(); ++i)
+      {
+        Real x[] = {xyz[i]};
+      
+        Func = std::tr1::bind(std::tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
+        
+        ASSERT_NEAR(diff_( Func, x, 0, sdim ),  sf.grad(x, dof, 0), ALE_TOL)
+        << "degree: " << degree << "\npoint: " << i << "\ndof: " << dof << "\ncomp:" << 0 << "\npt:" << x[0] <<  endl;
+        
+        //cout << diff_( Func, x, 0, sdim ) << " ppp:" << x[0] << endl;
+        //cout << sf.grad(x, dof, 0) << "\tppp:" << x[0] << endl;
+      }
+    }
+    //for (int k = 0; k < xyz.size(); ++k)
+    //  cout << xyz[k] << " ";
+    //cout << endl;
   }
 
-	y[c]  += h;
-	z[c]  -= h;
-	yy[c] += 2.*h;
-	zz[c] -= 2.*h;
 
-  //return (f(y)-f(z))/(2.*h);
-	return (-f(yy) + 8.*(f(y) - f(z)) + f(zz))/(12.*h); // for higher order
+
 }
+
 
 
 class ShapeTri1Tests : public testing::Test
@@ -152,10 +244,6 @@ class ShapeTri1Tests : public testing::Test
 
 };
 
-
-
-
-
 TEST_F(ShapeTri1Tests, LagrangeDeltaProperty)
 {
   //Real x[3] = {0.0,0.0,0.0};
@@ -175,9 +263,9 @@ TEST_F(ShapeTri1Tests, LagrangeDeltaProperty)
       for (int j = 0; j < (int)xyz.size()/2; ++j)
       {
         if (i==j)
-          EXPECT_NEAR(1, sf.value(listOf(xyz[2*j], xyz[2*j+1]), j), ALE_TOL);
+          ASSERT_NEAR(1, sf.value(listOf(xyz[2*j], xyz[2*j+1]), j), ALE_TOL);
         else
-          EXPECT_NEAR(0, sf.value(listOf(xyz[2*i], xyz[2*i+1]), j), ALE_TOL);
+          ASSERT_NEAR(0, sf.value(listOf(xyz[2*i], xyz[2*i+1]), j), ALE_TOL);
       }
     }
   }
@@ -218,9 +306,6 @@ TEST_F(ShapeTri1Tests, LagrangeGradient)
 
 
 }
-
-
-
 
 
 class ShapeTet1Tests : public testing::Test
@@ -273,9 +358,6 @@ class ShapeTet1Tests : public testing::Test
 
 };
 
-
-
-
 TEST_F(ShapeTet1Tests, LagrangeDeltaProperty)
 {
   //Real x[3] = {0.0,0.0,0.0};
@@ -284,7 +366,7 @@ TEST_F(ShapeTet1Tests, LagrangeDeltaProperty)
   ShapeFunction sf;
   int const sdim = 3;
 
-  for (int k = 1; k < 10; ++k)
+  for (int k = 1; k < 2; ++k)
   {
     sf.setType("Lagrange", /*dim*/sdim, /*degree*/k);
     genTetParametricPts(k, xyz);
@@ -296,9 +378,10 @@ TEST_F(ShapeTet1Tests, LagrangeDeltaProperty)
       for (int j = 0; j < (int)xyz.size()/sdim; ++j)
       {
         if (i==j)
-          EXPECT_NEAR(1, sf.value(listOf(xyz[3*j], xyz[3*j+1], xyz[3*j+2]), j), ALE_TOL);
+          ASSERT_NEAR(1, sf.value(listOf(xyz[3*j], xyz[3*j+1], xyz[3*j+2]), j), ALE_TOL);
         else
-          EXPECT_NEAR(0, sf.value(listOf(xyz[3*i], xyz[3*i+1], xyz[3*j+2]), j), ALE_TOL);
+          ASSERT_NEAR(0, sf.value(listOf(xyz[3*i], xyz[3*i+1], xyz[3*j+2]), j), ALE_TOL)
+          << "degree= "<< k <<  "\ni=" << i << "\nj=" << j << "\nxyz=" << xyz[3*i]<<" "<<xyz[3*i+1]<<" "<<xyz[3*j+2];
       }
     }
   }
@@ -340,6 +423,11 @@ TEST_F(ShapeTet1Tests, LagrangeGradient)
 
 }
 
+//
+//
+// Testing the quadrature points
+//
+//
 
 
 
