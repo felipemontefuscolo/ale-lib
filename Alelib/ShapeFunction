@@ -19,12 +19,11 @@
 // License and a copy of the GNU General Public License along with
 // Alelib. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef ALELIB_IO_NE
-#define ALELIB_IO_NE
+#ifndef ALELIB_SHAPE_FUNCTION_NE
+#define ALELIB_SHAPE_FUNCTION_NE
 
 #include "conf/directives.hpp"
-#include "Mesh"
-#include "Alelib/src/io/vtk_io.hpp"
-#include "Alelib/src/io/msh_io.hpp"
+#include "src/shape_functions/shape_function.hpp"
 
 #endif
+

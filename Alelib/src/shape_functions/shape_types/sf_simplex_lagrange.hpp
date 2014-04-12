@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 
+
 namespace alelib
 {
 
@@ -28,7 +29,7 @@ public:
   static const char* nameId();
   const char* name() const;
 
-  static ShapeFuncImpl* create(std::vector<std::string> options);
+  static ShapeFuncImpl* create(std::vector<std::string> options, int dim, int degree);
 
   virtual Real value(Real const*x, unsigned ith) const;
   virtual Real grad(Real const*x, unsigned ith, unsigned c) const;
@@ -36,17 +37,17 @@ public:
   virtual bool isTauEquivalent() const;
   virtual bool isLinear() const;
   virtual bool isConforming() const;
-  virtual bool isInterpolator() const;
+  virtual bool isInterpolator() const {return true;}
   
   virtual int numDofs() const;
   virtual int dim()    const;
 
-  virtual int numDofsInsideCorner()  const;
+  virtual int numDofsInsideRidge()  const;
   virtual int numDofsInsideFacet()   const;
   virtual int numDofsInsideCell()    const;
 
   virtual int numDofsPerVertice() const;
-  virtual int numDofsPerCorner()  const;
+  virtual int numDofsPerRidge()  const;
   virtual int numDofsPerFacet()   const;
 
   virtual SfSimplexLagrange* clone() const;

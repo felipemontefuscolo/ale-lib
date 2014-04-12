@@ -98,7 +98,7 @@ public:
   int numDofsPerVertex() const;
   int numDofsPerCell() const;
   int numDofsPerFacet() const;
-  int numDofsPerCorner() const;
+  int numDofsPerRidge() const;
 
   void getCellDofs(int *dofs, Cell const*) const;
   void getFacetDofs(int *dofs, CellElement const*) const;

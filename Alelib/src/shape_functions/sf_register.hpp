@@ -5,13 +5,17 @@
 #include <vector>
 #include <string>
 
+#include "shape_types/shape_impl.hpp"
+#include "shape_types/sf_concatenated.hpp"
+
 /*  !!!!!!~~~~~~~ Include your file here ~~~~~~~!!!!!!!!! */
 #include "shape_types/sf_simplex_lagrange.hpp"
+#include "shape_types/sf_concatenated.hpp"
 
-
+namespace alelib {
 
 typedef ShapeFuncImpl* SfImplPtr;
-typedef SfImplPtr (*SfStaticMemFn)(std::vector<std::string>  options);
+typedef SfImplPtr (*SfStaticMemFn)(std::vector<std::string>  options, int dim, int degree);
 
 
 
@@ -35,7 +39,7 @@ std::map<std::string, SfStaticMemFn> init_register()
 }
 
 
-
+} // end namespace
 
 
 #endif // ALELIB_SF_REGISTER_HPP

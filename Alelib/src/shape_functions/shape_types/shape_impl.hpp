@@ -28,12 +28,12 @@ public:
   virtual int numDofs() const = 0;
   virtual int dim()    const = 0;
 
-  virtual int numDofsInsideCorner()  const = 0;
+  virtual int numDofsInsideRidge()  const = 0;
   virtual int numDofsInsideFacet()   const = 0;
   virtual int numDofsInsideCell()    const = 0;
 
   virtual int numDofsPerVertice() const = 0;
-  virtual int numDofsPerCorner()  const = 0;
+  virtual int numDofsPerRidge()  const = 0;
   virtual int numDofsPerFacet()   const = 0;
 
   virtual ShapeFuncImpl* clone() const = 0;

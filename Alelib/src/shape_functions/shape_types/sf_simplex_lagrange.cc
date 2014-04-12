@@ -3,7 +3,7 @@
 #include "sf_simplex_lagrange.hpp"
 #include <stdexcept>
 
-#define FEPIC_LAGRANGE_DEG_LIMIT 30
+#define ALELIB_LAGRANGE_DEG_LIMIT 30
 
 
 ShapeFuncImpl* SfSimplexLagrange::create(std::vector<std::string> options)
@@ -16,8 +16,8 @@ SfSimplexLagrange::SfSimplexLagrange(unsigned dim, unsigned degree, bool is_disc
 {
   if (dim < 1 || dim > 3)
     throw std::invalid_argument("SfSimplexLagrange constructor: `dim` must be in 1,2 or 3");
-  if (m_degree > FEPIC_LAGRANGE_DEG_LIMIT)
-    throw std::invalid_argument("SfSimplexLagrange constructor: `degree` exceeded FEPIC_LAGRANGE_DEG_LIMIT");
+  if (m_degree > ALELIB_LAGRANGE_DEG_LIMIT)
+    throw std::invalid_argument("SfSimplexLagrange constructor: `degree` exceeded ALELIB_LAGRANGE_DEG_LIMIT");
   
   switch (dim)
   {
@@ -193,7 +193,7 @@ int SfSimplexLagrange::dim() const
   return m_dim;
 }
 
-int SfSimplexLagrange::numDofsInsideCorner()  const
+int SfSimplexLagrange::numDofsInsideRidge()  const
 {
   if (Self::degree() == 0)
     return 0;
@@ -203,7 +203,7 @@ int SfSimplexLagrange::numDofsInsideCorner()  const
     case 2: return 1;
     case 3: return Self::degree()-1;
   }
-  throw std::runtime_error("SfSimplexLagrange::numDofsInsideCorner: I should not be here");
+  throw std::runtime_error("SfSimplexLagrange::numDofsInsideRidge: I should not be here");
 }
 
 int SfSimplexLagrange::numDofsInsideFacet()   const
@@ -239,7 +239,7 @@ int SfSimplexLagrange::numDofsPerVertice() const
   return 1;
 }
 
-int SfSimplexLagrange::numDofsPerCorner()  const
+int SfSimplexLagrange::numDofsPerRidge()  const
 {
   if (Self::degree() == 0)
     return 0;
@@ -249,7 +249,7 @@ int SfSimplexLagrange::numDofsPerCorner()  const
     case 2: return 1;
     case 3: return Self::degree()+1;
   }
-  throw std::runtime_error("SfSimplexLagrange::numDofsPerCorner: I should not be here");  
+  throw std::runtime_error("SfSimplexLagrange::numDofsPerRidge: I should not be here");  
 }
 
 int SfSimplexLagrange::numDofsPerFacet()   const

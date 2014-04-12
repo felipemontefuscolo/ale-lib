@@ -305,7 +305,7 @@ int VarDofs::numDofsPerFacet() const
 
 }
 
-int VarDofs::numDofsPerCorner() const
+int VarDofs::numDofsPerRidge() const
 {
   return m_n_dof_within_vertice*m_mesh_ptr->numVerticesPerCorner() +
          m_n_dof_within_corner;
