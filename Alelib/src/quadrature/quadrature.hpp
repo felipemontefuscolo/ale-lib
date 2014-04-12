@@ -41,6 +41,8 @@ public:
   }; 
 
   static void igetQuadrPtsHypercube(int n, int dim, std::vector<Vec3>& points, std::vector<Real>& weights);
+  
+  Quadrature() {};
 
   Quadrature(ECellType ct, int degree);
 

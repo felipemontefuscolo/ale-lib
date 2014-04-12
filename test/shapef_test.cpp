@@ -35,6 +35,7 @@
 #include <Alelib/Mesh>
 #include <Alelib/IO>
 #include <Alelib/ShapeFunction>
+#include <Alelib/Quadrature>
 #include <Alelib/src/shape_functions/parametric_pts.hpp>
 #include <tr1/array>
 #include <tr1/tuple>
@@ -73,7 +74,7 @@ typedef Mesh<HEXAHEDRON>  MeshHex;
 template<class F>
 Real diff_(F const& f, Real const*x, int c, int Dim)
 {
-	
+
   if (0) // two points
   {
     Real h = 0.41*pow(ALE_EPS, 1./3.); // for 2-points method
@@ -96,7 +97,7 @@ Real diff_(F const& f, Real const*x, int c, int Dim)
   }
   else // four points
   {
-    
+
     Real h = 11*pow(ALE_EPS, 1./3.); // for 4-points method
     volatile Real t = h + x[c];
     h = t - x[c];
@@ -119,7 +120,7 @@ Real diff_(F const& f, Real const*x, int c, int Dim)
     yy[c] += 2.*h;
     zz[c] -= 2.*h;
 
-    return (-f(yy) + 8.*(f(y) - f(z)) + f(zz))/(12.*h); // for higher order    
+    return (-f(yy) + 8.*(f(y) - f(z)) + f(zz))/(12.*h); // for higher order
   }
 }
 
@@ -150,7 +151,11 @@ TEST(ShapeEdge1Tests, LagrangeDeltaProperty)
       //cout << endl;
     }
   }
-  
+
+  sf.setType("Lagrange", /*dim*/1, /*degree*/0);
+  xyz[0] = 0.;
+  ASSERT_EQ(1, sf.value(listOf(xyz[0]), 0));
+
 }
 
 TEST(ShapeEdge1Tests, LagrangeGradient)
@@ -173,12 +178,12 @@ TEST(ShapeEdge1Tests, LagrangeGradient)
       for (int i = 0; i < (int)xyz.size(); ++i)
       {
         Real x[] = {xyz[i]};
-      
+
         Func = std::tr1::bind(std::tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
-        
+
         ASSERT_NEAR(diff_( Func, x, 0, sdim ),  sf.grad(x, dof, 0), ALE_TOL)
         << "degree: " << degree << "\npoint: " << i << "\ndof: " << dof << "\ncomp:" << 0 << "\npt:" << x[0] <<  endl;
-        
+
         //cout << diff_( Func, x, 0, sdim ) << " ppp:" << x[0] << endl;
         //cout << sf.grad(x, dof, 0) << "\tppp:" << x[0] << endl;
       }
@@ -289,11 +294,11 @@ TEST_F(ShapeTri1Tests, LagrangeGradient)
     for (int i = 0; i < (int)xyz.size()/2; ++i)
     {
       Real x[] = {xyz[2*i], xyz[2*i+1]};
-      
+
       for (int dof = 0; dof < (int)xyz.size()/2; ++dof)
       {
         Func = std::tr1::bind(std::tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
-        
+
         for (int c = 0; c < sdim; ++c)
         {
           ASSERT_NEAR(diff_( Func, x, c, sdim ),  sf.grad(x, dof, c), ALE_TOL)
@@ -405,11 +410,11 @@ TEST_F(ShapeTet1Tests, LagrangeGradient)
     for (int i = 0; i < (int)xyz.size()/3; ++i)
     {
       Real x[] = {xyz[3*i], xyz[3*i+1], xyz[3*i+2]};
-      
+
       for (int dof = 0; dof < (int)xyz.size()/3; ++dof)
       {
         Func = std::tr1::bind(std::tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
-        
+
         for (int c = 0; c < sdim; ++c)
         {
           ASSERT_NEAR(diff_( Func, x, c, sdim ),  sf.grad(x, dof, c), ALE_TOL)
@@ -429,7 +434,92 @@ TEST_F(ShapeTet1Tests, LagrangeGradient)
 //
 //
 
+TEST(ShapeEdge1Tests, LagrangeIntegration)
+{
+  Quadrature Q;
+  ShapeFunction sf;
+
+  for (int deg = 0; deg < 10; ++deg)
+  {
+    Q.setType(EDGE,deg);
+    sf.setType("Lagrange", /*dim*/1, /*degree*/deg);
+
+    Real integ = 0;
+    Real d_integ = 0;
+    for (int qp = 0; qp < Q.numPoints(); ++qp)
+    {
+      for (int dof = 0; dof < sf.numDofs(); ++dof)
+      {
+        integ += sf.value(Q.point(qp), dof) * Q.weight(qp);
+        d_integ += sf.grad(Q.point(qp), dof, 0) * Q.weight(qp);
+      }
+
+    }
+    ASSERT_NEAR(2., integ, ALE_TOL);
+    ASSERT_NEAR(0., d_integ, ALE_TOL);
+  }
+
+}
 
 
+TEST_F(ShapeTri1Tests, LagrangeIntegration)
+{
+  Quadrature Q;
+  ShapeFunction sf;
+
+  for (int deg = 0; deg < 11; ++deg)
+  {
+    Q.setType(TRIANGLE,deg);
+    sf.setType("Lagrange", /*dim*/2, /*degree*/deg);
+
+    Real integ = 0;
+    Real d_integ[2] = {0,0};
+    for (int qp = 0; qp < Q.numPoints(); ++qp)
+    {
+      for (int dof = 0; dof < sf.numDofs(); ++dof)
+      {
+        integ += sf.value(Q.point(qp), dof) * Q.weight(qp);
+        for (int i = 0; i < 2; ++i)
+          d_integ[i] += sf.grad(Q.point(qp), dof, i) * Q.weight(qp);
+      }
+
+    }
+    ASSERT_NEAR(0.5, integ, ALE_TOL);
+    ASSERT_NEAR(0.0, d_integ[0], ALE_TOL);
+    ASSERT_NEAR(0.0, d_integ[1], ALE_TOL);
+
+  }
+
+}
+
+TEST_F(ShapeTet1Tests, LagrangeIntegration)
+{
+  Quadrature Q;
+  ShapeFunction sf;
+
+  for (int deg = 0; deg < 9; ++deg)
+  {
+    Q.setType(TETRAHEDRON,deg);
+    sf.setType("Lagrange", /*dim*/3, /*degree*/deg);
+
+    Real integ = 0;
+    Real d_integ[3] = {0,0,0};
+    for (int qp = 0; qp < Q.numPoints(); ++qp)
+    {
+      for (int dof = 0; dof < sf.numDofs(); ++dof)
+      {
+        integ += sf.value(Q.point(qp), dof) * Q.weight(qp);
+        for (int i = 0; i < 3; ++i)
+          d_integ[i] += sf.grad(Q.point(qp), dof, i) * Q.weight(qp);
+      }
+
+    }
+    ASSERT_NEAR(1./6., integ, ALE_TOL);
+    ASSERT_NEAR(0.0, d_integ[0], ALE_TOL);
+    ASSERT_NEAR(0.0, d_integ[1], ALE_TOL);
+    ASSERT_NEAR(0.0, d_integ[2], ALE_TOL);
+  }
+
+}
 
 
