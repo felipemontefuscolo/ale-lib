@@ -79,11 +79,11 @@ void SfSimplexLagrange::computeDenominators()
     std::vector<long int> denom_term(dim+1, 1L); // denominator terms;
     std::vector<long int> sup(dim+1);      // final index in the products of sequences
 
-    sup.at(dim) = Self::degree();
-    for (int c = 0; c < dim; ++c)
+    sup.front() = Self::degree();
+    for (int c = 1; c <= dim; ++c)
     {
-      sup.at(c) = m_integer_pts.at(dim*i + c);
-      sup.at(dim) -= sup.at(c);
+      sup.at(c) = m_integer_pts.at(dim*i + c-1);
+      sup.front() -= sup.at(c);
     }
 
     for (int c = 0; c < dim+1; ++c)
@@ -139,6 +139,30 @@ Real SfSimplexLagrange::value(Real const*x__, unsigned ith) const
 
   return numerator/m_denominator.at(ith);
 }
+
+//Compute:  product(n*x-k, k, 0, Q-1). See documentation.
+double SfSimplexLagrange::numeratorAt(int n, int Q, double x) const
+{
+  double prod=1;
+  for (int k = 0; k < Q; k++)
+    prod *= n*x-k;
+  return prod;
+}
+
+double SfSimplexLagrange::numeratorAt_d(int n, int Q, double x, double xd, double *numerator_val) const
+{
+    double prod = 1;
+    double prodd;
+    prodd = 0.0;
+    for (int k = 0; k < Q; ++k) {
+        prodd = prodd*(n*x-k) + prod*n*xd;
+        prod *= n*x - k;
+    }
+    *numerator_val = prod;
+    return prodd;
+}
+
+
 
 Real SfSimplexLagrange::grad(Real const*x__, unsigned ith, unsigned c) const
 {
@@ -295,27 +319,6 @@ int SfSimplexLagrange::numDofsPerFacet()   const
   throw std::runtime_error("SfSimplexLagrange::numDofsPerFacet: I should not be here");
 }
 
-//Compute:  product(n*x-k, k, 0, Q-1). See documentation.
-double SfSimplexLagrange::numeratorAt(int n, int Q, double x) const
-{
-  double prod=1;
-  for (int k = 0; k < Q; k++)
-    prod *= n*x-k;
-  return prod;
-}
-
-double SfSimplexLagrange::numeratorAt_d(int n, int Q, double x, double xd, double *numerator_val) const
-{
-    double prod = 1;
-    double prodd;
-    prodd = 0.0;
-    for (int k = 0; k < Q; ++k) {
-        prodd = prodd*(n*x-k) + prod*n*xd;
-        prod *= n*x - k;
-    }
-    *numerator_val = prod;
-    return prodd;
-}
 
 SfSimplexLagrange* SfSimplexLagrange::clone() const
 {

@@ -366,7 +366,7 @@ TEST_F(ShapeTet1Tests, LagrangeDeltaProperty)
   ShapeFunction sf;
   int const sdim = 3;
 
-  for (int k = 1; k < 2; ++k)
+  for (int k = 1; k < 9; ++k)
   {
     sf.setType("Lagrange", /*dim*/sdim, /*degree*/k);
     genTetParametricPts(k, xyz);
@@ -380,8 +380,8 @@ TEST_F(ShapeTet1Tests, LagrangeDeltaProperty)
         if (i==j)
           ASSERT_NEAR(1, sf.value(listOf(xyz[3*j], xyz[3*j+1], xyz[3*j+2]), j), ALE_TOL);
         else
-          ASSERT_NEAR(0, sf.value(listOf(xyz[3*i], xyz[3*i+1], xyz[3*j+2]), j), ALE_TOL)
-          << "degree= "<< k <<  "\ni=" << i << "\nj=" << j << "\nxyz=" << xyz[3*i]<<" "<<xyz[3*i+1]<<" "<<xyz[3*j+2];
+          ASSERT_NEAR(0, sf.value(listOf(xyz[3*i], xyz[3*i+1], xyz[3*i+2]), j), ALE_TOL)
+          << "degree= "<< k <<  "\ni=" << i << "\nj=" << j << "\nxyz=" << xyz[3*i]<<" "<<xyz[3*i+1]<<" "<<xyz[3*i+2];
       }
     }
   }
