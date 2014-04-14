@@ -124,6 +124,70 @@ Real diff_(F const& f, Real const*x, int c, int Dim)
   }
 }
 
+// calculates the hessian a function f(x)
+// f: callable object in form  "Real f(Real const*)"
+template<class F>
+Real diff2_(F const& f, Real const*x, int c, int d, int Dim)
+{
+
+  if (0) // four points
+  {
+    Real hx = 83.530*pow(ALE_EPS, 1./3.), hy=hx; // for 2-points method
+    volatile Real t = hx + x[c];
+    volatile Real u = hy + x[d];
+    hx = t - x[c];
+    hy = u - x[d];
+
+    Real xpp[Dim]; // p = plus
+    Real xmm[Dim]; // m = minus
+    Real xpm[Dim]; //
+    Real xmp[Dim]; //
+
+    for (int i = 0; i < Dim; ++i)
+    {
+      xpp[i] = x[i];
+      xmm[i] = x[i];
+      xpm[i] = x[i];
+      xmp[i] = x[i];
+    }
+
+    xpp[c] += hx;
+    xpp[d] += hy;
+    
+    xmm[c] -= hx;
+    xmm[d] -= hy;
+        
+    xpm[c] += hx; 
+    xpm[d] -= hy; 
+    
+    xmp[c] -= hx;
+    xmp[d] += hy;
+
+    return (f(xpp) + f(xmm) - f(xpm) - f(xmp))/(4.*hx*hy);
+  }
+  else
+  {
+    Real h = 3*pow(ALE_EPS, 1./3.); // for 2-points method
+    volatile Real t = h + x[c];
+    h = t - x[c];
+
+    Real y[Dim];
+    Real z[Dim];
+
+    for (int i = 0; i < Dim; ++i)
+    {
+      y[i] = x[i];
+      z[i] = x[i];
+    }
+
+    y[c]  += h;
+    z[c]  -= h;
+
+    return (diff_(f, y, d, Dim)-diff_(f, z, d, Dim))/(2.*h);
+  }
+}
+
+
 TEST(ShapeEdge1Tests, LagrangeDeltaProperty)
 {
   //Real x[3] = {0.0,0.0,0.0};
@@ -182,6 +246,45 @@ TEST(ShapeEdge1Tests, LagrangeGradient)
         Func = std::tr1::bind(std::tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
 
         ASSERT_NEAR(diff_( Func, x, 0, sdim ),  sf.grad(x, dof, 0), ALE_TOL)
+        << "degree: " << degree << "\npoint: " << i << "\ndof: " << dof << "\ncomp:" << 0 << "\npt:" << x[0] <<  endl;
+
+        //cout << diff_( Func, x, 0, sdim ) << " ppp:" << x[0] << endl;
+        //cout << sf.grad(x, dof, 0) << "\tppp:" << x[0] << endl;
+      }
+    }
+    //for (int k = 0; k < xyz.size(); ++k)
+    //  cout << xyz[k] << " ";
+    //cout << endl;
+  }
+
+
+
+}
+
+TEST(ShapeEdge1Tests, LagrangeHessian)
+{
+
+  std::vector<double> xyz;
+  ShapeFunction sf;
+  int const sdim = 1;
+
+  // Shape function placeholder
+  std::tr1::function<Real (Real const*)> Func;
+
+  for (int degree = 1; degree < 8; ++degree)
+  {
+    sf.setType("Lagrange", /*dim*/1, degree);
+    genLineParametricPts(degree, xyz);
+
+    for (int dof = 0; dof < (int)xyz.size(); ++dof)
+    {
+      for (int i = 0; i < (int)xyz.size(); ++i)
+      {
+        Real x[] = {xyz[i]};
+
+        Func = std::tr1::bind(std::tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
+
+        ASSERT_NEAR(diff2_( Func, x, 0, 0, sdim ),  sf.hessian(x, dof, 0, 0), 3.e-6)
         << "degree: " << degree << "\npoint: " << i << "\ndof: " << dof << "\ncomp:" << 0 << "\npt:" << x[0] <<  endl;
 
         //cout << diff_( Func, x, 0, sdim ) << " ppp:" << x[0] << endl;
@@ -312,6 +415,43 @@ TEST_F(ShapeTri1Tests, LagrangeGradient)
 
 }
 
+TEST_F(ShapeTri1Tests, LagrangeHessian)
+{
+
+  std::vector<double> xyz;
+  ShapeFunction sf;
+  int const sdim = 2;
+
+  // Shape function placeholder
+  std::tr1::function<Real (Real const*)> Func;
+
+  for (int degree = 1; degree < 6; ++degree)
+  {
+    sf.setType("Lagrange", /*dim*/2, degree);
+    genTriParametricPts(degree, xyz);
+
+    for (int i = 0; i < (int)xyz.size()/2; ++i)
+    {
+      Real x[] = {xyz[2*i], xyz[2*i+1]};
+
+      for (int dof = 0; dof < (int)xyz.size()/2; ++dof)
+      {
+        Func = std::tr1::bind(std::tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
+
+        for (int c = 0; c < sdim; ++c)
+        {
+          for (int d = 0; d < sdim; ++d)
+            ASSERT_NEAR(diff2_( Func, x, c, d, sdim ),  sf.hessian(x, dof, c, d), 2e-6)
+            << "degree: " << degree << "\npoint: " << i << "\ndof: " << dof << "\ncomp:" << c << "\nh:" << pow(ALE_EPS, 1./3.) <<  endl;
+        }
+      }
+    }
+  }
+
+
+
+}
+
 
 class ShapeTet1Tests : public testing::Test
 {
@@ -427,6 +567,44 @@ TEST_F(ShapeTet1Tests, LagrangeGradient)
 
 
 }
+
+TEST_F(ShapeTet1Tests, LagrangeHessian)
+{
+
+  std::vector<double> xyz;
+  ShapeFunction sf;
+  int const sdim = 3;
+
+  // Shape function placeholder
+  std::tr1::function<Real (Real const*)> Func;
+
+  for (int degree = 1; degree < 6; ++degree)
+  {
+    sf.setType("Lagrange", /*dim*/3, degree);
+    genTetParametricPts(degree, xyz);
+
+    for (int i = 0; i < (int)xyz.size()/3; ++i)
+    {
+      Real x[] = {xyz[3*i], xyz[3*i+1], xyz[3*i+2]};
+
+      for (int dof = 0; dof < (int)xyz.size()/3; ++dof)
+      {
+        Func = std::tr1::bind(std::tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
+
+        for (int c = 0; c < sdim; ++c)
+        {
+          for (int d = 0; d < sdim; ++d)
+            ASSERT_NEAR(diff2_( Func, x, c, d, sdim ),  sf.hessian(x, dof, c, d), 2e-6)
+            << "degree: " << degree << "\npoint: " << i << "\ndof: " << dof << "\ncomp:" << c << "\nh:" << pow(ALE_EPS, 1./3.) <<  endl;
+        }
+      }
+    }
+  }
+
+
+
+}
+
 
 //
 //

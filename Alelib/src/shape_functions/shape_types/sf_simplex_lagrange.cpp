@@ -44,7 +44,7 @@ Scalar lagrange(Scalar const*x_, unsigned ith, int degree, int dim, std::vector<
   Scalar numerator(1);
   for (int k = 0; k < dim+1; ++k)
   {
-    //Scalar prod(1);
+    //Scalar prod(1); // this commented part is a good code to test the EAD lib
     //for (int q = 0; q < sup[k]; q++)
     //{
     //  prod *= degree*L[k]-q;

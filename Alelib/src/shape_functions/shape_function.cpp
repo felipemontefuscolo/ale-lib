@@ -121,6 +121,9 @@ Real ShapeFunction::value(Real const*x, unsigned ith) const
 Real ShapeFunction::grad(Real const*x, unsigned ith, unsigned c) const
 { return m_pimpl->grad(x, ith, c); }
 
+Real ShapeFunction::hessian(Real const*x, unsigned ith, unsigned c, unsigned d) const
+{ return m_pimpl->hessian(x, ith, c, d); }
+
 bool ShapeFunction::isTauEquivalent() const
 { return m_pimpl->isTauEquivalent(); }
 
