@@ -300,6 +300,41 @@ TEST(ShapeEdge1Tests, LagrangeHessian)
 
 }
 
+TEST(ShapeEdge1Tests, BubbleVGH) // value, gradient and hessian
+{
+  std::vector<double> xyz;
+  ShapeFunction sf;
+
+  // Shape function placeholder
+  std::tr1::function<Real (Real const*)> Func;
+
+  sf.setType("Bubble", /*dim*/1);
+
+  Func = std::tr1::bind(std::tr1::mem_fn(&ShapeFunction::value), sf, _1, 0);
+  
+  Real x = 0;
+  
+  ASSERT_EQ(1, sf.numDofs());
+  
+  ASSERT_NEAR(1.0,  sf.value(&x, /*dof*/0), 1e-14);
+  x = -1;
+  ASSERT_NEAR(0.0,  sf.value(&x, /*dof*/0), 1e-14);
+  x = +1;
+  ASSERT_NEAR(0.0,  sf.value(&x, /*dof*/0), 1e-14);
+  x = 0.5;
+  ASSERT_NEAR(3./4,  sf.value(&x, /*dof*/0), 1e-14);
+  x = -0.5;
+  ASSERT_NEAR(3./4,  sf.value(&x, /*dof*/0), 1e-14);
+  
+  Real xx[] = {-1.,-.5,0.,.5,1.};
+  
+  for (unsigned i = 0; i < sizeof(xx)/sizeof(Real); ++i)
+  {
+    ASSERT_NEAR(diff_( Func, xx+i, 0, /*sdim*/1 ),  sf.grad(xx+i, /*dof*/0, /*c*/0), 1e-12) << "X=" << xx[i] << endl;
+    ASSERT_NEAR(diff2_( Func, xx+i, 0, 0, /*sdim*/1 ),  sf.hessian(xx+i, /*dof*/0, /*c*/0, /*d*/0), 2e-8) << "X=" << xx[i] << endl;
+  }
+  
+}
 
 
 class ShapeTri1Tests : public testing::Test
@@ -452,6 +487,42 @@ TEST_F(ShapeTri1Tests, LagrangeHessian)
 
 }
 
+TEST_F(ShapeTri1Tests, BubbleVGH)
+{
+
+  std::vector<double> xyz;
+  ShapeFunction sf;
+  int const sdim = 2;
+
+  // Shape function placeholder
+  std::tr1::function<Real (Real const*)> Func;
+
+  sf.setType("Bubble", /*dim*/2);
+  
+  genTriParametricPts(3, xyz);
+
+  for (int i = 0; i < (int)xyz.size()/2; ++i)
+  {
+    Real x[] = {xyz[2*i], xyz[2*i+1]};
+
+    int dof = 0;
+
+    Func = std::tr1::bind(std::tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
+
+    for (int c = 0; c < sdim; ++c)
+    {
+      ASSERT_NEAR(diff_( Func, x, c, sdim ),  sf.grad(x, dof, c), ALE_TOL);
+      for (int d = 0; d < sdim; ++d)
+        ASSERT_NEAR(diff2_( Func, x, c, d, sdim ),  sf.hessian(x, dof, c, d), 4e-8);
+    }
+  }
+
+
+
+}
+
+
+
 
 class ShapeTet1Tests : public testing::Test
 {
@@ -598,6 +669,39 @@ TEST_F(ShapeTet1Tests, LagrangeHessian)
             << "degree: " << degree << "\npoint: " << i << "\ndof: " << dof << "\ncomp:" << c << "\nh:" << pow(ALE_EPS, 1./3.) <<  endl;
         }
       }
+    }
+  }
+
+
+
+}
+
+TEST_F(ShapeTet1Tests, BubbleVGH)
+{
+
+  std::vector<double> xyz;
+  ShapeFunction sf;
+  int const sdim = 3;
+
+  // Shape function placeholder
+  std::tr1::function<Real (Real const*)> Func;
+
+  sf.setType("Bubble", /*dim*/3);
+  genTetParametricPts(4, xyz);
+
+  for (int i = 0; i < (int)xyz.size()/3; ++i)
+  {
+    Real x[] = {xyz[3*i], xyz[3*i+1], xyz[3*i+2]};
+
+    int dof = 0;
+
+    Func = std::tr1::bind(std::tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
+
+    for (int c = 0; c < sdim; ++c)
+    {
+      ASSERT_NEAR(diff_( Func, x, c, sdim ),  sf.grad(x, dof, c), ALE_TOL);
+      for (int d = 0; d < sdim; ++d)
+        ASSERT_NEAR(diff2_( Func, x, c, d, sdim ),  sf.hessian(x, dof, c, d), 4e-8);
     }
   }
 

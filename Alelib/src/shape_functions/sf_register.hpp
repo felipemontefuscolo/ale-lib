@@ -10,6 +10,7 @@
 
 /*  !!!!!!~~~~~~~ Include your file here ~~~~~~~!!!!!!!!! */
 #include "shape_types/sf_simplex_lagrange.hpp"
+#include "shape_types/sf_bubble.hpp"
 #include "shape_types/sf_concatenated.hpp"
 
 namespace alelib {
@@ -34,6 +35,7 @@ std::map<std::string, SfStaticMemFn> init_register()
   
   // Add here
   reg[SfSimplexLagrange::nameId()] = SfSimplexLagrange::create;
+  reg[SfBubble::nameId()]          = SfBubble::create;
   
   return reg;
 }
