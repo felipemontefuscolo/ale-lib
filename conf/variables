@@ -8,8 +8,9 @@ LOKI_DIR  = $(ALELIB_DIR)/contrib/Loki
 OMPTL_DIR = $(ALELIB_DIR)/contrib/omptl
 BOOST_DIR = $(ALELIB_DIR)/contrib/boost
 ARRAY_DIR = $(ALELIB_DIR)/contrib/generic_array
+EAD_DIR   = $(ALELIB_DIR)/contrib/ead
 
-ALE_INCLUDE = -I$(ALELIB_DIR) -I$(EIGEN_DIR) -I$(METIS_DIR)/include -I$(LOKI_DIR) -I$(OMPTL_DIR) -I$(BOOST_DIR) -I$(ARRAY_DIR)
+ALE_INCLUDE = -I$(ALELIB_DIR) -I$(EIGEN_DIR) -I$(METIS_DIR)/include -I$(LOKI_DIR) -I$(OMPTL_DIR) -I$(BOOST_DIR) -I$(ARRAY_DIR) -I$(EAD_DIR)
 
 ALE_LIBS_DIR = $(ALELIB_DIR)/Alelib/slibs
 

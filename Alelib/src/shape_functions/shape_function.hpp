@@ -94,6 +94,8 @@ public:
    */
   Real grad(Real const*x, unsigned ith, unsigned c) const;
 
+  Real hessian(Real const*x, unsigned ith, unsigned c, unsigned d) const;
+
   bool isTauEquivalent() const;
   bool isLinear() const;
   

@@ -81,6 +81,20 @@ Real SfConcatenated::grad(Real const*x, unsigned ith, unsigned c) const
   return m_parts[nth]->grad(x, local_ith, c);
 }
 
+Real SfConcatenated::hessian(Real const*x, unsigned ith, unsigned c, unsigned d) const
+{
+  // find which function will be called (nth function)
+  int nth;
+  int local_ith;
+
+  if (ith >= (unsigned)m_ndofs)
+    throw std::out_of_range("SfConcatenated::value: invalid index");
+
+  whichShape(ith, local_ith, nth);
+
+  return m_parts[nth]->hessian(x, local_ith, c, d);  
+}
+
 bool SfConcatenated::isTauEquivalent() const
 {
   bool b = true;

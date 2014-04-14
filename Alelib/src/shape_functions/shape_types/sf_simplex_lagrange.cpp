@@ -4,11 +4,64 @@
 #include <stdexcept>
 #include <cstdlib> // atoi
 #include <cmath>
+#include <Ead/ead.hpp>
+#include <Ead/ead2.hpp>
 
 #define ALELIB_LAGRANGE_DEG_LIMIT 30
 
 namespace alelib
 {
+
+template<class Scalar>
+Scalar lagrange(Scalar const*x_, unsigned ith, int degree, int dim, std::vector<long int> const& m_denominator, std::vector<int>const& m_integer_pts)
+{
+  if (degree == 0)
+    return Scalar(1.);
+
+  Scalar x[3];
+  for (int i = 0; i < 3; ++i)
+    x[i] = x_[i];
+
+  if (dim==1) // rescale
+    x[0] = 0.5*(1.+x[0]);
+
+  Scalar L[4]; // barycentric coordinates
+  L[0] = 1.;
+  for (int k = 1; k <= dim; ++k)
+  {
+    L[k] = x[k-1];
+    L[0] -= L[k];
+  }
+
+  int sup[4]; // final index in the products of sequences
+  sup[0] = degree;
+  for (int k = 1; k <= dim; ++k)
+  {
+    sup[k] = m_integer_pts.at(dim*ith + k-1);
+    sup[0] -= sup[k];
+  }
+
+  Scalar numerator(1);
+  for (int k = 0; k < dim+1; ++k)
+  {
+    //Scalar prod(1);
+    //for (int q = 0; q < sup[k]; q++)
+    //{
+    //  prod *= degree*L[k]-q;
+    //}
+
+    for (int q = 0; q < sup[k]; q++)
+      numerator *= degree*L[k]-q;
+    
+    //numerator *= prod;
+  }
+
+  
+  numerator /= m_denominator.at(ith);
+
+
+  return numerator;
+}
 
 
 ShapeFuncImpl* SfSimplexLagrange::create(std::vector<std::string> /*options*/, int dim, int degree)
@@ -34,16 +87,6 @@ SfSimplexLagrange::SfSimplexLagrange(unsigned dim, unsigned degree, bool /*is_di
   Self::computeDenominators();
 }
 
-const char* SfSimplexLagrange::name() const
-{
-  return m_name.c_str();
-}
-
-// used for Shape Function registration
-const char* SfSimplexLagrange::nameId()
-{
-  return "Lagrange";
-}
 
 void SfSimplexLagrange::computeDenominators()
 {
@@ -98,129 +141,86 @@ void SfSimplexLagrange::computeDenominators()
 
 }
 
-Real SfSimplexLagrange::value(Real const*x__, unsigned ith) const
+Real SfSimplexLagrange::value(Real const*x_, unsigned ith) const
 {
   const int n_dofs = Self::numDofs();
   const int degree = Self::degree();
   const int dim    = Self::dim();
-
-  if (degree == 0)
-    return 1.;
-
-  Real x[3];
-  for (int i = 0; i < 3; ++i)
-    x[i] = x__[i];
-
-  if (dim==1) // rescale
-    x[0] = 0.5*(1.+x[0]);
 
   if (ith >= (unsigned)n_dofs)
     throw std::out_of_range("SfSimplexLagrange::value: invalid index");
 
-  std::vector<double> L(dim + 1); // barycentric coordinates
-  L.front() = 1.;
-  for (int k = 1; k <= dim; ++k)
-  {
-    L.at(k) = x[k-1];
-    L.front() -= L.at(k);
-  }
+  Real ret = lagrange(x_, ith, degree, dim, m_denominator, m_integer_pts);
+  
+  return ret;
 
-  std::vector<int> sup(dim+1); // final index in the products of sequences
-  sup.front() = degree;
-  for (int k = 1; k <= dim; ++k)
-  {
-    sup.at(k) = m_integer_pts.at(dim*ith + k-1);
-    sup.front() -= sup.at(k);
-  }
-
-  double numerator = 1;
-  for (int k = 0; k < dim+1; ++k)
-    numerator *= Self::numeratorAt(degree, sup.at(k), L.at(k));
-
-  return numerator/m_denominator.at(ith);
 }
 
-//Compute:  product(n*x-k, k, 0, Q-1). See documentation.
-double SfSimplexLagrange::numeratorAt(int n, int Q, double x) const
-{
-  double prod=1;
-  for (int k = 0; k < Q; k++)
-    prod *= n*x-k;
-  return prod;
-}
-
-double SfSimplexLagrange::numeratorAt_d(int n, int Q, double x, double xd, double *numerator_val) const
-{
-    double prod = 1;
-    double prodd;
-    prodd = 0.0;
-    for (int k = 0; k < Q; ++k) {
-        prodd = prodd*(n*x-k) + prod*n*xd;
-        prod *= n*x - k;
-    }
-    *numerator_val = prod;
-    return prodd;
-}
-
-
-
-Real SfSimplexLagrange::grad(Real const*x__, unsigned ith, unsigned c) const
+Real SfSimplexLagrange::grad(Real const*x_, unsigned ith, unsigned c) const
 {
   const int n_dofs = Self::numDofs();
   const int degree = Self::degree();
   const int dim    = Self::dim();
 
-  if (degree == 0)
-    return 0.;
+  if (ith >= (unsigned)n_dofs)
+    throw std::out_of_range("SfSimplexLagrange::value: invalid index");
 
-  Real x[3];
+  typedef ead::DFad<Real, 3> adouble;
+
+  adouble x[3];
+  
   for (int i = 0; i < dim; ++i)
-    x[i] = x__[i];
+  {
+    x[i].setDiff(i,dim);
+    x[i].val() = x_[i]; 
+  }
 
-  if (dim==1) // rescale
-    x[0] = 0.5*(1.+x[0]);
+  adouble ret(0,dim);
+  ret.setNumVars(dim);
+  
+  ret = lagrange(x, ith, degree, dim, m_denominator, m_integer_pts);
+
+  return ret.dx(c);
+}
+
+Real SfSimplexLagrange::hessian(Real const*x_, unsigned ith, unsigned c, unsigned d) const
+{
+  const int n_dofs = Self::numDofs();
+  const int degree = Self::degree();
+  const int dim    = Self::dim();
 
   if (ith >= (unsigned)n_dofs)
-    throw std::out_of_range("SfSimplexLagrange::grad: invalid index");
+    throw std::out_of_range("SfSimplexLagrange::value: invalid index");
 
-  if (c >= (unsigned)dim)
-    throw std::out_of_range("SfSimplexLagrange::grad: invalid dimension");
+  typedef ead::D2Fad<Real, 3> adouble;
 
-  std::vector<double> L(dim + 1);       // barycentric coordinates
-  std::vector<double> Ld(dim + 1, 0.0); // derivative with respect to c
-  L.front() = 1.;
-  for (int k = 1; k <= dim; ++k)
+  adouble x[3];
+  
+  for (int i = 0; i < dim; ++i)
   {
-    L.at(k) = x[k-1];
-    L.front() -= L.at(k);
-  }
-  Ld[c+1] =  1.0;
-  Ld[0] = -1.0;
-
-  std::vector<int> sup(dim+1); // final index in the products of sequences
-  sup.front() = degree;
-  for (int k = 1; k <= dim; ++k)
-  {
-    sup.at(k) = m_integer_pts.at(dim*ith + k-1);
-    sup.front() -= sup.at(k);
+    x[i].setDiff(i,dim);
+    x[i].val() = x_[i]; 
   }
 
-  double numerator = 1;
-  double numeratord = 0.0;
-  double temp1, temp1d;
-  for (int k = 0; k < dim+1; ++k)
-  {
-    //numerator *= Self::numeratorAt(degree, sup.at(c), L.at(c));
-    temp1d = numeratorAt_d(degree, sup.at(k), L.at(k), Ld.at(k), &temp1);
-    numeratord = numeratord*temp1 + numerator*temp1d;
-    numerator *= temp1;
-  }
+  adouble ret(0,dim);
+  ret.setNumVars(dim);
+  
+  ret = lagrange(x, ith, degree, dim, m_denominator, m_integer_pts);
 
-  if (dim!=1)
-    return numeratord/m_denominator.at(ith);
-  else
-    return 0.5*numeratord/m_denominator.at(ith);
+  return ret.d2x(c,d);
 }
+
+const char* SfSimplexLagrange::name() const
+{
+  return m_name.c_str();
+}
+
+// used for Shape Function registration
+const char* SfSimplexLagrange::nameId()
+{
+  return "Lagrange";
+}
+
 
 bool SfSimplexLagrange::isTauEquivalent() const
 {

@@ -20,6 +20,7 @@ public:
 
   virtual Real value(Real const*x, unsigned ith) const = 0;
   virtual Real grad(Real const*x, unsigned ith, unsigned c) const = 0;
+  virtual Real hessian(Real const*x, unsigned ith, unsigned c, unsigned d) const = 0;
 
   virtual bool isTauEquivalent() const = 0;
   virtual bool isLinear() const = 0;
