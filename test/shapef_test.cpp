@@ -709,6 +709,36 @@ TEST_F(ShapeTet1Tests, BubbleVGH)
 
 }
 
+TEST_F(ShapeTet1Tests, LagrangeBubble)
+{
+
+  std::vector<double> xyz;
+  ShapeFunction sf;
+  //int const sdim = 3;
+
+  // Shape function placeholder
+  std::tr1::function<Real (Real const*)> Func;
+
+  sf.setType("Lagrange+Bubble", /*dim*/3, 1);
+  genTetParametricPts(4, xyz);
+
+  ASSERT_EQ(5, sf.numDofs());
+
+  for (int i = 0; i < 3; ++i)
+  {
+    for (int j = 0; j < sf.numDofs()-1; ++j)
+    {
+      if (i==j)
+        ASSERT_NEAR(1, sf.value(listOf(xyz[3*j], xyz[3*j+1], xyz[3*j+2]), j), ALE_TOL);
+      else
+        ASSERT_NEAR(0, sf.value(listOf(xyz[3*i], xyz[3*i+1], xyz[3*i+2]), j), ALE_TOL);
+    }
+  }
+
+  ASSERT_NEAR(1., sf.value(&xyz.back()-2, 4), 1e-14); // xyz.back()-2 is the mid point .. bubble value 1 there
+
+}
+
 
 //
 //
