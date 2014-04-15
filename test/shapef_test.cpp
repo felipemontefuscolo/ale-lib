@@ -766,8 +766,8 @@ TEST(ShapeEdge1Tests, LagrangeIntegration)
       }
 
     }
-    ASSERT_NEAR(2., integ, ALE_TOL);
-    ASSERT_NEAR(0., d_integ, ALE_TOL);
+    ASSERT_NEAR(2., integ, 1e-14);
+    ASSERT_NEAR(0., d_integ, 1e-14);
   }
 
 }
@@ -795,9 +795,9 @@ TEST_F(ShapeTri1Tests, LagrangeIntegration)
       }
 
     }
-    ASSERT_NEAR(0.5, integ, ALE_TOL);
-    ASSERT_NEAR(0.0, d_integ[0], ALE_TOL);
-    ASSERT_NEAR(0.0, d_integ[1], ALE_TOL);
+    ASSERT_NEAR(0.5, integ, 1e-15);
+    ASSERT_NEAR(0.0, d_integ[0], 1e-14);
+    ASSERT_NEAR(0.0, d_integ[1], 1e-14);
 
   }
 
@@ -825,10 +825,10 @@ TEST_F(ShapeTet1Tests, LagrangeIntegration)
       }
 
     }
-    ASSERT_NEAR(1./6., integ, ALE_TOL);
-    ASSERT_NEAR(0.0, d_integ[0], ALE_TOL);
-    ASSERT_NEAR(0.0, d_integ[1], ALE_TOL);
-    ASSERT_NEAR(0.0, d_integ[2], ALE_TOL);
+    ASSERT_NEAR(1./6., integ, 1e-15);
+    ASSERT_NEAR(0.0, d_integ[0], 1e-14);
+    ASSERT_NEAR(0.0, d_integ[1], 1e-14);
+    ASSERT_NEAR(0.0, d_integ[2], 1e-14);
   }
 
 }
