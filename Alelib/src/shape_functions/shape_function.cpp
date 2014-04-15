@@ -40,6 +40,11 @@ bool ShapeFunction::isSet() const
   return m_pimpl != NULL;
 }
 
+const char* ShapeFunction::name() const
+{
+  return m_pimpl->name();
+}
+
 ShapeFunction::ShapeFunction(ShapeFunction const& cp)
 {
   if (cp.isSet())

@@ -6,6 +6,7 @@
 #include <cmath>
 #include <Ead/ead.hpp>
 #include <Ead/ead2.hpp>
+#include <sstream>
 
 #define ALELIB_LAGRANGE_DEG_LIMIT 30
 
@@ -85,6 +86,13 @@ SfSimplexLagrange::SfSimplexLagrange(unsigned dim, unsigned degree, bool /*is_di
   };
 
   Self::computeDenominators();
+  
+  std::stringstream ss;
+  
+  ss << "Lagrange," << dim << "," << degree;
+  
+  m_name = ss.str();
+  
 }
 
 

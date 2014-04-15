@@ -673,7 +673,6 @@ TEST_F(ShapeTet1Tests, LagrangeHessian)
   }
 
 
-
 }
 
 TEST_F(ShapeTet1Tests, BubbleVGH)
@@ -706,7 +705,6 @@ TEST_F(ShapeTet1Tests, BubbleVGH)
   }
 
 
-
 }
 
 TEST_F(ShapeTet1Tests, LagrangeBubble)
@@ -736,6 +734,7 @@ TEST_F(ShapeTet1Tests, LagrangeBubble)
   }
 
   ASSERT_NEAR(1., sf.value(&xyz.back()-2, 4), 1e-14); // xyz.back()-2 is the mid point .. bubble value 1 there
+
 
 }
 

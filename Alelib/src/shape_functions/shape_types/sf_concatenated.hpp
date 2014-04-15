@@ -29,12 +29,13 @@ class SfConcatenated : public ShapeFuncImpl
   SfConcatenated(SfConcatenated const&);
 public:
   
-  SfConcatenated() : m_ndofs(0), m_ndir(0), m_ndif(0), m_ndic(0), m_ndpv(0), m_ndpr(0), m_ndpf(0) {};
+  SfConcatenated() : m_ndofs(0), m_ndir(0), m_ndif(0), m_ndic(0), m_ndpv(0), m_ndpr(0), m_ndpf(0), m_name() {};
   
   virtual const char* name() const;
 
   void appendSf(ShapeFuncImpl* sf);
 	
+  unsigned numParts() const {return m_parts.size();}
 
   virtual Real value(Real const*x, unsigned ith) const;
   virtual Real grad(Real const*x, unsigned ith, unsigned c) const;

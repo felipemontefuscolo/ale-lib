@@ -35,7 +35,8 @@ SfConcatenated:: ~SfConcatenated()
 void SfConcatenated::appendSf(ShapeFuncImpl* sf)
 {
   m_parts.push_back(sf);
-  m_name += '+';
+  if (!m_name.empty())
+    m_name += '+';
   m_name += sf->name();
 
   m_ndofs += sf->numDofs()           ;

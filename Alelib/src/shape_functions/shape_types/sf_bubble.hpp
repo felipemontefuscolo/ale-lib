@@ -48,6 +48,7 @@ public:
       }   
     }; 
     
+    m_name += ",";
     m_name += A::itos(dim);
   }
 
