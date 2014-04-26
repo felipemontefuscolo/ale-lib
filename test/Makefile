@@ -20,13 +20,13 @@ include ../conf/variables
 # Where to find user code.
 USER_DIR = .
 
-CXX = g++
+CXX = $(ALE_CXX)
 
 # Flags passed to the preprocessor.
 CPPFLAGS += -I$(GTEST_DIR)/include $(ALE_INCLUDE)
 
 # Flags passed to the C++ compiler.
-CXXFLAGS += -g -Wall -Wextra -gdwarf-2
+CXXFLAGS += -g3 -Wall -Wextra -gdwarf-2 -DDEBUG
 
 #-gdwarf-2 is for handle inline functions in gdb
 

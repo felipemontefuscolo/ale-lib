@@ -33,7 +33,7 @@ class Mesh
   typedef Facet       FacetT;  // dim = d-1
   typedef Ridge       RidgeT;  // dim = d-2
   typedef Vertex      VertexT; // dim = 0
-  typedef Point       PointT; // dim = 0
+  typedef Point       PointT;  // dim = 0
   typedef Mesh<Ctype> MeshT;
 
 

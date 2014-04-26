@@ -97,7 +97,6 @@ Real diff_(F const& f, Real const*x, int c, int Dim)
   }
   else // four points
   {
-
     Real h = 11*pow(ALE_EPS, 1./3.); // for 4-points method
     volatile Real t = h + x[c];
     h = t - x[c];

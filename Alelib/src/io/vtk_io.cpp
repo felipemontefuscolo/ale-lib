@@ -3,7 +3,7 @@
 #include "../util/misc2.hpp"
 #include "../shape_functions/parametric_pts.hpp"
 #include "../shape_functions/default_map.hpp"
-#include "../dof_handle/reorder.hpp"
+#include "../dof_mapper/reorder.hpp"
 
 namespace alelib
 {

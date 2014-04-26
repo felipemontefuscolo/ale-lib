@@ -1,6 +1,6 @@
 include $(ALELIB_DIR)/conf/variables
 
-SUBDIRS = mesh util io shape_functions quadrature
+SUBDIRS = mesh util io shape_functions quadrature dof_mapper
 
 .PHONY: subdirs $(SUBDIRS)
 

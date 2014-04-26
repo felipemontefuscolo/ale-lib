@@ -22,78 +22,57 @@
 #include "../mesh/mesh.hpp"
 #include "var_dof.hpp"
 #include "../util/assert.hpp"
+#include "../mesh/mesh.hpp"
 
-//void VarDofs::setType(ShapeFunction * sf, int dim, int ntags, int const*tags)
-//{
-//  setType(sf->numDofsAssociatedToVertice()*dim, sf->numDofsAssociatedToCorner()*dim, sf->numDofsAssociatedToFacet()*dim, sf->numDofsAssociatedToCell()*dim,ntags,tags);
-//}
-//
-//void VarDofs::setType(int ndpv, int ndpr, int ndpf, int ndpc, int ntags, int const*tags)
-//{
-//  m_n_dof_within_vertice = ndpv;
-//  m_n_dof_within_corner = ndpr;
-//  m_n_dof_within_facet = ndpf;
-//  m_n_dof_within_cell = ndpc;
-//
-//  if (ntags>0)
-//  {
-//    ALELIB_CHECK(tags!=NULL, "tags NULL pointer", std::runtime_error);
-//    m_considered_tags.resize(ntags);
-//  }
-//  for (int i = 0; i < ntags; ++i)
-//    m_considered_tags[i] = tags[i];
-//}
-//
-void VarDofs::setType(EVarOptions options, unsigned n_regions, int const* regions)
+namespace alelib
 {
-  m_options = options;
 
-  if (m_options & SPLITTED_BY_REGION_CELL)
-  {
-    if (regions != NULL && n_regions > 1)
-    {
-      for (unsigned i = 0; i < n_regions; ++i)
-        m_regions.insert(regions[i]);
-    }
-    else
-    {
-      Cell const* cell;
-      Mesh const* mesh = m_mesh_ptr;
-      for (int i = 0; i < mesh->numCellsTotal(); ++i)
-      {
-        cell = mesh->getCellPtr(i);
-        if (cell->isDisabled()) continue;
+template<class Mesh_t>
+int VarDofs<Mesh_t>::numDofsPerVertex() const
+{
+  return m_n_dofs_in_vtx;
+}
 
-        int tag = cell->getTag();
+template<class Mesh_t>
+int VarDofs<Mesh_t>::numDofsPerCell() const
+{
+  return m_n_dofs_in_vtx    * MeshT::verts_per_cell +
+         m_n_dofs_in_ridge  * MeshT::ridges_per_cell +
+         m_n_dofs_in_facet  * MeshT::facets_per_cell +
+         m_n_dofs_in_cell;
+}
 
-        m_regions.insert(tag);
-      }
-    }
+template<class Mesh_t>
+int VarDofs<Mesh_t>::numDofsPerFacet() const
+{
+  return m_n_dofs_in_vtx   *  MeshT::verts_per_facet +
+         m_n_dofs_in_ridge *  MeshT::ridges_per_facet +
+         m_n_dofs_in_facet;
+}
 
-
-  }
+template<class Mesh_t>
+int VarDofs<Mesh_t>::numDofsPerRidge() const
+{
+  return m_n_dofs_in_vtx    *MeshT::verts_per_ridge +
+         m_n_dofs_in_ridge;
 
 }
 
-int VarDofs::totalSize() const
-{
-  return m_vertices_dofs.size() +
-         m_corners_dofs.size() +
-         m_facets_dofs.size() +
-         m_cells_dofs.size();
-}
+
+#if 0
+
 
 void VarDofs::setUp(int minimum_dof_id)
 {
-  unsigned const n_nodes_total = m_mesh_ptr->numNodesTotal();
-  unsigned const n_corners_total = m_mesh_ptr->numCornersTotal();
-  unsigned const n_facets_total = m_mesh_ptr->numFacetsTotal();
-  unsigned const n_cells_total = m_mesh_ptr->numCellsTotal();
+  unsigned const n_nodes_total = m_mp->numNodesTotal();
+  unsigned const n_corners_total = m_mp->numCornersTotal();
+  unsigned const n_facets_total = m_mp->numFacetsTotal();
+  unsigned const n_cells_total = m_mp->numCellsTotal();
 
-  Mesh * mesh = m_mesh_ptr;
+  Mesh * mesh = m_mp;
 
-  if (m_mesh_ptr->cellDim() < 3)
-    m_n_dof_within_corner = 0;
+  if (m_mp->cellDim() < 3)
+    m_n_dofs_in_ridge = 0;
 
 
   // find considered tags per region
@@ -102,9 +81,9 @@ void VarDofs::setUp(int minimum_dof_id)
   {
     m_regional_tags.clear();
     m_regional_tags.resize(m_regions.size());
-    
+
     Cell const* cell;
-    Mesh const* mesh = m_mesh_ptr;
+    Mesh const* mesh = m_mp;
     SetVector<int>::const_iterator it;
     for (int i = 0; i < mesh->numCellsTotal(); ++i)
     {
@@ -132,30 +111,30 @@ void VarDofs::setUp(int minimum_dof_id)
         for (int j = 0; j < cell->numCorners(); ++j)
           m_regional_tags[reg].insert( mesh->getCornerPtr(cell->getCornerId(j))->getTag() );
     }
-    
+
     int ii = 0;
     for (it = m_regions.begin(); it != m_regions.end(); ++it)
     {
       m_regional_tags[ii++].insert( *it );
     }
-    
-        
+
+
   }
-  
+
   int n_regions = m_regions.empty() ? 1 : (int) m_regions.size();
-  
-  if (m_n_dof_within_vertice > 0)
-    m_vertices_dofs.reshape(n_regions, n_nodes_total, m_n_dof_within_vertice);
-  if (m_n_dof_within_corner > 0)
-    m_corners_dofs.reshape(n_regions, n_corners_total, m_n_dof_within_corner);  
-  if (m_n_dof_within_facet > 0)
-    m_facets_dofs.reshape(n_regions, n_facets_total, m_n_dof_within_facet);  
-  if (m_n_dof_within_cell > 0)
-    m_cells_dofs.reshape(n_regions, n_cells_total, m_n_dof_within_cell);  
-  
-  
+
+  if (m_n_dofs_in_vtx > 0)
+    m_vertices_dofs.reshape(n_regions, n_nodes_total, m_n_dofs_in_vtx);
+  if (m_n_dofs_in_ridge > 0)
+    m_corners_dofs.reshape(n_regions, n_corners_total, m_n_dofs_in_ridge);
+  if (m_n_dofs_in_facet > 0)
+    m_facets_dofs.reshape(n_regions, n_facets_total, m_n_dofs_in_facet);
+  if (m_n_dof_in_cell > 0)
+    m_cells_dofs.reshape(n_regions, n_cells_total, m_n_dof_in_cell);
+
+
   bool by_regions = m_options & SPLITTED_BY_REGION_CELL;
-  
+
   unsigned dof_counter = minimum_dof_id;
   for (int reg = 0; reg < n_regions; ++reg)
   {
@@ -165,7 +144,7 @@ void VarDofs::setUp(int minimum_dof_id)
     bool is_considered;
 
     // vertices dof
-    if (m_n_dof_within_vertice > 0)
+    if (m_n_dofs_in_vtx > 0)
     {
       Point const*p;
       for (unsigned i = 0; i < n_nodes_total; ++i)
@@ -190,7 +169,7 @@ void VarDofs::setUp(int minimum_dof_id)
     }
 
     // corners dof
-    if (m_n_dof_within_corner > 0)
+    if (m_n_dofs_in_ridge > 0)
     {
 
       Corner const*p;
@@ -216,7 +195,7 @@ void VarDofs::setUp(int minimum_dof_id)
     }
 
     // facets dof
-    if (m_n_dof_within_facet > 0)
+    if (m_n_dofs_in_facet > 0)
     {
 
       Facet const*p;
@@ -242,7 +221,7 @@ void VarDofs::setUp(int minimum_dof_id)
     }
 
     // cells dof
-    if (m_n_dof_within_cell > 0)
+    if (m_n_dof_in_cell > 0)
     {
 
       Cell const*p;
@@ -267,9 +246,9 @@ void VarDofs::setUp(int minimum_dof_id)
       }
     }
 
-    
+
   }
-  
+
 
   m_n_positive_dofs = dof_counter - minimum_dof_id;
 
@@ -280,43 +259,12 @@ int VarDofs::numPositiveDofs() const
   return m_n_positive_dofs;
 }
 
-int VarDofs::numDofsPerVertex() const
-{
-  return m_n_dof_within_vertice;
-}
-
-int VarDofs::numDofsPerCell() const
-{
-  return m_n_dof_within_vertice*m_mesh_ptr->numVerticesPerCell() +
-         m_n_dof_within_corner *m_mesh_ptr->numCornersPerCell() +
-         m_n_dof_within_facet  *m_mesh_ptr->numFacetsPerCell() +
-         m_n_dof_within_cell;
-
-}
-
-int VarDofs::numDofsPerFacet() const
-{
-  // 3D
-  int const numm_corners_per_facet = m_mesh_ptr->numVerticesPerFacet();
-
-  return m_n_dof_within_vertice*m_mesh_ptr->numVerticesPerFacet() +
-         m_n_dof_within_corner *         numm_corners_per_facet +
-         m_n_dof_within_facet;
-
-}
-
-int VarDofs::numDofsPerRidge() const
-{
-  return m_n_dof_within_vertice*m_mesh_ptr->numVerticesPerCorner() +
-         m_n_dof_within_corner;
-
-}
 
 void VarDofs::getCellDofs(int *dofs, Cell const* cell) const
 {
-  int const n_vtcs_p_cell = m_mesh_ptr->numVerticesPerCell();
-  int const n_crns_p_cell = m_mesh_ptr->numCornersPerCell();
-  int const n_fcts_p_cell = m_mesh_ptr->numFacetsPerCell();
+  int const n_vtcs_p_cell = m_mp->numVerticesPerCell();
+  int const n_crns_p_cell = m_mp->numCornersPerCell();
+  int const n_fcts_p_cell = m_mp->numFacetsPerCell();
 
   // find region
   int tag = cell->getTag();
@@ -333,7 +281,7 @@ void VarDofs::getCellDofs(int *dofs, Cell const* cell) const
   {
     const int vtx_id = cell->getNodeId(i);
 
-    for (int j = 0; j < m_n_dof_within_vertice; ++j)
+    for (int j = 0; j < m_n_dofs_in_vtx; ++j)
     {
       *dofs++ = m_vertices_dofs(reg,vtx_id,j);
     }
@@ -344,7 +292,7 @@ void VarDofs::getCellDofs(int *dofs, Cell const* cell) const
   {
     const int crn_id = cell->getCornerId(i);
 
-    for (int j = 0; j < m_n_dof_within_corner; ++j)
+    for (int j = 0; j < m_n_dofs_in_ridge; ++j)
     {
       *dofs++ = m_corners_dofs(reg,crn_id,j);
     }
@@ -355,7 +303,7 @@ void VarDofs::getCellDofs(int *dofs, Cell const* cell) const
   {
     const int fct_id = cell->getFacetId(i);
 
-    for (int j = 0; j < m_n_dof_within_facet; ++j)
+    for (int j = 0; j < m_n_dofs_in_facet; ++j)
     {
       *dofs++ = m_facets_dofs(reg,fct_id,j);
     }
@@ -363,9 +311,9 @@ void VarDofs::getCellDofs(int *dofs, Cell const* cell) const
 
   // cells
   {
-    const int cell_id = m_mesh_ptr->getCellId(cell);
+    const int cell_id = m_mp->getCellId(cell);
 
-    for (int j = 0; j < m_n_dof_within_cell; ++j)
+    for (int j = 0; j < m_n_dof_in_cell; ++j)
     {
       *dofs++ = m_cells_dofs(reg,cell_id,j);
     }
@@ -376,10 +324,10 @@ void VarDofs::getCellDofs(int *dofs, Cell const* cell) const
 void VarDofs::getFacetDofs(int *dofs, CellElement const* facet) const
 {
 
-  int const n_vtcs_p_facet = m_mesh_ptr->numVerticesPerFacet();
+  int const n_vtcs_p_facet = m_mp->numVerticesPerFacet();
   int const n_crns_p_facet = n_vtcs_p_facet; // belive
 
-  Cell const* icell = m_mesh_ptr->getCellPtr(facet->getIncidCell());
+  Cell const* icell = m_mp->getCellPtr(facet->getIncidCell());
   const int pos = facet->getPosition();
 
   //int vtcs_ids[n_vtcs_p_facet];
@@ -405,7 +353,7 @@ void VarDofs::getFacetDofs(int *dofs, CellElement const* facet) const
   // vertices
   for (int i = 0; i < n_vtcs_p_facet; ++i)
   {
-    for (int j = 0; j < m_n_dof_within_vertice; ++j)
+    for (int j = 0; j < m_n_dofs_in_vtx; ++j)
     {
       *dofs++ = m_vertices_dofs(reg,vtcs_ids[i],j);
     }
@@ -418,7 +366,7 @@ void VarDofs::getFacetDofs(int *dofs, CellElement const* facet) const
   // corners
   for (int i = 0; i < n_crns_p_facet; ++i)
   {
-    for (int j = 0; j < m_n_dof_within_corner; ++j)
+    for (int j = 0; j < m_n_dofs_in_ridge; ++j)
     {
       *dofs++ = m_corners_dofs(reg,crns_ids[i],j);
     }
@@ -426,10 +374,10 @@ void VarDofs::getFacetDofs(int *dofs, CellElement const* facet) const
 
   // facets
   {
-    //const int fct_id = m_mesh_ptr->getFacetId(facet);
-    const int fct_id = m_mesh_ptr->getCellPtr(facet->getIncidCell())->getFacetId(facet->getPosition());
+    //const int fct_id = m_mp->getFacetId(facet);
+    const int fct_id = m_mp->getCellPtr(facet->getIncidCell())->getFacetId(facet->getPosition());
 
-    for (int j = 0; j < m_n_dof_within_facet; ++j)
+    for (int j = 0; j < m_n_dofs_in_facet; ++j)
     {
       *dofs++ = m_facets_dofs(reg,fct_id,j);
     }
@@ -443,9 +391,9 @@ void VarDofs::getFacetDofs(int *dofs, CellElement const* facet) const
 
 void VarDofs::getCornerDofs(int *dofs, CellElement const* corner) const
 {
-  int const n_vtcs_p_corner = m_mesh_ptr->numVerticesPerCorner();
+  int const n_vtcs_p_corner = m_mp->numVerticesPerCorner();
 
-  Cell const* icell = m_mesh_ptr->getCellPtr(corner->getIncidCell());
+  Cell const* icell = m_mp->getCellPtr(corner->getIncidCell());
   const int pos = corner->getPosition();
 
   //int vtcs_ids[n_vtcs_p_corner];
@@ -467,12 +415,12 @@ void VarDofs::getCornerDofs(int *dofs, CellElement const* corner) const
       }
     }
   }
-  
+
 
   // vertices
   for (int i = 0; i < n_vtcs_p_corner; ++i)
   {
-    for (int j = 0; j < m_n_dof_within_vertice; ++j)
+    for (int j = 0; j < m_n_dofs_in_vtx; ++j)
     {
       *dofs++ = m_vertices_dofs(reg,vtcs_ids[i],j);
     }
@@ -480,10 +428,10 @@ void VarDofs::getCornerDofs(int *dofs, CellElement const* corner) const
 
   // corners
   {
-    //const int crn_id = m_mesh_ptr->getCornerId(corner);
-    const int crn_id = m_mesh_ptr->getCellPtr(corner->getIncidCell())->getCornerId(corner->getPosition());
+    //const int crn_id = m_mp->getCornerId(corner);
+    const int crn_id = m_mp->getCellPtr(corner->getIncidCell())->getCornerId(corner->getPosition());
 
-    for (int j = 0; j < m_n_dof_within_corner; ++j)
+    for (int j = 0; j < m_n_dofs_in_ridge; ++j)
     {
       *dofs++ = m_corners_dofs(reg,crn_id,j);
     }
@@ -511,14 +459,14 @@ void VarDofs::getVertexDofs(int *dofs, CellElement const* point) const
       }
     }
   }
-  
+
 
   // vertices
   {
-    //const int pt_id = m_mesh_ptr->getPointId(point);
-    const int pt_id = m_mesh_ptr->getCellPtr(point->getIncidCell())->getNodeId(point->getPosition());
+    //const int pt_id = m_mp->getPointId(point);
+    const int pt_id = m_mp->getCellPtr(point->getIncidCell())->getNodeId(point->getPosition());
 
-    for (int j = 0; j < m_n_dof_within_vertice; ++j)
+    for (int j = 0; j < m_n_dofs_in_vtx; ++j)
     {
       *dofs++ = m_vertices_dofs.get(reg,pt_id,j);
     }
@@ -529,7 +477,7 @@ void VarDofs::getVertexDofs(int *dofs, CellElement const* point) const
 void VarDofs::getVertexDofs(int *dofs, int pt_id) const
 {
   // find region
-  int tag = m_mesh_ptr->getNodePtr(pt_id)->getTag();
+  int tag = m_mp->getNodePtr(pt_id)->getTag();
   int reg = 0;
   if (m_options & SPLITTED_BY_REGION_CELL)
   {
@@ -544,7 +492,7 @@ void VarDofs::getVertexDofs(int *dofs, int pt_id) const
     }
   }
 
-  for (int j = 0; j < m_n_dof_within_vertice; ++j)
+  for (int j = 0; j < m_n_dofs_in_vtx; ++j)
   {
     *dofs++ = m_vertices_dofs(reg,pt_id,j);
   }
@@ -563,15 +511,15 @@ void VarDofs::getCellAssociatedDofs(int* dofs, Cell const* cell) const
       reg = (int)(it - m_regions.begin());
   }
 
-  const int cell_id = m_mesh_ptr->getCellId(cell);
+  const int cell_id = m_mp->getCellId(cell);
 
-  for (int j = 0; j < m_n_dof_within_cell; ++j)
+  for (int j = 0; j < m_n_dof_in_cell; ++j)
     *dofs++ = m_cells_dofs(reg,cell_id,j);
 }
 void VarDofs::getFacetAssociatedDofs(int* dofs, CellElement const* facet) const
 {
-  //const int fct_id = m_mesh_ptr->getFacetId(facet);
-  const int fct_id = m_mesh_ptr->getCellPtr(facet->getIncidCell())->getFacetId(facet->getPosition());
+  //const int fct_id = m_mp->getFacetId(facet);
+  const int fct_id = m_mp->getCellPtr(facet->getIncidCell())->getFacetId(facet->getPosition());
 
   // find region
   int tag = facet->getTag();
@@ -589,13 +537,13 @@ void VarDofs::getFacetAssociatedDofs(int* dofs, CellElement const* facet) const
     }
   }
 
-  for (int j = 0; j < m_n_dof_within_facet; ++j)
+  for (int j = 0; j < m_n_dofs_in_facet; ++j)
     *dofs++ = m_facets_dofs(reg,fct_id,j);
 }
 void VarDofs::getCornerAssociatedDofs(int* dofs, CellElement const* corner) const
 {
-  //const int crn_id = m_mesh_ptr->getCornerId(corner);
-  const int crn_id = m_mesh_ptr->getCellPtr(corner->getIncidCell())->getCornerId(corner->getPosition());
+  //const int crn_id = m_mp->getCornerId(corner);
+  const int crn_id = m_mp->getCellPtr(corner->getIncidCell())->getCornerId(corner->getPosition());
 
   // find region
   int tag = corner->getTag();
@@ -613,7 +561,7 @@ void VarDofs::getCornerAssociatedDofs(int* dofs, CellElement const* corner) cons
     }
   }
 
-  for (int j = 0; j < m_n_dof_within_corner; ++j)
+  for (int j = 0; j < m_n_dofs_in_ridge; ++j)
     *dofs++ = m_corners_dofs(reg,crn_id,j);
 }
 void VarDofs::getVertexAssociatedDofs(int* dofs, CellElement const* point) const
@@ -622,8 +570,15 @@ void VarDofs::getVertexAssociatedDofs(int* dofs, CellElement const* point) const
 }
 
 
+#endif
 
+template class VarDofs<Mesh<EDGE> >       ;
+template class VarDofs<Mesh<TRIANGLE> >   ;
+template class VarDofs<Mesh<QUADRANGLE> > ;
+template class VarDofs<Mesh<TETRAHEDRON> >;
+template class VarDofs<Mesh<HEXAHEDRON> > ;
 
+} // end namespace alelib
 
 
 
