@@ -227,19 +227,19 @@ public:
   /// Return the number of activated ridges 
   size_type numRidges() const
   {
-    if (this->cell_dim == 3)
+    //if (this->cell_dim == 3)
       return static_cast<index_t>( m_ridges.size() );
-    else
-      return static_cast<index_t>( m_verts.size() );
+    //else
+    //  return static_cast<index_t>( m_verts.size() );
   }
 
   /// Return the number of ridges (activated and deactivated) 
   size_type numRidgesTotal() const
   {
-    if (this->cell_dim == 3)
+    //if (this->cell_dim == 3)
       return static_cast<index_t>( m_ridges.totalSize() );
-    else
-      return static_cast<index_t>( m_verts.totalSize() );
+    //else
+    //  return static_cast<index_t>( m_verts.totalSize() );
   }
 
   // NON_CONST

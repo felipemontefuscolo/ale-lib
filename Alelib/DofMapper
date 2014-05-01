@@ -23,7 +23,7 @@
 #define ALELIB_DOF_MAPPER_NE
 
 #include "conf/directives.hpp"
-#include "src/dof_mapper/var_dof.hpp"
+#include "src/dof_mapper/dof_mapper.hpp"
 
 
 

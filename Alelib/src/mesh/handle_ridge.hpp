@@ -38,7 +38,7 @@ public:
   void setTag(MeshT* mp, int tag)
   { mp->m_ridges[m_id].setTag(tag); }
 
-  int tag(MeshT* mp) const
+  int tag(MeshT const* mp) const
   { return mp->m_ridges[m_id].getTag(); }
 
   void vertices(MeshT const* mp, VertexH *ridge_verts) const

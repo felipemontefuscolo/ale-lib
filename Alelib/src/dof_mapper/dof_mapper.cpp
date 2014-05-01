@@ -19,35 +19,17 @@
 // License and a copy of the GNU General Public License along with
 // Alelib. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef ALELIB_FORWARD_DECLARATIONS_HPP
-#define ALELIB_FORWARD_DECLARATIONS_HPP
+#include "dof_mapper.hpp"
 
 
-// template<int dim> class Polytope;
-// template<int dim> class Simplex;
-// template<int dim> class Hypercube;
-// class UndefinedCell;
-// 
-// class Labelable;
-// 
-// class Vertex;
-// 
-// class Cell;
-// template<class Derived> class iCellCore;
-// template<int N> class Edge;
-// class Triangle3;
-// class Triangle6;
-// class Quadrangle4;
-// class Quadrangle8;
-// class Quadrangle9;
-// class Tetrahedron4;
-// class Tetrahedron10;
-// class Hexahedron8;
-// class Hexahedron20;
-// class Hexahedron27;
-// class Facet;
-// class Ridge;
-// class Mesh;
+namespace alelib
+{
+  
 
-#endif
+  
+  
+  
+}
+
+
 

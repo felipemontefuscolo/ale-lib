@@ -32,7 +32,7 @@ public:
   void setTag(MeshT* mp, int tag)
   { mp->m_facets[m_id].setTag(tag); }
 
-  int tag(MeshT* mp) const
+  int tag(MeshT const* mp) const
   { return mp->m_facets[m_id].getTag(); }
 
   bool isValid() const

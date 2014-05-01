@@ -53,7 +53,7 @@ public:
   void setTag(MeshT* mp, int tag)
   { mp->m_verts[m_id].setTag(tag); }
 
-  int tag(MeshT* mp) const
+  int tag(MeshT const* mp) const
   { return mp->m_verts[m_id].getTag(); }
 
 

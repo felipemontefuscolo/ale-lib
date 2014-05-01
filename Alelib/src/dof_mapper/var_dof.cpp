@@ -1,6 +1,6 @@
-// This file is part of FEPiC++, a toolbox for finite element codes.
+// This file is part of Alelib, a toolbox for finite element codes.
 //
-// FEPiC++ is free software; you can redistribute it and/or
+// Alelib is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
 // version 3 of the License, or (at your option) any later version.
@@ -10,567 +10,224 @@
 // published by the Free Software Foundation; either version 2 of
 // the License, or (at your option) any later version.
 //
-// FEPiC++ is distributed in the hope that it will be useful, but WITHOUT ANY
+// Alelib is distributed in the hope that it will be useful, but WITHOUT ANY
 // WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 // FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License or the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public
 // License and a copy of the GNU General Public License along with
-// FEPiC++. If not, see <http://www.gnu.org/licenses/>.
+// Alelib. If not, see <http://www.gnu.org/licenses/>.
 
 #include "../mesh/mesh.hpp"
 #include "var_dof.hpp"
 #include "../util/assert.hpp"
 #include "../mesh/mesh.hpp"
+#include <algorithm>
 
 namespace alelib
 {
 
 template<class Mesh_t>
-int VarDofs<Mesh_t>::numDofsPerVertex() const
+void VarDofs<Mesh_t>::setUp(index_t first_dof_id)
 {
-  return m_n_dofs_in_vtx;
-}
+  index_t const n_verts_total   = (index_t)(m_mp->numVerticesTotal());
+  index_t const n_ridges_total  = (index_t)(m_mp->numRidgesTotal()  );
+  index_t const n_facets_total  = (index_t)(m_mp->numFacetsTotal()  );
+  index_t const n_cells_total   = (index_t)(m_mp->numCellsTotal()   );
 
-template<class Mesh_t>
-int VarDofs<Mesh_t>::numDofsPerCell() const
-{
-  return m_n_dofs_in_vtx    * MeshT::verts_per_cell +
-         m_n_dofs_in_ridge  * MeshT::ridges_per_cell +
-         m_n_dofs_in_facet  * MeshT::facets_per_cell +
-         m_n_dofs_in_cell;
-}
-
-template<class Mesh_t>
-int VarDofs<Mesh_t>::numDofsPerFacet() const
-{
-  return m_n_dofs_in_vtx   *  MeshT::verts_per_facet +
-         m_n_dofs_in_ridge *  MeshT::ridges_per_facet +
-         m_n_dofs_in_facet;
-}
-
-template<class Mesh_t>
-int VarDofs<Mesh_t>::numDofsPerRidge() const
-{
-  return m_n_dofs_in_vtx    *MeshT::verts_per_ridge +
-         m_n_dofs_in_ridge;
-
-}
-
-
-#if 0
-
-
-void VarDofs::setUp(int minimum_dof_id)
-{
-  unsigned const n_nodes_total = m_mp->numNodesTotal();
-  unsigned const n_corners_total = m_mp->numCornersTotal();
-  unsigned const n_facets_total = m_mp->numFacetsTotal();
-  unsigned const n_cells_total = m_mp->numCellsTotal();
-
-  Mesh * mesh = m_mp;
-
-  if (m_mp->cellDim() < 3)
+  if (MeshT::cell_dim < 3)
     m_n_dofs_in_ridge = 0;
 
 
-  // find considered tags per region
-
-  if (m_regions.size() >= 1u) // if not, the considered tags are those passed by the user
+  // Detecting regions by cell tags.
+  // Assume that the mesh is tagged properly.
+  // If a subcell belongs exclusively to a region, then its tag can not be the same of
+  // another region
+  if (m_options & AUTO_DETECT_REGIONS)
   {
-    m_regional_tags.clear();
-    m_regional_tags.resize(m_regions.size());
+    m_regions_tags.clear();
 
-    Cell const* cell;
-    Mesh const* mesh = m_mp;
-    SetVector<int>::const_iterator it;
-    for (int i = 0; i < mesh->numCellsTotal(); ++i)
+    // creating regions vector
     {
-      cell = mesh->getCellPtr(i);
-      if (cell->isDisabled())
-        continue;
+      SetVector<int> tags;
+      for (CellH cell = m_mp->cellBegin(), cell_end = m_mp->cellEnd(); cell != cell_end; ++cell)
+      {
+        if (cell.isDisabled(m_mp))
+          continue;
 
-      int tag = cell->getTag();
+        int tag = cell.tag(m_mp);
 
-      it = m_regions.find(tag);
-
-      if (m_regions.end() == it)
-        continue;
-
-      int reg = (int) (it - m_regions.begin());
-
-      for (int j = 0; j < cell->numNodes(); ++j)
-        m_regional_tags[reg].insert( mesh->getNodePtr(cell->getNodeId(j))->getTag() );
-
-      if (mesh->cellDim() > 1)
-        for (int j = 0; j < cell->numFacets(); ++j)
-          m_regional_tags[reg].insert( mesh->getFacetPtr(cell->getFacetId(j))->getTag() );
-
-      if (mesh->cellDim() > 2)
-        for (int j = 0; j < cell->numCorners(); ++j)
-          m_regional_tags[reg].insert( mesh->getCornerPtr(cell->getCornerId(j))->getTag() );
+        tags.insert(tag);
+      }
+      m_regions_tags.reserve(tags.size());
+      for(unsigned i=0; i<tags.size(); ++i)
+        m_regions_tags.push_back(SetVector<int>(tags.begin()+i, tags.begin()+i+1));
     }
 
-    int ii = 0;
-    for (it = m_regions.begin(); it != m_regions.end(); ++it)
+    // including subcells tags
+    for (CellH cell = m_mp->cellBegin(), cell_end = m_mp->cellEnd(); cell != cell_end; ++cell)
     {
-      m_regional_tags[ii++].insert( *it );
+      if (cell.isDisabled(m_mp))
+        continue;
+
+      int ctag = cell.tag(m_mp);
+      int region = this->region(ctag);
+      ALELIB_CHECK(region >= 0, "Var setUp failed. Can not detect region", std::runtime_error);
+
+      // including vertex tags
+      {
+        VertexH verts[MeshT::verts_per_cell];
+        cell.vertices(m_mp, verts);
+
+        for (int i = 0; i < MeshT::verts_per_cell; ++i)
+        {
+          int vtag = verts[i].tag(m_mp);
+          m_regions_tags.at(region).insert(vtag);
+        }
+      }
+
+      // including ridges tags
+      if (MeshT::cell_dim > 2)
+      {
+        RidgeH ridges[MeshT::ridges_per_cell + 1]; // +1 to avoid compiler warnings
+        cell.ridges(m_mp, ridges);
+
+        for (int i = 0; i < MeshT::ridges_per_cell; ++i)
+        {
+          int rtag = ridges[i].tag(m_mp);
+          m_regions_tags.at(region).insert(rtag);
+        }
+      }
+
+      // including facets tags
+      if (MeshT::cell_dim > 1)
+      {
+        FacetH facets[MeshT::facets_per_cell];
+        cell.facets(m_mp, facets);
+
+        for (int i = 0; i < MeshT::facets_per_cell; ++i)
+        {
+          int ftag = facets[i].tag(m_mp);
+          m_regions_tags.at(region).insert(ftag);
+        }
+      }
+
     }
-
-
   }
 
-  int n_regions = m_regions.empty() ? 1 : (int) m_regions.size();
+  int n_regions = std::max(1ul, m_regions_tags.size());
+  bool const number_by_regions = !m_regions_tags.empty();
+
+
+  m_verts_dofs.clear();
+  m_ridges_dofs.clear();
+  m_facets_dofs.clear();
+  m_cells_dofs.clear();
 
   if (m_n_dofs_in_vtx > 0)
-    m_vertices_dofs.reshape(n_regions, n_nodes_total, m_n_dofs_in_vtx);
+    m_verts_dofs.reshape(marray::listify(n_regions, n_verts_total, m_n_dofs_in_vtx).v, -1);
   if (m_n_dofs_in_ridge > 0)
-    m_corners_dofs.reshape(n_regions, n_corners_total, m_n_dofs_in_ridge);
+    m_ridges_dofs.reshape(marray::listify(n_regions, n_ridges_total, m_n_dofs_in_ridge).v, -1);
   if (m_n_dofs_in_facet > 0)
-    m_facets_dofs.reshape(n_regions, n_facets_total, m_n_dofs_in_facet);
-  if (m_n_dof_in_cell > 0)
-    m_cells_dofs.reshape(n_regions, n_cells_total, m_n_dof_in_cell);
+    m_facets_dofs.reshape(marray::listify(n_regions, n_facets_total, m_n_dofs_in_facet).v, -1);
+  if (m_n_dofs_in_cell > 0)
+    m_cells_dofs.reshape(marray::listify(n_regions, n_cells_total, m_n_dofs_in_cell).v, -1);
 
 
-  bool by_regions = m_options & SPLITTED_BY_REGION_CELL;
-
-  unsigned dof_counter = minimum_dof_id;
+  index_t dof_counter = first_dof_id;
   for (int reg = 0; reg < n_regions; ++reg)
   {
-    /*  strategy: puts +1 where there is dof and -1 otherwise. After the, the numbering is done */
-
-    int tag;
-    bool is_considered;
-
-    // vertices dof
+    // vertices dofs
     if (m_n_dofs_in_vtx > 0)
     {
-      Point const*p;
-      for (unsigned i = 0; i < n_nodes_total; ++i)
+      for (VertexH p = m_mp->vertexBegin(), p_end = m_mp->vertexEnd(); p!=p_end; ++p)
       {
-        p = mesh->getNodePtr(i);
-        tag = p->getTag();
+        if (p.isDisabled(m_mp))
+          continue;
+        int tag = p.tag(m_mp);
 
-        // check for tag
-        if (by_regions)
-          is_considered = m_regional_tags.at(reg).end() != m_regional_tags[reg].find(tag);
-        else
-          is_considered = m_regional_tags[0].empty() ? true : m_regional_tags[0].end() != m_regional_tags[0].find(tag);
-
-
-        if (!(mesh->isVertex(p)) || !is_considered || p->isDisabled() )
-          for (int j = 0; j < m_vertices_dofs.dim(2); ++j)
-            m_vertices_dofs.get(reg,i,j) = -1;
-        else
-          for (int j = 0; j < m_vertices_dofs.dim(2); ++j)
-            m_vertices_dofs.get(reg,i,j) = dof_counter++;
+        // check if tag is in the region reg
+        bool in_region = true;
+        
+        if (number_by_regions)
+          in_region = m_regions_tags[reg].find(tag) != m_regions_tags[reg].end();
+        
+        if (in_region)
+          for (int j = 0; j < m_n_dofs_in_vtx; ++j)
+            m_verts_dofs[reg][p.id(m_mp)][j] = dof_counter++;
       }
     }
 
-    // corners dof
+    // ridges dofs
     if (m_n_dofs_in_ridge > 0)
     {
-
-      Corner const*p;
-      for (unsigned i = 0; i < n_corners_total; ++i)
+      for (RidgeH p = m_mp->ridgeBegin(), p_end = m_mp->ridgeEnd(); p!=p_end; ++p)
       {
-        p = mesh->getCornerPtr(i);
-        tag = p->getTag();
+        if (p.isDisabled(m_mp))
+          continue;
+        int tag = p.tag(m_mp);
 
-        // check for tag
-        if (by_regions)
-          is_considered = m_regional_tags[reg].end() != m_regional_tags[reg].find(tag);
-        else
-          is_considered = m_regional_tags[0].empty() ? true : m_regional_tags[0].end() != m_regional_tags[0].find(tag);
-
-
-        if (!is_considered || p->isDisabled())
-          for (int j = 0; j < m_corners_dofs.dim(2); ++j)
-            m_corners_dofs(reg,i,j) = -1;
-        else
-          for (int j = 0; j < m_corners_dofs.dim(2); ++j)
-            m_corners_dofs(reg,i,j) = dof_counter++;
+        // check if tag is in the region reg
+        bool in_region = true;
+        
+        if (number_by_regions)
+          in_region = m_regions_tags[reg].find(tag) != m_regions_tags[reg].end();
+        
+        if (in_region)
+          for (int j = 0; j < m_n_dofs_in_ridge; ++j)
+            m_ridges_dofs[reg][p.id(m_mp)][j] = dof_counter++;
       }
     }
 
-    // facets dof
+    // facets dofs
     if (m_n_dofs_in_facet > 0)
     {
-
-      Facet const*p;
-      for (unsigned i = 0; i < n_facets_total; ++i)
+      for (FacetH p = m_mp->facetBegin(), p_end = m_mp->facetEnd(); p!=p_end; ++p)
       {
-        p = mesh->getFacetPtr(i);
-        tag = p->getTag();
+        if (p.isDisabled(m_mp))
+          continue;
+        int tag = p.tag(m_mp);
 
-        // check for tag
-        if (by_regions)
-          is_considered = m_regional_tags[reg].end() != m_regional_tags[reg].find(tag);
-        else
-          is_considered = m_regional_tags[0].empty() ? true : m_regional_tags[0].end() != m_regional_tags[0].find(tag);
-
-
-        if (!is_considered || p->isDisabled())
-          for (int j = 0; j < m_facets_dofs.dim(2); ++j)
-            m_facets_dofs(reg,i,j) = -1;
-        else
-          for (int j = 0; j < m_facets_dofs.dim(2); ++j)
-            m_facets_dofs(reg,i,j) = dof_counter++;
+        // check if tag is in the region reg
+        bool in_region = true;
+        
+        if (number_by_regions)
+          in_region = m_regions_tags[reg].find(tag) != m_regions_tags[reg].end();
+        
+        if (in_region)
+          for (int j = 0; j < m_n_dofs_in_facet; ++j)
+            m_facets_dofs[reg][p.id(m_mp)][j] = dof_counter++;
       }
     }
 
-    // cells dof
-    if (m_n_dof_in_cell > 0)
+    // cells dofs
+    if (m_n_dofs_in_cell > 0)
     {
-
-      Cell const*p;
-      for (unsigned i = 0; i < n_cells_total; ++i)
+      for (CellH p = m_mp->cellBegin(), p_end = m_mp->cellEnd(); p!=p_end; ++p)
       {
-        p = mesh->getCellPtr(i);
-        tag = p->getTag();
+        if (p.isDisabled(m_mp))
+          continue;
+        int tag = p.tag(m_mp);
 
-        // check for tag
-        if (by_regions)
-          is_considered = m_regional_tags[reg].end() != m_regional_tags[reg].find(tag);
-        else
-          is_considered = m_regional_tags[0].empty() ? true : m_regional_tags[0].end() != m_regional_tags[0].find(tag);
-
-
-        if (!is_considered || p->isDisabled())
-          for (int j = 0; j < m_cells_dofs.dim(2); ++j)
-            m_cells_dofs(reg,i,j) = -1;
-        else
-          for (int j = 0; j < m_cells_dofs.dim(2); ++j)
-            m_cells_dofs(reg,i,j) = dof_counter++;
+        // check if tag is in the region reg
+        bool in_region = true;
+        
+        if (number_by_regions)
+          in_region = m_regions_tags[reg].find(tag) != m_regions_tags[reg].end();
+        
+        if (in_region)
+          for (int j = 0; j < m_n_dofs_in_cell; ++j)
+            m_cells_dofs[reg][p.id(m_mp)][j] = dof_counter++;
       }
     }
 
-
   }
-
-
-  m_n_positive_dofs = dof_counter - minimum_dof_id;
+  m_n_positive_dofs = dof_counter - first_dof_id;
 
 }
 
-int VarDofs::numPositiveDofs() const
-{
-  return m_n_positive_dofs;
-}
 
-
-void VarDofs::getCellDofs(int *dofs, Cell const* cell) const
-{
-  int const n_vtcs_p_cell = m_mp->numVerticesPerCell();
-  int const n_crns_p_cell = m_mp->numCornersPerCell();
-  int const n_fcts_p_cell = m_mp->numFacetsPerCell();
-
-  // find region
-  int tag = cell->getTag();
-  int reg = 0;
-  if (m_options & SPLITTED_BY_REGION_CELL)
-  {
-    SetVector<int>::const_iterator it = m_regions.find(tag);
-    if (it != m_regions.end())
-      reg = (int)(it - m_regions.begin());
-  }
-
-  // vertices
-  for (int i = 0; i < n_vtcs_p_cell; ++i)
-  {
-    const int vtx_id = cell->getNodeId(i);
-
-    for (int j = 0; j < m_n_dofs_in_vtx; ++j)
-    {
-      *dofs++ = m_vertices_dofs(reg,vtx_id,j);
-    }
-  }
-
-  // corners
-  for (int i = 0; i < n_crns_p_cell; ++i)
-  {
-    const int crn_id = cell->getCornerId(i);
-
-    for (int j = 0; j < m_n_dofs_in_ridge; ++j)
-    {
-      *dofs++ = m_corners_dofs(reg,crn_id,j);
-    }
-  }
-
-  // facets
-  for (int i = 0; i < n_fcts_p_cell; ++i)
-  {
-    const int fct_id = cell->getFacetId(i);
-
-    for (int j = 0; j < m_n_dofs_in_facet; ++j)
-    {
-      *dofs++ = m_facets_dofs(reg,fct_id,j);
-    }
-  }
-
-  // cells
-  {
-    const int cell_id = m_mp->getCellId(cell);
-
-    for (int j = 0; j < m_n_dof_in_cell; ++j)
-    {
-      *dofs++ = m_cells_dofs(reg,cell_id,j);
-    }
-  }
-
-}
-
-void VarDofs::getFacetDofs(int *dofs, CellElement const* facet) const
-{
-
-  int const n_vtcs_p_facet = m_mp->numVerticesPerFacet();
-  int const n_crns_p_facet = n_vtcs_p_facet; // belive
-
-  Cell const* icell = m_mp->getCellPtr(facet->getIncidCell());
-  const int pos = facet->getPosition();
-
-  //int vtcs_ids[n_vtcs_p_facet];
-  int *vtcs_ids = new int [n_vtcs_p_facet];
-  icell->getFacetVerticesId(pos, vtcs_ids);
-
-  // find region
-  int tag = facet->getTag();
-  int reg = 0;
-  if (m_options & SPLITTED_BY_REGION_CELL)
-  {
-    for (unsigned k = 0; k < m_regional_tags.size(); ++k)
-    {
-      SetVector<int>::const_iterator it = m_regional_tags[k].find(tag);
-      if (it != m_regional_tags[k].end())
-      {
-        reg = k;
-        break;
-      }
-    }
-  }
-
-  // vertices
-  for (int i = 0; i < n_vtcs_p_facet; ++i)
-  {
-    for (int j = 0; j < m_n_dofs_in_vtx; ++j)
-    {
-      *dofs++ = m_vertices_dofs(reg,vtcs_ids[i],j);
-    }
-  }
-
-  //int crns_ids[n_crns_p_facet];
-  int *crns_ids = new int [n_crns_p_facet];
-  icell->getFacetCornersId(pos, crns_ids);
-
-  // corners
-  for (int i = 0; i < n_crns_p_facet; ++i)
-  {
-    for (int j = 0; j < m_n_dofs_in_ridge; ++j)
-    {
-      *dofs++ = m_corners_dofs(reg,crns_ids[i],j);
-    }
-  }
-
-  // facets
-  {
-    //const int fct_id = m_mp->getFacetId(facet);
-    const int fct_id = m_mp->getCellPtr(facet->getIncidCell())->getFacetId(facet->getPosition());
-
-    for (int j = 0; j < m_n_dofs_in_facet; ++j)
-    {
-      *dofs++ = m_facets_dofs(reg,fct_id,j);
-    }
-  }
-
-  delete [] vtcs_ids;
-  vtcs_ids = NULL;
-  delete [] crns_ids;
-  crns_ids = NULL;
-}
-
-void VarDofs::getCornerDofs(int *dofs, CellElement const* corner) const
-{
-  int const n_vtcs_p_corner = m_mp->numVerticesPerCorner();
-
-  Cell const* icell = m_mp->getCellPtr(corner->getIncidCell());
-  const int pos = corner->getPosition();
-
-  //int vtcs_ids[n_vtcs_p_corner];
-  int *vtcs_ids = new int [n_vtcs_p_corner];
-  icell->getCornerVerticesId(pos, vtcs_ids);
-
-  // find region
-  int tag = corner->getTag();
-  int reg = 0;
-  if (m_options & SPLITTED_BY_REGION_CELL)
-  {
-    for (unsigned k = 0; k < m_regional_tags.size(); ++k)
-    {
-      SetVector<int>::const_iterator it = m_regional_tags[k].find(tag);
-      if (it != m_regional_tags[k].end())
-      {
-        reg = k;
-        break;
-      }
-    }
-  }
-
-
-  // vertices
-  for (int i = 0; i < n_vtcs_p_corner; ++i)
-  {
-    for (int j = 0; j < m_n_dofs_in_vtx; ++j)
-    {
-      *dofs++ = m_vertices_dofs(reg,vtcs_ids[i],j);
-    }
-  }
-
-  // corners
-  {
-    //const int crn_id = m_mp->getCornerId(corner);
-    const int crn_id = m_mp->getCellPtr(corner->getIncidCell())->getCornerId(corner->getPosition());
-
-    for (int j = 0; j < m_n_dofs_in_ridge; ++j)
-    {
-      *dofs++ = m_corners_dofs(reg,crn_id,j);
-    }
-  }
-
-  delete [] vtcs_ids;
-  vtcs_ids = NULL;
-}
-
-void VarDofs::getVertexDofs(int *dofs, CellElement const* point) const
-{
-
-  // find region
-  int tag = point->getTag();
-  int reg = 0;
-  if (m_options & SPLITTED_BY_REGION_CELL)
-  {
-    for (unsigned k = 0; k < m_regional_tags.size(); ++k)
-    {
-      SetVector<int>::const_iterator it = m_regional_tags[k].find(tag);
-      if (it != m_regional_tags[k].end())
-      {
-        reg = k;
-        break;
-      }
-    }
-  }
-
-
-  // vertices
-  {
-    //const int pt_id = m_mp->getPointId(point);
-    const int pt_id = m_mp->getCellPtr(point->getIncidCell())->getNodeId(point->getPosition());
-
-    for (int j = 0; j < m_n_dofs_in_vtx; ++j)
-    {
-      *dofs++ = m_vertices_dofs.get(reg,pt_id,j);
-    }
-  }
-
-}
-
-void VarDofs::getVertexDofs(int *dofs, int pt_id) const
-{
-  // find region
-  int tag = m_mp->getNodePtr(pt_id)->getTag();
-  int reg = 0;
-  if (m_options & SPLITTED_BY_REGION_CELL)
-  {
-    for (unsigned k = 0; k < m_regional_tags.size(); ++k)
-    {
-      SetVector<int>::const_iterator it = m_regional_tags[k].find(tag);
-      if (it != m_regional_tags[k].end())
-      {
-        reg = k;
-        break;
-      }
-    }
-  }
-
-  for (int j = 0; j < m_n_dofs_in_vtx; ++j)
-  {
-    *dofs++ = m_vertices_dofs(reg,pt_id,j);
-  }
-}
-
-
-void VarDofs::getCellAssociatedDofs(int* dofs, Cell const* cell) const
-{
-  // find region
-  int tag = cell->getTag();
-  int reg = 0;
-  if (m_options & SPLITTED_BY_REGION_CELL)
-  {
-    SetVector<int>::const_iterator it = m_regions.find(tag);
-    if (it != m_regions.end())
-      reg = (int)(it - m_regions.begin());
-  }
-
-  const int cell_id = m_mp->getCellId(cell);
-
-  for (int j = 0; j < m_n_dof_in_cell; ++j)
-    *dofs++ = m_cells_dofs(reg,cell_id,j);
-}
-void VarDofs::getFacetAssociatedDofs(int* dofs, CellElement const* facet) const
-{
-  //const int fct_id = m_mp->getFacetId(facet);
-  const int fct_id = m_mp->getCellPtr(facet->getIncidCell())->getFacetId(facet->getPosition());
-
-  // find region
-  int tag = facet->getTag();
-  int reg = 0;
-  if (m_options & SPLITTED_BY_REGION_CELL)
-  {
-    for (unsigned k = 0; k < m_regional_tags.size(); ++k)
-    {
-      SetVector<int>::const_iterator it = m_regional_tags[k].find(tag);
-      if (it != m_regional_tags[k].end())
-      {
-        reg = k;
-        break;
-      }
-    }
-  }
-
-  for (int j = 0; j < m_n_dofs_in_facet; ++j)
-    *dofs++ = m_facets_dofs(reg,fct_id,j);
-}
-void VarDofs::getCornerAssociatedDofs(int* dofs, CellElement const* corner) const
-{
-  //const int crn_id = m_mp->getCornerId(corner);
-  const int crn_id = m_mp->getCellPtr(corner->getIncidCell())->getCornerId(corner->getPosition());
-
-  // find region
-  int tag = corner->getTag();
-  int reg = 0;
-  if (m_options & SPLITTED_BY_REGION_CELL)
-  {
-    for (unsigned k = 0; k < m_regional_tags.size(); ++k)
-    {
-      SetVector<int>::const_iterator it = m_regional_tags[k].find(tag);
-      if (it != m_regional_tags[k].end())
-      {
-        reg = k;
-        break;
-      }
-    }
-  }
-
-  for (int j = 0; j < m_n_dofs_in_ridge; ++j)
-    *dofs++ = m_corners_dofs(reg,crn_id,j);
-}
-void VarDofs::getVertexAssociatedDofs(int* dofs, CellElement const* point) const
-{
-  getVertexDofs(dofs, point);
-}
-
-
-#endif
 
 template class VarDofs<Mesh<EDGE> >       ;
 template class VarDofs<Mesh<TRIANGLE> >   ;

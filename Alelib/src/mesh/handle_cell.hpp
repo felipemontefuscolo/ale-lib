@@ -46,7 +46,7 @@ public:
   void setTag(MeshT* mp, int tag)
   { mp->m_cells[m_id].setTag(tag); }
 
-  int tag(MeshT* mp) const
+  int tag(MeshT const* mp) const
   { return mp->m_cells[m_id].getTag(); }
 
   inline unsigned numVertices(MeshT const*) const
