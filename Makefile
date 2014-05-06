@@ -1,5 +1,7 @@
-ALELIB_DIR=${HOME}/Dropbox/cl-simu2/ale-lib
-export ALELIB_DIR
+# check for ALELIB_DIR
+ifeq "" "$(wildcard ${ALELIB_DIR})"
+$(error variable ALELIB_DIR was not defined or is an invalid directory)
+endif 
 
 include $(ALELIB_DIR)/conf/variables
 

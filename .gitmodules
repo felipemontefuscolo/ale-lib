@@ -1,0 +1,6 @@
+[submodule "contrib/ead"]
+	path = contrib/ead
+	url = https://github.com/felipemontefuscolo/ead.git
+[submodule "contrib/generic_array"]
+	path = contrib/generic_array
+	url = https://github.com/felipemontefuscolo/generic_array.git

@@ -12,8 +12,11 @@
 # project, except GTEST_HEADERS, which you can use in your own targets
 # but shouldn't modify.
 
-ALELIB_DIR = ${HOME}/Dropbox/cl-simu2/ale-lib
-export ALELIB_DIR
+# checl ALELIB_DIR
+ifeq "" "$(wildcard ${ALELIB_DIR})"
+$(error variable ALELIB_DIR was not defined or is an invalid directory)
+endif 
+
 include ../conf/variables
 
 
