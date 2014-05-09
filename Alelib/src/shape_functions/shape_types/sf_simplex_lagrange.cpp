@@ -255,7 +255,7 @@ int SfSimplexLagrange::dim() const
   return m_dim;
 }
 
-int SfSimplexLagrange::numDofsInsideRidge()  const
+int SfSimplexLagrange::numDofsInRidge()  const
 {
   if (Self::degree() == 0)
     return 0;
@@ -265,10 +265,10 @@ int SfSimplexLagrange::numDofsInsideRidge()  const
     case 2: return 1;
     case 3: return Self::degree()-1;
   }
-  throw std::runtime_error("SfSimplexLagrange::numDofsInsideRidge: I should not be here");
+  throw std::runtime_error("SfSimplexLagrange::numDofsInRidge: I should not be here");
 }
 
-int SfSimplexLagrange::numDofsInsideFacet()   const
+int SfSimplexLagrange::numDofsInFacet()   const
 {
   if (Self::degree() == 0)
     return 0;
@@ -278,10 +278,10 @@ int SfSimplexLagrange::numDofsInsideFacet()   const
     case 2: return Self::degree()-1;
     case 3: return (Self::degree()-1)*(Self::degree()-2)/2;
   }
-  throw std::runtime_error("SfSimplexLagrange::numDofsInsideFacet: I should not be here");
+  throw std::runtime_error("SfSimplexLagrange::numDofsInFacet: I should not be here");
 }
 
-int SfSimplexLagrange::numDofsInsideCell()    const
+int SfSimplexLagrange::numDofsInCell()    const
 {
   if (Self::degree() == 0)
     return 1;
@@ -291,7 +291,7 @@ int SfSimplexLagrange::numDofsInsideCell()    const
     case 2: return (Self::degree()-1)*(Self::degree()-2)/2;
     case 3: return (Self::degree()-1)*(Self::degree()-2)*(Self::degree()-3)/6;
   }
-  throw std::runtime_error("SfSimplexLagrange::numDofsInsideCell: I should not be here");
+  throw std::runtime_error("SfSimplexLagrange::numDofsInCell: I should not be here");
 }
 
 int SfSimplexLagrange::numDofsPerVertice() const

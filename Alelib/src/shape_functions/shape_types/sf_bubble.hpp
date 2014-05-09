@@ -142,9 +142,9 @@ public:
   virtual int dim()    const
   { return m_dim; }
 
-  virtual int numDofsInsideRidge()  const {return 0;};
-  virtual int numDofsInsideFacet()   const {return 0;};
-  virtual int numDofsInsideCell()    const {return 1;};
+  virtual int numDofsInRidge()  const {return 0;};
+  virtual int numDofsInFacet()   const {return 0;};
+  virtual int numDofsInCell()    const {return 1;};
 
   virtual int numDofsPerVertice() const {return 0;};
   virtual int numDofsPerRidge()  const {return 0;};

@@ -144,14 +144,14 @@ int  ShapeFunction::numDofs() const
 int  ShapeFunction::dim()    const
 { return m_pimpl->dim(); }
 
-int  ShapeFunction::numDofsInsideRidge()  const
-{ return m_pimpl->numDofsInsideRidge(); }
+int  ShapeFunction::numDofsInRidge()  const
+{ return m_pimpl->numDofsInRidge(); }
 
-int  ShapeFunction::numDofsInsideFacet()   const
-{ return m_pimpl->numDofsInsideFacet(); }
+int  ShapeFunction::numDofsInFacet()   const
+{ return m_pimpl->numDofsInFacet(); }
 
-int  ShapeFunction::numDofsInsideCell()    const
-{ return m_pimpl->numDofsInsideCell(); }
+int  ShapeFunction::numDofsInCell()    const
+{ return m_pimpl->numDofsInCell(); }
 
 int  ShapeFunction::numDofsPerVertice() const
 { return m_pimpl->numDofsPerVertice(); }

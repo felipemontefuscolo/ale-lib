@@ -29,9 +29,9 @@ public:
   virtual int numDofs() const = 0;
   virtual int dim()    const = 0;
 
-  virtual int numDofsInsideRidge()  const = 0;
-  virtual int numDofsInsideFacet()   const = 0;
-  virtual int numDofsInsideCell()    const = 0;
+  virtual int numDofsInRidge()  const = 0;
+  virtual int numDofsInFacet()   const = 0;
+  virtual int numDofsInCell()    const = 0;
 
   virtual int numDofsPerVertice() const = 0;
   virtual int numDofsPerRidge()  const = 0;

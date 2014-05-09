@@ -111,9 +111,9 @@ public:
   /** @brief returns the dimensions of the master cell */ 
   int dim()    const;
 
-  int numDofsInsideRidge()  const;
-  int numDofsInsideFacet()   const;
-  int numDofsInsideCell()    const;
+  int numDofsInRidge()  const;
+  int numDofsInFacet()   const;
+  int numDofsInCell()    const;
 
   int numDofsPerVertice() const;
   int numDofsPerRidge()  const;
