@@ -52,7 +52,7 @@ public:
   virtual int numDofsInFacet()   const;
   virtual int numDofsInCell()    const;
 
-  virtual int numDofsPerVertice() const;
+  virtual int numDofsPerVertex() const;
   virtual int numDofsPerRidge()  const;
   virtual int numDofsPerFacet()   const;
 

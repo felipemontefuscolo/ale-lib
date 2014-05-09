@@ -153,8 +153,8 @@ int  ShapeFunction::numDofsInFacet()   const
 int  ShapeFunction::numDofsInCell()    const
 { return m_pimpl->numDofsInCell(); }
 
-int  ShapeFunction::numDofsPerVertice() const
-{ return m_pimpl->numDofsPerVertice(); }
+int  ShapeFunction::numDofsPerVertex() const
+{ return m_pimpl->numDofsPerVertex(); }
 
 int  ShapeFunction::numDofsPerRidge()  const
 { return m_pimpl->numDofsPerRidge(); }

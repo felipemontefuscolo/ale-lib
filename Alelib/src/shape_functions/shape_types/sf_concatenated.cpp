@@ -43,7 +43,7 @@ void SfConcatenated::appendSf(ShapeFuncImpl* sf)
   m_ndir  += sf->numDofsInRidge();
   m_ndif  += sf->numDofsInFacet();
   m_ndic  += sf->numDofsInCell() ;
-  m_ndpv  += sf->numDofsPerVertice() ;
+  m_ndpv  += sf->numDofsPerVertex() ;
   m_ndpr  += sf->numDofsPerRidge()   ;
   m_ndpf  += sf->numDofsPerFacet()   ;
 
@@ -151,7 +151,7 @@ int SfConcatenated::numDofsInCell()    const
   return m_ndic;
 }
 
-int SfConcatenated::numDofsPerVertice() const
+int SfConcatenated::numDofsPerVertex() const
 {
   return m_ndpv;
 }

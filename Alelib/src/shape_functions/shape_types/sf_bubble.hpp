@@ -146,7 +146,7 @@ public:
   virtual int numDofsInFacet()   const {return 0;};
   virtual int numDofsInCell()    const {return 1;};
 
-  virtual int numDofsPerVertice() const {return 0;};
+  virtual int numDofsPerVertex() const {return 0;};
   virtual int numDofsPerRidge()  const {return 0;};
   virtual int numDofsPerFacet()   const {return 0;};
 

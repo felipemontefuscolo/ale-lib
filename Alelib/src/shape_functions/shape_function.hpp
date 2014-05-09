@@ -115,7 +115,7 @@ public:
   int numDofsInFacet()   const;
   int numDofsInCell()    const;
 
-  int numDofsPerVertice() const;
+  int numDofsPerVertex() const;
   int numDofsPerRidge()  const;
   int numDofsPerFacet()   const;
   //int numDofsPerCell()    const;

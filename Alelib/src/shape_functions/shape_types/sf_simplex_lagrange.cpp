@@ -294,7 +294,7 @@ int SfSimplexLagrange::numDofsInCell()    const
   throw std::runtime_error("SfSimplexLagrange::numDofsInCell: I should not be here");
 }
 
-int SfSimplexLagrange::numDofsPerVertice() const
+int SfSimplexLagrange::numDofsPerVertex() const
 {
   if (Self::degree() == 0)
     return 0;
