@@ -122,6 +122,8 @@ void MeshIoMsh<CT>::readFile(const char* filename, MeshT * mesh)
 
   FILE * file_ptr = fopen(filename, "r");
 
+  ALELIB_ASSERT(file_ptr, "could not open mesh file", std::invalid_argument);
+
   double  coord[3];
   int     type_tag;
   char    buffer[256];
