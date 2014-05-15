@@ -70,6 +70,10 @@ public:
   inline RidgeH ridge(MeshT const* mp, unsigned i) const
   { return RidgeH(mp->m_cells[m_id].ridges[i]);}
 
+  inline VertexH vertex(MeshT const* mp, unsigned i) const
+  { return VertexH(mp->m_cells[m_id].verts[i]);}
+
+
   inline std::vector<VertexH> vertices(MeshT const* mp) const
   {
     CellT const& c = mp->m_cells[m_id];
