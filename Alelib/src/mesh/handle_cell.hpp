@@ -87,6 +87,14 @@ public:
       verts[i] = VertexH(c.verts[i]);
   }
 
+  inline void verticesCoord(MeshT const* mp, Real* coords) const
+  {
+    CellT const& c = mp->m_cells[m_id];
+    int const sd = mp->spaceDim();
+    for (int i = 0; i < (int)CellT::n_verts; ++i)
+      mp->m_points[c.verts[i]].coord(coords+i*sd, sd);
+  }
+
   inline void facets(MeshT const* mp, FacetH* facets) const
   {
     CellT const& c = mp->m_cells[m_id];
