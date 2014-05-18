@@ -23,6 +23,7 @@
 #define ALE_REORDER_HPP
 
 #include "../mesh/mesh.hpp"
+#include "../shape_functions/parametric_pts.hpp"
 
 namespace alelib
 {
