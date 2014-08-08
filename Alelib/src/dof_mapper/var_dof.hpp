@@ -394,6 +394,77 @@ public:
     return dofs;
   }
 
+  // an auxilary
+  template<class OutIterator>
+  OutIterator getCellDofsTags(OutIterator dofs, CellH cell) const
+  {
+    int const reg = region(cell.tag(m_mp));
+
+    if (reg < 0)
+    {
+      int const n_dofs = numDofsPerCell();
+      for (int i = 0; i < n_dofs; ++i)
+        *dofs++ = -1;
+      return dofs;
+    }
+
+    // vertices
+    {
+      VertexH verts[MeshT::verts_per_cell];
+      cell.vertices(m_mp, verts);
+      for (int i = 0; i < MeshT::verts_per_cell; ++i)
+      {
+        index_t const pt_id = verts[i].id(m_mp);
+        for (int j = 0; j < m_n_dofs_in_vtx; ++j)
+        {
+          *dofs++ = m_verts_dofs[reg][pt_id][j];
+        }
+      }
+    }
+
+    // ridges
+    if (MeshT::cell_dim > 2)
+    {
+      RidgeH ridges[MeshT::ridges_per_cell];
+      cell.ridges(m_mp, ridges);
+      for (int i = 0; i < MeshT::ridges_per_cell; ++i)
+      {
+        index_t const rd_id = ridges[i].id(m_mp);
+        for (int j = 0; j < m_n_dofs_in_ridge; ++j)
+        {
+          *dofs++ = m_ridges_dofs[reg][rd_id][j];
+        }
+      }
+    }
+
+    // facets
+    {
+      FacetH facets[MeshT::facets_per_cell];
+      cell.facets(m_mp, facets);
+
+      for (int i = 0; i < MeshT::facets_per_cell; ++i)
+      {
+        index_t const f_id = facets[i].id(m_mp);
+        for (int j = 0; j < m_n_dofs_in_facet; ++j)
+        {
+          *dofs++ = m_facets_dofs[reg][f_id][j];
+        }
+      }
+
+    }
+
+    // cells
+    {
+      const index_t cell_id = cell.id(m_mp);
+      for (int j = 0; j < m_n_dofs_in_cell; ++j)
+      {
+        *dofs++ = m_cells_dofs[reg][cell_id][j];
+      }
+    }
+
+    return dofs;
+  }
+
 
 
 
