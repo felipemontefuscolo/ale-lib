@@ -24,6 +24,7 @@
 
 #include "conf/directives.hpp"
 #include "src/shape_functions/shape_function.hpp"
+#include "src/shape_functions/default_map.hpp"
 
 #endif
 
