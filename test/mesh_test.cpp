@@ -40,6 +40,8 @@
 #include <tr1/memory>
 #include <cmath>
 
+const double pi = 3.14159265359;
+
 using namespace alelib;
 using namespace std;
 
@@ -965,6 +967,38 @@ TEST_F(TetMesh2Tests, PrintNodalFieldVtk)
 
 }
 
+TEST_F(TetMesh2Tests, PrintCustomCoordsFieldVtk)
+{
+  MeshWriter writer;
+  writer.attachMesh(&m);
+  writer.setBinaryOutput(false);
+  writer.setFamily(true);
+  
+  writer.setNamePadding(2);
+  writer.setOutputFileName("output/tetmesh.vtk");
+  
+  writer.splitMeshEdges(1);
+  writer.writeMesh();
+  writer.addNodalScalarField("radial", MyPrinterTet2(m));
+  
+  writer.splitMeshEdges(2);
+  writer.writeMesh();
+  writer.addNodalScalarField("radial", MyPrinterTet2(m));
+  
+  writer.splitMeshEdges(3);
+  writer.writeMesh();
+  writer.addNodalScalarField("radial", MyPrinterTet2(m));
+  
+  writer.splitMeshEdges(4);
+  writer.writeMesh();
+  writer.addNodalScalarField("radial", MyPrinterTet2(m));
+  
+  writer.splitMeshEdges(5);
+  writer.writeMesh();
+  writer.addNodalScalarField("radial", MyPrinterTet2(m));
+
+}
+
 
 struct MyPrinterTri2 : public DefaultGetDataVtk
 {
@@ -1039,6 +1073,113 @@ TEST_F(TriMesh2Tests, PrintNodalFieldVtk)
   writer.addNodalScalarField("radial", MyPrinterTri2(m));
 
 }
+
+struct MyPrinterTri3 : public DefaultGetDataVtk
+{
+  typedef typename MeshTri::VertexH VertexH;
+  typedef typename MeshTri::CellH CellH;
+  MeshTri const& m;
+  MyPrinterTri3(MeshTri const& m_) : DefaultGetDataVtk(), m(m_) {}
+
+  virtual void getData(index_t id, Real *values) const
+  {
+    Real x_real[2];
+    VertexH(id).coord(&m, x_real, 2);
+
+    // finding angles
+    {
+      Real x = x_real[0], y = x_real[1];
+      Real z = atan(y/x);
+      Real t = -fabs(z-pi/4.)+pi/4.;
+      
+      if (x != 0)
+      {
+        x_real[0] = x*cos(t);
+        x_real[1] = y*cos(t);
+      }
+    }
+
+    values[0] = x_real[0];
+    values[1] = x_real[1];
+  }
+
+  virtual void getData(Real const *x_local, index_t cell_id, int /*ith*/, Real *values) const
+  {
+    
+    Real x[3][2];
+    CellH c(cell_id);
+    VertexH vts[3];
+    c.vertices(&m, vts);
+    for (int i = 0; i < 3; ++i)
+      vts[i].coord(&m, x[i]);
+
+    Real L[3];
+    L[0] = 1;
+    for (int i = 1; i <= 2; ++i) {
+      L[i] = x_local[i-1];
+      L[0] -= L[i];
+    }
+
+    Real x_real[3] = {0,0,0};
+    for (int i = 0; i < 3; ++i)
+      for (int j = 0; j < 2; ++j)
+        x_real[j] += L[i]*x[i][j];
+
+    // finding angles
+    {
+      Real x = x_real[0], y = x_real[1];
+      Real z = atan(y/x);
+      Real t = -fabs(z-pi/4.)+pi/4.;
+      
+      if (x != 0)
+      {
+        x_real[0] = x*cos(t);
+        x_real[1] = y*cos(t);
+      }
+    }
+
+    values[0] = x_real[0];
+    values[1] = x_real[1];
+
+  }
+
+  virtual int numComps() const
+  { return 2; }
+};
+
+
+TEST_F(TriMesh2Tests, PrintCustomCoordsFieldVtk)
+{
+  MeshWriter writer;
+  writer.attachMesh(&m);
+  writer.setBinaryOutput(false);
+  writer.setFamily(true);
+  
+  writer.setNamePadding(2);
+  writer.setOutputFileName("output/trimesh.vtk");
+  
+  writer.splitMeshEdges(1);
+  writer.writeMesh(MyPrinterTri3(m));
+  writer.addNodalScalarField("radial", MyPrinterTri3(m));
+  
+  writer.splitMeshEdges(2);
+  writer.writeMesh(MyPrinterTri3(m));
+  writer.addNodalScalarField("radial", MyPrinterTri3(m));
+  
+  writer.splitMeshEdges(3);
+  writer.writeMesh(MyPrinterTri3(m));
+  writer.addNodalScalarField("radial", MyPrinterTri3(m));
+  
+  writer.splitMeshEdges(4);
+  writer.writeMesh(MyPrinterTri3(m));
+  writer.addNodalScalarField("radial", MyPrinterTri3(m));
+  
+  writer.splitMeshEdges(5);
+  writer.writeMesh(MyPrinterTri3(m));
+  writer.addNodalScalarField("radial", MyPrinterTri3(m));
+
+}
+
 
 TEST(MshIoTests, IdentifiesMeshTypeTest)
 {

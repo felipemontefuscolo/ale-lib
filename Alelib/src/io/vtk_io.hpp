@@ -138,6 +138,7 @@ public:
   void splitMeshEdges(unsigned n_parts);
   
   void writeMesh(double* time = NULL); // time = optional parameter
+  void writeMesh(DefaultGetDataVtk const& data, double* time = NULL); // time = optional parameter
   void addNodalScalarField(const char* nome_var, DefaultGetDataVtk const& data);
   void addNodalVectorField(const char* nome_var, DefaultGetDataVtk const& data);
   void addCellScalarField(const char* nome_var, DefaultGetDataVtk const& data);

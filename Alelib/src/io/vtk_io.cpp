@@ -114,10 +114,11 @@ void MeshIoVtk<ECT>::fi_printNodeData(double tmp[], int ncomps, FILE *file_ptr) 
     fprintf(file_ptr,"%.14e\n", tmp[ncomps-1]);
   }
 }
-///  Print mesh in vtk file format.
-/// @param flinear if the mesh has higher order elements and this flag is false, than
-/// the mesh print each higher order cell as a compound of linear cells, otherwise the
-/// cells are printed as if lienar cells, disregarding high order nodes..
+
+
+/// Print mesh in vtk file format. In this version, if cell subdivisions are requested, it is used linear interpolation
+/// to compute high-order nodes.
+/// @param time if it's not null, print the content of (*time) in the file in a way that VisIt can recognize it.
 ///
 template<ECellType CT>
 void MeshIoVtk<CT>::writeMesh(double* time)
@@ -270,6 +271,266 @@ void MeshIoVtk<CT>::writeMesh(double* time)
       }
     }
   } // Points inside cells
+
+
+
+  //
+  //  PRINT CELLS
+  //
+
+  int const n_cd   = CTypeTraits<CT>::n_sub_cells(m_subdivs_lvl);    // number of subcells
+  int const n_pseudo_cells = m_mesh->numCells() * n_cd;
+  //int const n_cells_total  = m_mesh->numCellsTotal();
+  int const np_in_ridge = CTypeTraits<CT>::np_in_ridge(m_subdivs_lvl);
+  int const np_in_facet = CTypeTraits<CT>::np_in_facet(m_subdivs_lvl);
+  int const np_in_cell  = CTypeTraits<CT>::np_in_cell(m_subdivs_lvl);
+  int const np_per_cell = CTypeTraits<CT>::np_per_cell(m_subdivs_lvl);
+  int const n_vertices = m_mesh->numVertices();
+  int const n_ridges   = m_mesh->numRidges();
+  int const n_facets   = m_mesh->numFacets();
+  //int const n_cells    = m_mesh->numCells();
+  std::vector<index_t> dofs;
+  dofs.reserve(np_per_cell);
+
+
+  /// print cells
+  fprintf(file_ptr,"\nCELLS %d %d\n", n_pseudo_cells, (MeshT::verts_per_cell + 1)*n_pseudo_cells);
+
+  //printf("DEBUG n_cells_total = %d\n", n_cells_total);
+  CellH c = m_mesh->cellBegin();
+  CellH cend = m_mesh->cellEnd();
+  for (; c != cend; ++c)
+  {
+    if (c.isDisabled(m_mesh))
+      continue;
+
+    // getting "dofs"
+    index_t vts[MeshT::verts_per_cell+1];  // +1 to avoid compiler warning about zero-size vectors
+    index_t rds[MeshT::ridges_per_cell+1];
+    index_t fts[MeshT::facets_per_cell+1];
+
+    // vertices dofs
+    c.verticesContigId(m_mesh, vts);
+    for (int i = 0; i < MeshT::verts_per_cell; ++i)
+      dofs.push_back(vts[i]);
+
+    // ridges dofs
+    if (MeshT::cell_dim > 2 && np_in_ridge > 0)
+    {
+      index_t const offset = n_vertices;
+      c.ridgesContigId(m_mesh, rds);
+      for (int i = 0; i < MeshT::ridges_per_cell; ++i)
+        for (int j = 0; j < np_in_ridge; ++j)
+          dofs.push_back(offset + np_in_ridge*rds[i] + j);
+    }
+
+    // facets dofs
+    if (MeshT::cell_dim > 1 && np_in_facet > 0)
+    {
+      index_t const offset = n_vertices + n_ridges*np_in_ridge;
+      c.facetsContigId(m_mesh, fts);
+      for (int i = 0; i < MeshT::facets_per_cell; ++i)
+        for (int j = 0; j < np_in_facet; ++j)
+          dofs.push_back(offset + np_in_facet*fts[i] + j);
+    }
+
+    // cell dofs
+    if (np_in_cell > 0)
+    {
+      index_t const offset = n_vertices + n_ridges*np_in_ridge + n_facets*np_in_facet;
+      index_t const id = c.contiguousId(m_mesh);
+      for (int j = 0; j < np_in_cell; ++j)
+        dofs.push_back(offset + np_in_cell*id + j);
+    }
+
+    // AQUIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+    reorderDofsLagrange<CT,index_t>(m_mesh, c, m_subdivs_lvl, 1, dofs.data());
+
+    fi_printCellVtk(dofs.data(), file_ptr);
+
+    dofs.clear();
+  }
+
+  // printing types
+  int type = (int) VtkTraits<CT>::tag;
+  fprintf(file_ptr,"\nCELL_TYPES %d\n", n_pseudo_cells);
+  unsigned long counter = 0;
+  c = m_mesh->cellBegin();
+  cend = m_mesh->cellEnd();
+  for (; c != cend; ++c)
+  {
+    if (c.isDisabled(m_mesh))
+      continue;
+
+    for (int i = 0; i < n_cd; ++i)
+    {
+      if (m_is_binary)
+      {
+        int tmp = reverseEndian(type);
+        fwrite(&tmp, sizeof(int), 1, file_ptr);
+      }
+      else
+      {
+        if (((++counter)%50) == 0)
+          fprintf(file_ptr, "%d\n", type);
+        else
+          fprintf(file_ptr, "%d ", type);
+      }
+    }
+  }
+  fprintf(file_ptr,"\n\n");
+
+  fclose(file_ptr);
+}
+
+
+/// Print mesh in vtk file format. In this version, the used pass the mesh coordinates (including high-order nodes)
+/// as function argument in the same way as variables in addNodalScalarField function.
+/// @param time if it's not null, print the content of (*time) in the file in a way that VisIt can recognize it.
+///
+template<ECellType CT>
+void MeshIoVtk<CT>::writeMesh(DefaultGetDataVtk const& data, double* time)
+{
+  ///
+  /// DISABLE entities are not printed.
+  ///
+
+  this->m_add_node_scalar_n_calls=0;
+  this->m_add_cell_scalar_n_calls=0;
+
+  std::string outname = this->paddedName(this->m_filenum, ".vtk", m_name_padd);
+  ++m_filenum;
+
+  FILE *file_ptr = fopen(outname.c_str(), m_is_binary ? "wb" : "w");
+
+  fprintf(file_ptr, "# vtk DataFile Version 2.0\n"
+                    "Created by Alelib\n");
+  if (m_is_binary)
+    fprintf(file_ptr, "BINARY\n");
+  else
+    fprintf(file_ptr, "ASCII\n");
+  fprintf(file_ptr, "DATASET UNSTRUCTURED_GRID\n");
+
+  if (time)
+  {
+    fprintf(file_ptr, "FIELD FieldData 1\n");
+    fprintf(file_ptr, "TIME 1 1 double\n");
+    if (m_is_binary)
+    {
+      double const aux = reverseEndian(*time);
+      fwrite(&aux, sizeof(double), 1, file_ptr);
+    }
+    else
+      fprintf(file_ptr, "%f\n", *time);
+  }
+
+  index_t n_pts = m_mesh->numVertices() + CTypeTraits<CT>::np_in_ridge(m_subdivs_lvl) * m_mesh->numRidges() +
+                                          CTypeTraits<CT>::np_in_facet(m_subdivs_lvl) * m_mesh->numFacets() +
+                                          CTypeTraits<CT>::np_in_cell (m_subdivs_lvl) * m_mesh->numCells();
+
+  //
+  //  PRINT POINTS
+  //
+
+
+  int const n_comps = data.numComps()==2 ? 3 : data.numComps(); // this is because VisIt does not support 2d variables :(
+  ALELIB_ASSERT(n_comps>=1 && n_comps<4, "invalid custom coordinates", std::invalid_argument);
+  double tmp[3] = {0.,0.,0.}; // space dimensional is always at most 3
+
+  fprintf(file_ptr, "POINTS %u double\n", n_pts);
+
+  // Points on vertices
+  {
+    VertexH v = m_mesh->vertexBegin();
+    VertexH vend = m_mesh->vertexEnd();
+
+    for (; v!=vend ; ++v)
+    {
+      if (v.isDisabled(m_mesh))
+        continue;
+      data.getData(v.id(m_mesh), tmp);
+      fi_printNodeData(tmp, sizeof(tmp)/sizeof(double), file_ptr);
+    }
+  }
+
+  // Points on ridges (3d cells)
+  {
+    int const n = m_subdivs_lvl;
+    int const nvir = CTypeTraits<CT>::np_in_ridge(n); // number of pts that will be created
+    if (MeshT::cell_dim > 2 && nvir > 0)
+    {
+      RidgeH r = m_mesh->ridgeBegin();
+      RidgeH rend = m_mesh->ridgeEnd();
+      for (; r != rend; ++r)
+      {
+        if (r.isDisabled(m_mesh))
+          continue;
+
+        int const pos = r.localId(m_mesh);
+        int const first_dof = MeshT::verts_per_cell + (n-1)*pos;
+        for (Real i = 0; i < nvir; ++i)
+        {
+          Real * x_ref = &m_ref_cpts[MeshT::cell_dim*(first_dof + i)];
+          data.getData(x_ref, r.icell(m_mesh).id(m_mesh), first_dof + i, tmp);
+          fi_printNodeData(tmp, sizeof(tmp)/sizeof(double), file_ptr);
+        }
+      }
+    }
+  }
+
+  // Points inside facets
+  {
+    int const n = m_subdivs_lvl;
+    int const n_new_pts = CTypeTraits<CT>::np_in_facet(n); // number of pts that will be created
+    if (MeshT::cell_dim > 1 && n_new_pts > 0)
+    {
+  //    static const ECellType FT = CTypeTraits<CT>::EFacetType;
+
+      FacetH f = m_mesh->facetBegin();
+      FacetH fend = m_mesh->facetEnd();
+      for (; f != fend; ++f)
+      {
+        if (f.isDisabled(m_mesh))
+          continue;
+
+        int const pos = f.localId(m_mesh);
+        int const first_dof = MeshT::verts_per_cell + (n-1)*MeshT::ridges_per_cell + n_new_pts*pos;
+        for (int i = 0; i < n_new_pts; ++i)
+        {
+          Real * x_ref = &m_ref_cpts[MeshT::cell_dim*(first_dof + i)];
+          data.getData(x_ref, f.icellSide0(m_mesh).id(m_mesh), first_dof + i, tmp);
+          fi_printNodeData(tmp, sizeof(tmp)/sizeof(double), file_ptr);
+        }
+      }
+    }
+  } // Points inside facets
+
+  // Points inside cells
+  {
+    int const n = m_subdivs_lvl;
+    int const np_in_facet = CTypeTraits<CT>::np_in_facet(n); // number of pts that will be created
+    int const n_new_pts = CTypeTraits<CT>::np_in_cell(n); // number of pts that will be created
+    if (n_new_pts > 0)
+    {
+
+      CellH c = m_mesh->cellBegin();
+      CellH cend = m_mesh->cellEnd();
+      for (; c != cend; ++c)
+      {
+        if (c.isDisabled(m_mesh))
+          continue;
+
+        int const first_dof = MeshT::verts_per_cell + (n-1)*MeshT::ridges_per_cell + np_in_facet*MeshT::facets_per_cell;
+        for (int i = 0; i < n_new_pts; ++i)
+        {
+          Real * x_ref = &m_ref_cpts[MeshT::cell_dim*(first_dof + i)];
+          data.getData(x_ref, c.id(m_mesh), first_dof + i, tmp);
+          fi_printNodeData(tmp, sizeof(tmp)/sizeof(double), file_ptr);
+        }
+      }
+    }
+  } // Points inside cells
+
 
 
 
