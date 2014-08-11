@@ -192,10 +192,10 @@ class TriMesh1Tests : public testing::Test
              // accessed from sub-classes.
 
   typedef MeshTri MeshT;
-  typedef typename MeshT::VertexH VertexH;
-  typedef typename MeshT::CellH CellH;
-  typedef typename MeshT::FacetH FacetH;
-  typedef typename MeshT::RidgeH RidgeH;
+  typedef MeshT::VertexH VertexH;
+  typedef MeshT::CellH CellH;
+  typedef MeshT::FacetH FacetH;
+  typedef MeshT::RidgeH RidgeH;
   typedef MeshIoVtk<MeshT::CellType> MeshWriter;
 
   TriMesh1Tests() : m(dim3) {}
@@ -310,10 +310,10 @@ class TriMesh2Tests : public testing::Test
              // accessed from sub-classes.
 
   typedef MeshTri MeshT;
-  typedef typename MeshT::VertexH VertexH;
-  typedef typename MeshT::CellH CellH;
-  typedef typename MeshT::FacetH FacetH;
-  typedef typename MeshT::RidgeH RidgeH;
+  typedef MeshT::VertexH VertexH;
+  typedef MeshT::CellH CellH;
+  typedef MeshT::FacetH FacetH;
+  typedef MeshT::RidgeH RidgeH;
   typedef MeshIoVtk<MeshT::CellType> MeshWriter;
 
   TriMesh2Tests() : m(dim3) {}
@@ -369,10 +369,10 @@ class TetMesh1Tests : public testing::Test
              // accessed from sub-classes.
 
   typedef MeshTet MeshT;
-  typedef typename MeshT::VertexH VertexH;
-  typedef typename MeshT::CellH CellH;
-  typedef typename MeshT::FacetH FacetH;
-  typedef typename MeshT::RidgeH RidgeH;
+  typedef MeshT::VertexH VertexH;
+  typedef MeshT::CellH CellH;
+  typedef MeshT::FacetH FacetH;
+  typedef MeshT::RidgeH RidgeH;
   typedef MeshIoVtk<MeshT::CellType> MeshWriter;
 
   TetMesh1Tests() : m(dim3) {}
@@ -563,10 +563,10 @@ class TetMesh2Tests : public testing::Test
              // accessed from sub-classes.
 
   typedef MeshTet MeshT;
-  typedef typename MeshT::VertexH VertexH;
-  typedef typename MeshT::CellH CellH;
-  typedef typename MeshT::FacetH FacetH;
-  typedef typename MeshT::RidgeH RidgeH;
+  typedef MeshT::VertexH VertexH;
+  typedef MeshT::CellH CellH;
+  typedef MeshT::FacetH FacetH;
+  typedef MeshT::RidgeH RidgeH;
   typedef MeshIoVtk<MeshT::CellType> MeshWriter;
 
   TetMesh2Tests() : m(dim3) {}
@@ -894,8 +894,8 @@ TEST_F(TetMesh1Tests, PrintVtkBinSplitEdge)
 
 struct MyPrinterTet2 : public DefaultGetDataVtk
 {
-  typedef typename MeshTet::VertexH VertexH;
-  typedef typename MeshTet::CellH CellH;
+  typedef MeshTet::VertexH VertexH;
+  typedef MeshTet::CellH CellH;
   MeshTet const& m;
   MyPrinterTet2(MeshTet const& m_) : DefaultGetDataVtk(), m(m_) {}
 
@@ -1002,8 +1002,8 @@ TEST_F(TetMesh2Tests, PrintCustomCoordsFieldVtk)
 
 struct MyPrinterTri2 : public DefaultGetDataVtk
 {
-  typedef typename MeshTri::VertexH VertexH;
-  typedef typename MeshTri::CellH CellH;
+  typedef MeshTri::VertexH VertexH;
+  typedef MeshTri::CellH CellH;
   MeshTri const& m;
   MyPrinterTri2(MeshTri const& m_) : DefaultGetDataVtk(), m(m_) {}
 
@@ -1012,9 +1012,10 @@ struct MyPrinterTri2 : public DefaultGetDataVtk
     VertexH(id).coord(&m, values, 2);
   }
 
-  virtual void getData(Real const *x_local, index_t cell_id, int /*ith*/, Real *values) const
+  virtual void getData(Real const *x_local, index_t cell_id, int /*ith*/, Real * values) const
   {
-    Real x[3][2];
+    //Real * const values = values_; // UNBELIEVABLE: it is necessary in clang while in gcc it is not. God?
+    Real x[3][3];
     CellH c(cell_id);
     VertexH vts[3];
     c.vertices(&m, vts);
@@ -1076,8 +1077,8 @@ TEST_F(TriMesh2Tests, PrintNodalFieldVtk)
 
 struct MyPrinterTri3 : public DefaultGetDataVtk
 {
-  typedef typename MeshTri::VertexH VertexH;
-  typedef typename MeshTri::CellH CellH;
+  typedef MeshTri::VertexH VertexH;
+  typedef MeshTri::CellH CellH;
   MeshTri const& m;
   MyPrinterTri3(MeshTri const& m_) : DefaultGetDataVtk(), m(m_) {}
 
@@ -1106,7 +1107,7 @@ struct MyPrinterTri3 : public DefaultGetDataVtk
   virtual void getData(Real const *x_local, index_t cell_id, int /*ith*/, Real *values) const
   {
     
-    Real x[3][2];
+    Real x[3][3];
     CellH c(cell_id);
     VertexH vts[3];
     c.vertices(&m, vts);

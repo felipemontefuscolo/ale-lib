@@ -22,5 +22,5 @@ remade:
 -include $(CPPSOURCES:.cpp=.d)
 
 %.d: %.cpp
-	$(ALE_CXX) $< -MM -MT '$*.o $*.d ' -MD $(ALE_CXXFLAGS)
+	$(ALE_CXX) $< -MM -MT '$*.o $*.d ' -M $(ALE_CXXFLAGS)
 

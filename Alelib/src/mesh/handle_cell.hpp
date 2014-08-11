@@ -1,24 +1,10 @@
-#ifndef ALELIB_HANDLER_CELL
-#define ALELIB_HANDLER_CELL
-
-#include <iterator>     // std::iterator, std::input_iterator_tag
-
-namespace alelib
-{
-
-
-
-//template<ECellType CT>
-//class Mesh<CT>::VertexH;
-
-template<ECellType CT>
-class Mesh<CT>::CellH
+class CellH
 {
   template<ECellType CT_>
   friend class Mesh;
 
-  typedef Mesh<CT> MeshT;  
-  typedef typename Mesh<CT>::VertexH VertexH;  
+  typedef Mesh<Ctype> MeshT;  
+  typedef typename Mesh<Ctype>::VertexH VertexH;  
   typedef typename MeshT::CellT CellT;
   
   typedef CellH Self;
@@ -590,12 +576,5 @@ public:
 
 
 };
-
-
-
-} // end namespace
-
-
-#endif
 
 

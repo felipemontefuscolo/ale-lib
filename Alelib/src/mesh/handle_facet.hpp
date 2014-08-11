@@ -1,18 +1,9 @@
-#ifndef ALELIB_HANDLER_FACET
-#define ALELIB_HANDLER_FACET
-
-#include "../util/algorithm.hpp"
-
-namespace alelib
-{
-
-template<ECellType CT>
-class Mesh<CT>::FacetH
+class FacetH
 {
   template<ECellType CT_>
   friend class Mesh;
 
-  typedef Mesh<CT> MeshT;
+  typedef Mesh<Ctype> MeshT;
   
   typedef FacetH Self;
   
@@ -247,13 +238,3 @@ public:
 
 
 };
-
-
-
-
-
-} // end namespace
-
-#endif
-
-

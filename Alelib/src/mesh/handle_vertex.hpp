@@ -1,24 +1,13 @@
-#ifndef ALELIB_HANDLER_VERTEX
-#define ALELIB_HANDLER_VERTEX
-
-
-
-namespace alelib
-{
-
-
-
-template<ECellType CT>
-class Mesh<CT>::VertexH
+class VertexH
 {
   template<ECellType CT_>
   friend class Mesh;
 
-  typedef Mesh<CT> MeshT;
+  typedef Mesh<Ctype> MeshT;
   
-  typedef Mesh<CT>::VertexH Self;
+  typedef Mesh<Ctype>::VertexH Self;
   
-  typedef typename Mesh<CT>::CellH CellH;  
+  //typedef typename Mesh<Ctype>::CellH CellH;  
 
   index_t m_id;
 
@@ -270,11 +259,3 @@ private:
 //  //}
 
 };
-
-
-
-} // end namespace
-
-#endif
-
-

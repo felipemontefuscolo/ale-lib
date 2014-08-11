@@ -12,9 +12,11 @@
 #include "Array/array.hpp"
 #include "../util/list_type.hpp"
 #include "../util/initializer_list.hpp"
+#include "../util/algorithm.hpp"
 #include "AssocVector.hpp"
 #include "../io/alelib_tags.hpp"
 #include "../util/timer.hpp"
+#include <iterator>      // std::iterator, std::input_iterator_tag
 
 #ifdef ALELIB_DEBUG_ON
 # define AT__(x) [(x)]
@@ -96,6 +98,11 @@ public:
   class FacetH;
   class RidgeH;
   class VertexH;
+  #include "handle_cell.hpp"
+  #include "handle_facet.hpp"
+  #include "handle_ridge.hpp"
+  #include "handle_vertex.hpp"
+
 
   static const ECellType CellType = Ctype;
 
@@ -364,10 +371,7 @@ private:
 } // end namespace
 
 
-#include "handle_cell.hpp"
-#include "handle_facet.hpp"
-#include "handle_ridge.hpp"
-#include "handle_vertex.hpp"
+
 
 
 
