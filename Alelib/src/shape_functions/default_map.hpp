@@ -65,15 +65,20 @@ template<ECellType C> struct CTypeTraits {};
                       template<> struct CTypeTraits<CT> {                             \
                         static int const vtk_tag = vtktag;                            \
                         static ECellType const EFacetType = FT;                       \
-                        static int np_in_ridge(int n) { return ndpr; }                \
-                        static int np_in_facet(int n) { return ndpf; }                \
-                        static int np_in_cell (int n) { return ndpc; }                \
-                        static int np_per_cell(int n) { return nppc; }                \
-                        static int n_sub_cells(int n) { return nsubc; }               \
-                        static void master_to_real(int n_pts,                         \
+                        inline static int np_in_ridge(int n) { return ndpr; }                \
+                        inline static int np_in_facet(int n) { return ndpf; }                \
+                        inline static int np_in_cell (int n) { return ndpc; }                \
+                        inline static int np_per_cell(int n) { return nppc; }                \
+                        inline static int n_sub_cells(int n) { return nsubc; }               \
+                        inline static void master_to_real(int n_pts,                         \
                                                    Real const* ref_pts,               \
                                                    Point const* verts,                \
                                                    Point*       real_pts);            \
+                        inline static void master_to_real(int n_pts,                         \
+                                                   Real const* ref_pts,               \
+                                                   Real const* verts,                 \
+                                                   Real*       real_pts,              \
+                                                   int x_dim);                        \
                       };
 
 
@@ -104,6 +109,31 @@ void CTypeTraits<EDGE>::master_to_real(int n_pts,
     X[i][2] = verts[0][2]*s + verts[1][2]*t;
   }
 }
+// Raw vector version
+void CTypeTraits<EDGE>::master_to_real(int n_pts,
+                                       Real const* L,         // pts in master cell
+                                       Real const* verts,
+                                       Real*       X,         // pts in real cell
+                                       int x_dim)
+{
+  if(n_pts <= 0)
+    return;
+  for (int i = 0; i < n_pts; ++i)
+  {
+    Real const t = (L[i]+1.)/2.;
+    Real const s = 1. - t;
+
+    for (int j = 0; j < x_dim; ++j)
+      X[x_dim*i + j] = verts[0*x_dim + j]*s + verts[1*x_dim + j]*t;
+  }
+}
+
+
+
+
+
+
+
 
 void CTypeTraits<TRIANGLE>::master_to_real(int n_pts,
                                            Real const* L,          // pts in master cell
@@ -123,6 +153,28 @@ void CTypeTraits<TRIANGLE>::master_to_real(int n_pts,
     X[i][2] = verts[0][2]*s + verts[1][2]*t + verts[2][2]*u;
   }
 }
+// Raw vector version
+void CTypeTraits<TRIANGLE>::master_to_real(int n_pts,
+                                       Real const* L,         // pts in master cell
+                                       Real const* verts,
+                                       Real*       X,         // pts in real cell
+                                       int x_dim)
+{
+  if(n_pts <= 0)
+    return;
+  for (int i = 0; i < n_pts; ++i)
+  {
+    Real const t = L[2*i];
+    Real const u = L[2*i + 1];
+    Real const s = 1. - t - u;
+
+    for (int j = 0; j < x_dim; ++j)
+      X[x_dim*i + j] = verts[x_dim*0 + j]*s + verts[x_dim*1 + j]*t + verts[x_dim*2 + j]*u;
+  }
+}
+
+
+
 
 void CTypeTraits<TETRAHEDRON>::master_to_real(int n_pts,
                                          Real const* L,          // pts in master cell
@@ -143,6 +195,27 @@ void CTypeTraits<TETRAHEDRON>::master_to_real(int n_pts,
     X[i][2] = verts[0][2]*s + verts[1][2]*t + verts[2][2]*u + verts[3][2]*v;
   }
 }
+// Raw vector version
+void CTypeTraits<TETRAHEDRON>::master_to_real(int n_pts,
+                                       Real const* L,         // pts in master cell
+                                       Real const* verts,
+                                       Real*       X,         // pts in real cell
+                                       int x_dim)
+{
+  if(n_pts <= 0)
+    return;
+  for (int i = 0; i < n_pts; ++i)
+  {
+    Real const t = L[3*i];
+    Real const u = L[3*i + 1];
+    Real const v = L[3*i + 2];
+    Real const s = 1. - t - u - v;
+
+    for (int j = 0; j < x_dim; ++j)
+      X[x_dim*i + j] = verts[x_dim*0 + j]*s + verts[x_dim*1 + j]*t + verts[x_dim*2 + j]*u + verts[x_dim*3 + j]*v;
+  }
+}
+
 
 //
 ///
