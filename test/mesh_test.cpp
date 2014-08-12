@@ -104,7 +104,7 @@ void checkMesh(Mesh<T> const&m)
       std::pair<CellH, CellH> f_icells = facet.icellAndMate(&m);
 
       CellH adj = c.adjCell(&m, side);
-      if (!adj.isValid())
+      if (!adj.isNull())
       {
         EXPECT_EQ(1u, facet.valency(&m));
         EXPECT_TRUE(f_icells.first  == c);
@@ -143,7 +143,7 @@ void checkMesh(Mesh<T> const&m)
       int l = v.localId(&m, star[i]);
       star[i].matesByVtx(&m, l, mates_by_vtx);
       for (int k = 0; k < MeshT::cell_dim; ++k)
-        is_interior *= mates_by_vtx[k].isValid();
+        is_interior *= mates_by_vtx[k].isNull();
       if (!is_interior)
         break;
     }

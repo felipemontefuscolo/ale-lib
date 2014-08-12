@@ -20,7 +20,19 @@ public:
   inline index_t id(MeshT const*) const
   { return m_id; }
 
-  bool isValid() const
+  /// For debug purposes, it contains isNull and isDisabled
+  /// This check if this entity is usable.
+  bool isValid(MeshT const* mp) const
+  {
+    bool b = ! (isNull(mp) || isDisabled(mp));
+    
+    if ((size_type)m_id < mp->numVerticesTotal())
+      return b;
+    else
+      return false;
+  }
+
+  bool isNull(MeshT const* = 0) const
   { return m_id != (index_t)NULL_IDX; }
 
   bool isDisabled(MeshT const* mp) const

@@ -354,7 +354,7 @@ void MeshIoMsh<CT>::readFile(const char* filename, MeshT * mesh)
       if (cell_dim > 1)
       {
         FacetH f = mesh->getFacetFromVertices(nodes.data());
-        if (f.isValid())
+        if (f.isNull())
           f.setTag(mesh, physical); //std::cout << (++TESTE) << std::endl;
         else
         {
@@ -378,7 +378,7 @@ void MeshIoMsh<CT>::readFile(const char* filename, MeshT * mesh)
       if (cell_dim>2)
       {
         RidgeH r = mesh->getRidgeFromVertices(bnodes.data());
-        if (r.isValid())
+        if (r.isNull())
           r.setTag(mesh, physical);
         else
           printf("WARNING: INVALID CORNER IN INPUT MESH!\n");

@@ -185,7 +185,7 @@ template<ECellType CT>
 void Mesh<CT>::removeCell(CellH ch, bool remove_unref_verts)
 {
   // Some checks
-  ALELIB_CHECK(!ch.isDisabled(this) && ch.isValid(this), "This cell can not be deleted", std::invalid_argument);
+  ALELIB_CHECK(!ch.isDisabled(this) && ch.isNull(this), "This cell can not be deleted", std::invalid_argument);
 
   #define nvpc (CellT::n_verts)
   #define nfpc (CellT::n_verts)

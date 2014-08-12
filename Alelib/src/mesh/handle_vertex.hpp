@@ -19,7 +19,19 @@ public:
 
   VertexH() : m_id(NULL_IDX) {}
 
-  bool isValid() const
+  /// For debug purposes, it contains isNull and isDisabled
+  /// This check if this entity is usable.
+  bool isValid(MeshT const* mp) const
+  {
+    bool b = ! (isNull(mp) || isDisabled(mp));
+    
+    if ((size_type)m_id < mp->numVerticesTotal())
+      return b;
+    else
+      return false;
+  }
+
+  bool isNull(MeshT const* = 0) const
   { return m_id != (index_t)NULL_IDX; }
 
   bool isDisabled(MeshT const* mp) const
@@ -64,7 +76,7 @@ public:
       int l = localId(mp, CellH(*star_it));
       CellH(*star_it).matesByVtx(mp, l, mates_by_vtx);
       for (unsigned k = 0; k < CellT::dim; ++k)
-        is_interior &= mates_by_vtx[k].isValid();
+        is_interior &= mates_by_vtx[k].isNull();
       if (!is_interior)
         break;
     }

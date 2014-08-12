@@ -277,7 +277,7 @@ public:
 
  
   /// @param vs the vertices
-  /// @return The facet. If the facet is not found, return an invalid facet. Check with facet.isValid()
+  /// @return The facet. If the facet is not found, return an invalid facet. Check with facet.isNull()
   FacetH getFacetFromVertices(VertexH const* vs) const
   {
     std::vector<CellH> star = vs[0].star(this); // the facet is in one of these cells
@@ -294,7 +294,7 @@ public:
   }
 
   /// @param vs the vertices
-  /// @return The ridge. If the ridge is not found, return an invalid ridge. Check with ridge.isValid()
+  /// @return The ridge. If the ridge is not found, return an invalid ridge. Check with ridge.isNull()
   RidgeH getRidgeFromVertices(VertexH const* vs) const
   {
     std::vector<CellH> star = vs[0].star(this); // the ridge is in one of these cells
