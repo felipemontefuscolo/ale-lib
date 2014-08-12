@@ -588,8 +588,8 @@ TEST(DoffMapper, TagsLink2Tri3)
   mapper.variable(0).getVertexDofs(dofs1,   VertexH(4));
   mapper.variable(1).getVertexDofs(dofs1+1, VertexH(4));
 
-  mapper.variable(0).getVertexDofs(dofs2,   VertexH(13));
-  mapper.variable(1).getVertexDofs(dofs2+1, VertexH(13));
+  mapper.variable(0).getVertexDofs(dofs2,   VertexH(3));
+  mapper.variable(1).getVertexDofs(dofs2+1, VertexH(3));
 
   mapper.variable(4).getDofsInCell(dofs1+3, CellH(10));
   mapper.variable(4).getDofsInCell(dofs2+3, CellH(11));

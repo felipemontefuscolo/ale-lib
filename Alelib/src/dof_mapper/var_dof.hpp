@@ -27,6 +27,7 @@
 #include <string>
 #include "contrib/Loki/set_vector.hpp"
 #include "conf/directives.hpp"
+#include "Alelib/src/util/assert.hpp"
 
 namespace alelib
 {
@@ -213,6 +214,8 @@ public:
   template<class OutIterator>
   OutIterator getVertexDofs(OutIterator dofs, VertexH vtx, int region = 0) const
   {
+    ALELIB_CHECK(vtx.isValid(m_mp), "invalid vertex", std::runtime_error);
+    
     if (region < 0)
     {
       int const n_dofs = numDofsPerVertex();
@@ -232,6 +235,8 @@ public:
   template<class OutIterator>
   OutIterator getRidgeDofs(OutIterator dofs, RidgeH ridge, int region = 0) const
   {
+    ALELIB_CHECK(ridge.isValid(m_mp), "invalid ridge", std::runtime_error);
+    
     if (MeshT::cell_dim < 3)
       return dofs;
     
@@ -273,6 +278,8 @@ public:
   template<class OutIterator>
   OutIterator getFacetDofs(OutIterator dofs, FacetH facet, int region = 0) const
   {
+    ALELIB_CHECK(facet.isValid(m_mp), "invalid facet", std::runtime_error);
+    
     if (region < 0)
     {
       int const n_dofs = numDofsPerFacet();
@@ -327,6 +334,8 @@ public:
   template<class OutIterator>
   OutIterator getCellDofs(OutIterator dofs, CellH cell) const
   {
+    ALELIB_CHECK(cell.isValid(m_mp), "invalid cell", std::runtime_error);
+    
     int const reg = region(cell.tag(m_mp));
 
     if (reg < 0)

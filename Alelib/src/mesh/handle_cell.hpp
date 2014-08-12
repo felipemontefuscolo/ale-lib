@@ -29,14 +29,14 @@ public:
   {
     bool b = ! (isNull(mp) || isDisabled(mp));
     
-    if ((size_type)m_id < mp->numVerticesTotal())
+    if ((size_type)m_id < mp->numCellsTotal())
       return b;
     else
       return false;
   }
 
   bool isNull(MeshT const* = 0) const
-  { return m_id != (index_t)NULL_IDX; }
+  { return m_id == (index_t)NULL_IDX; }
 
   bool isDisabled(MeshT const* mp) const
   { return mp->m_cells[m_id].isDisabled();};
@@ -156,7 +156,7 @@ public:
   CellH adjCellSideAndAnchor(MeshT const* mp, int side, int* adj_side, int* anchor = NULL) const
   {
     CellH adj = adjCell(mp, side);
-    if(!adj.isNull())
+    if(adj.isNull())
       return adj;
     VertexH v[CellT::n_verts_p_facet];
     facetVertices(mp, side, v);

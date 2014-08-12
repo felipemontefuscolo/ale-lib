@@ -32,14 +32,14 @@ public:
   {
     bool b = ! (isNull(mp) || isDisabled(mp));
     
-    if ((size_type)m_id < mp->numVerticesTotal())
+    if ((size_type)m_id < mp->numFacetsTotal())
       return b;
     else
       return false;
   }
 
   bool isNull(MeshT const* = 0) const
-  { return m_id != (index_t)NULL_IDX; }
+  { return m_id == (index_t)NULL_IDX; }
 
   bool isDisabled(MeshT const* mp) const
   { return mp->m_facets[m_id].isDisabled();};

@@ -27,6 +27,7 @@
 namespace alelib
 {
 
+// terminology of the word ridge: http://en.wikipedia.org/wiki/Polytope
 
 
 struct Ridge : public Labelable
