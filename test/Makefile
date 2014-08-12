@@ -95,8 +95,10 @@ alltests.exe: $(TOBJECTS) gtest.a gtest_main.a libalelib.a
 	@echo all tests successfully compiled
 	@echo 
 
+ifneq ($(MAKECMDGOALS),clean)
+    -include $(CPPSOURCES:.cpp=.d)
+endif
 
--include $(CPPSOURCES:.cpp=.d)
 
 %.d: %.cpp $(ALE_LIBS_DIR)/libalelib.a
 	$(ALE_CXX) $< -MM -MT '$*.o $*.d ' -M $(CXXFLAGS) $(CPPFLAGS)
