@@ -14,7 +14,7 @@ all: $(CPPSOURCES:.cpp=.o) subdirs
 $(SUBDIRS):
 	$(MAKE) all -C $@
 
-%.o: %.cpp
+%.o: %.cpp $(ALELIB_DIR)/conf/variables
 #	$(warning In Objs Script)
 	$(ALE_CXX) -c $< $(ALE_CXXFLAGS) -o $@
 	
@@ -27,6 +27,5 @@ remade:
 
 -include $(CPPSOURCES:.cpp=.d)
 
-%.d: %.cpp
-	$(ALE_CXX) $< -MM -MT '$*.o $*.d ' -M $(ALE_CXXFLAGS)
+
 

@@ -9,7 +9,10 @@ include $(ALELIB_DIR)/conf/variables
 
 all: src ok_msg
 
-src:
+$(ALELIB_DIR)/conf/variables:
+
+
+src: $(ALELIB_DIR)/conf/variables Makefile
 	$(MAKE) all -C Alelib/src
 	
 clean:

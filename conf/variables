@@ -1,5 +1,5 @@
 #ALE_CXX = g++
-ALE_CXX = clang++
+ALE_CXX = clang++ -Qunused-arguments
 
 
 # You can also check if an environment variable has been set and initialise it to something if it has not. ie.
@@ -20,7 +20,7 @@ ALE_LIBS_DIR = $(ALELIB_DIR)/Alelib/slibs
 
 #ALE_LDFLAGS = -fopenmp -L$(METIS_LD) -lmetis
 #ALE_LDFLAGS = -L$(METIS_LD) -lmetis
-#ALE_LDFLAGS = -fopenmp
+ALE_LDFLAGS = -fopenmp
 
 #-Wundef -Wshadow boost hates these 
 ALE_PEDANTIC_FLAGS = -pedantic -Wcast-align -Wredundant-decls -Winline -Wmissing-format-attribute -Wpacked -Wmissing-field-initializers
@@ -29,6 +29,7 @@ ALE_PEDANTIC_FLAGS +=
 ALE_CXXFLAGS  = -g  -Wextra -Wall ${ALE_PEDANTIC_FLAGS} $(ALE_INCLUDE)
 #ALE_CXXFLAGS = -O3 -march=native -msse2  $(ALE_INCLUDE) -fopenmp
 ALE_CXXFLAGS += $(ALE_LDFLAGS)
+ALE_CXXFLAGS += -MMD             # for dependencies
 
 ALE_RM = rm -f
 

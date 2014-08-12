@@ -7,7 +7,7 @@ OBJS	= ${SRCS:.cpp=.o}
 
 all: $(CPPSOURCES:.cpp=.o)
 
-%.o: %.cpp
+%.o: %.cpp $(ALELIB_DIR)/conf/variables
 	$(ALE_CXX) -c $< $(ALE_CXXFLAGS) -o $@
 	
 clean:
@@ -19,5 +19,4 @@ remade:
 
 -include $(CPPSOURCES:.cpp=.d)
 
-%.d: %.cpp
-	$(ALE_CXX) $< -MM -MT '$*.o $*.d ' -M $(ALE_CXXFLAGS)
+

@@ -29,7 +29,7 @@ CXX = $(ALE_CXX)
 CPPFLAGS += -I$(GTEST_DIR)/include $(ALE_INCLUDE)
 
 # Flags passed to the C++ compiler.
-CXXFLAGS += -g3 -Wall -Wextra -gdwarf-2 -DDEBUG
+CXXFLAGS += -g3 -Wall -Wextra -gdwarf-2 -DDEBUG -MMD
 
 #-gdwarf-2 is for handle inline functions in gdb
 
@@ -74,8 +74,8 @@ gtest.a : gtest-all.o
 gtest_main.a : gtest-all.o gtest_main.o
 	$(AR) $(ARFLAGS) $@ $^
 
-
-libalelib.a: $(ALE_LIBS_DIR)/libalelib.a
+#libalelib.a:
+$(ALE_LIBS_DIR)/libalelib.a:
 	$(MAKE) -C $(ALELIB_DIR)
 
 # House-keeping build targets.
@@ -83,49 +83,23 @@ libalelib.a: $(ALE_LIBS_DIR)/libalelib.a
 CPPSOURCES = $(wildcard *.cpp)
 TOBJECTS = $(CPPSOURCES:.cpp=.o)
 
-all: gtest.a gtest_main.a $(CPPSOURCES:.cpp=.o) $(CPPSOURCES:.cpp=.d) alltests.exe
+#all: gtest.a gtest_main.a $(CPPSOURCES:.cpp=.o) $(CPPSOURCES:.cpp=.d) alltests.exe
+all: gtest.a gtest_main.a $(CPPSOURCES:.cpp=.o) alltests.exe
 
-%.o: %.cpp $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< $(LDFLAGS) -o $@ gtest.a gtest_main.a
+%.o: %.cpp $(GTEST_HEADERS) Makefile $(ALELIB_DIR)/conf/variables
+	#$(CXX) -c $(CPPFLAGS) $(CXXFLAGS)  $< $(LDFLAGS) -o $@ gtest.a gtest_main.a
+	$(CXX)  -c $(CPPFLAGS) $(CXXFLAGS) $< $(LDFLAGS) -o $@
 
 
-alltests.exe: $(TOBJECTS) gtest.a gtest_main.a libalelib.a
+alltests.exe: $(TOBJECTS) gtest.a gtest_main.a $(ALE_LIBS_DIR)/libalelib.a Makefile
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(TOBJECTS) -o $@ $(LDFLAGS) gtest.a gtest_main.a
 	@echo 
 	@echo all tests successfully compiled
 	@echo 
 
+
+
 ifneq ($(MAKECMDGOALS),clean)
     -include $(CPPSOURCES:.cpp=.d)
 endif
-
-
-%.d: %.cpp $(ALE_LIBS_DIR)/libalelib.a
-	$(ALE_CXX) $< -MM -MT '$*.o $*.d ' -M $(CXXFLAGS) $(CPPFLAGS)
-
-
-
-#all: gtest.a gtest_main.a $(CPPSOURCES:.cpp=.cpp)
-#
-#%.o: %.cpp $(GTEST_HEADERS)
-#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< $(LDFLAGS) -o $@
-#	
-#%.exe: %.o gtest.a gtest_main.a
-#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) gtest.a gtest_main.a
-##	rm $<
-#	
-#clean:
-#	$(ALE_RM) *.o *.exe *~ gtest.a gtest_main.a
-#	
-#remade:
-#	$(MAKE) clean
-#	$(MAKE)
-#
-#-include $(CPPSOURCES:.cpp=.d)
-#
-#%.d: %.cpp
-#	$(ALE_CXX) $< -MM -MT '$*.o $*.d ' -MD $(CXXFLAGS) $(GTEST_INCLUDE)
-#
-#run:
-#	for i in `ls *.exe`; do ./$${i}; done
 

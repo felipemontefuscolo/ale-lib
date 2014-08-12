@@ -6,7 +6,7 @@ SUBDIRS = mesh util io shape_functions quadrature dof_mapper
 
 subdirs: $(SUBDIRS)
 
-all: msg subdirs build ok_msg
+all: msg subdirs build
 
 msg:
 	echo $(ALELIB_DIR)
@@ -23,11 +23,6 @@ build: subdirs
 	ar -cr libalelib.a $(wildcard */*.o) $(wildcard */*/*.o) $(wildcard */*/*/*.o)
 	mv -f libalelib.a $(ALE_LIBS_DIR)
 	ranlib $(ALE_LIBS_DIR)/libalelib.a
-
-ok_msg: build
-	@echo
-	@echo successfully compiled
-	@echo
 	
 	
 	
