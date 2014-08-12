@@ -666,8 +666,8 @@ void MeshIoVtk<CT>::addNodalScalarField(const char* nome_var, DefaultGetDataVtk 
   m_add_node_scalar_n_calls++;
 
   int const n_comps = data.numComps()==2 ? 3 : data.numComps(); // this is because VisIt does not support 2d variables :(
-  std::vector<double> tmp(n_comps);
-  tmp.back() = 0;
+  std::vector<double> tmp(n_comps, 0.);
+  //tmp.back() = 0;
 
   fprintf(file_ptr,"SCALARS %s double %d\n", nome_var, n_comps);
   fprintf(file_ptr,"LOOKUP_TABLE default\n");

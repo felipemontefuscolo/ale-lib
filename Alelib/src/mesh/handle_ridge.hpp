@@ -1,18 +1,9 @@
-#ifndef ALELIB_HANDLER_RIDGE
-#define ALELIB_HANDLER_RIDGE
-
-
-
-namespace alelib
-{
-
-template<ECellType CT>
-class Mesh<CT>::RidgeH
+class RidgeH
 {
   template<ECellType CT_>
   friend class Mesh;
 
-  typedef Mesh<CT> MeshT;
+  typedef Mesh<Ctype> MeshT;
 
   typedef RidgeH Self;
 
@@ -160,13 +151,3 @@ public:
 
 
 };   // Ridge :::::::::::::::::::::::::::::::::::::::::
-
-
-
-
-
-} // end namespace
-
-#endif
-
-

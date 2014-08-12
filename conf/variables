@@ -1,4 +1,6 @@
-ALE_CXX = g++
+#ALE_CXX = g++
+ALE_CXX = clang++
+
 
 # You can also check if an environment variable has been set and initialise it to something if it has not. ie.
 #METIS_DIR = $(ALELIB_DIR)/contrib/metis
@@ -21,7 +23,7 @@ ALE_LIBS_DIR = $(ALELIB_DIR)/Alelib/slibs
 #ALE_LDFLAGS = -fopenmp
 
 #-Wundef -Wshadow boost hates these 
-ALE_PEDANTIC_FLAGS = -pedantic -Wcast-align -Wlogical-op -Wredundant-decls -Winline -Wmissing-format-attribute -Wpacked -Wmissing-field-initializers
+ALE_PEDANTIC_FLAGS = -pedantic -Wcast-align -Wredundant-decls -Winline -Wmissing-format-attribute -Wpacked -Wmissing-field-initializers
 ALE_PEDANTIC_FLAGS += 
 
 ALE_CXXFLAGS  = -g  -Wextra -Wall ${ALE_PEDANTIC_FLAGS} $(ALE_INCLUDE)

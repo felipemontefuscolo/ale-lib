@@ -155,10 +155,10 @@ void getAllDofs(std::vector<index_t> & dat, DofMapperT const& mapper, MeshT cons
 TEST(DoffMapper, AssignsDofsTri)
 {
   typedef MeshTri MeshT;
-  typedef typename MeshT::VertexH VertexH;
-  typedef typename MeshT::CellH CellH;
-  typedef typename MeshT::FacetH FacetH;
-  typedef typename MeshT::RidgeH RidgeH;
+  typedef MeshT::VertexH VertexH;
+  typedef MeshT::CellH CellH;
+  typedef MeshT::FacetH FacetH;
+  typedef MeshT::RidgeH RidgeH;
 
   MeshTri m;
   IoMshTri io;
@@ -232,10 +232,10 @@ TEST(DoffMapper, AssignsDofsTri)
 TEST(DoffMapper, AssignsDofsTriTags)
 {
   typedef MeshTri MeshT;
-  typedef typename MeshT::VertexH VertexH;
-  typedef typename MeshT::CellH CellH;
-  typedef typename MeshT::FacetH FacetH;
-  typedef typename MeshT::RidgeH RidgeH;
+  typedef MeshT::VertexH VertexH;
+  typedef MeshT::CellH CellH;
+  typedef MeshT::FacetH FacetH;
+  typedef MeshT::RidgeH RidgeH;
 
   MeshTri m;
   IoMshTri io;
@@ -306,10 +306,10 @@ TEST(DoffMapper, AssignsDofsTriTags)
 TEST(DoffMapper, AssignsDofsTet)
 {
   typedef MeshTet MeshT;
-  typedef typename MeshT::VertexH VertexH;
-  typedef typename MeshT::CellH CellH;
-  typedef typename MeshT::FacetH FacetH;
-  typedef typename MeshT::RidgeH RidgeH;
+  typedef MeshT::VertexH VertexH;
+  typedef MeshT::CellH CellH;
+  typedef MeshT::FacetH FacetH;
+  typedef MeshT::RidgeH RidgeH;
 
   MeshTet m;
   IoMshTet io;
@@ -378,10 +378,10 @@ TEST(DoffMapper, AssignsDofsTet)
 TEST(DoffMapper, AssignsDofsTetTags)
 {
   typedef MeshTet MeshT;
-  typedef typename MeshT::VertexH VertexH;
-  typedef typename MeshT::CellH CellH;
-  typedef typename MeshT::FacetH FacetH;
-  typedef typename MeshT::RidgeH RidgeH;
+  typedef MeshT::VertexH VertexH;
+  typedef MeshT::CellH CellH;
+  typedef MeshT::FacetH FacetH;
+  typedef MeshT::RidgeH RidgeH;
 
   MeshTet m;
   IoMshTet io;
@@ -454,10 +454,10 @@ TEST(DoffMapper, AssignsDofsTetTags)
 TEST(DoffMapper, TagsLinkTri3)
 {
   typedef MeshTri MeshT;
-  typedef typename MeshT::VertexH VertexH;
-  typedef typename MeshT::CellH CellH;
-  typedef typename MeshT::FacetH FacetH;
-  typedef typename MeshT::RidgeH RidgeH;
+  typedef MeshT::VertexH VertexH;
+  typedef MeshT::CellH CellH;
+  typedef MeshT::FacetH FacetH;
+  typedef MeshT::RidgeH RidgeH;
 
   MeshTri m;
   IoMshTri io;
@@ -540,10 +540,10 @@ TEST(DoffMapper, TagsLinkTri3)
 TEST(DoffMapper, TagsLink2Tri3)
 {
   typedef MeshTri MeshT;
-  typedef typename MeshT::VertexH VertexH;
-  typedef typename MeshT::CellH CellH;
-  typedef typename MeshT::FacetH FacetH;
-  typedef typename MeshT::RidgeH RidgeH;
+  typedef MeshT::VertexH VertexH;
+  typedef MeshT::CellH CellH;
+  typedef MeshT::FacetH FacetH;
+  typedef MeshT::RidgeH RidgeH;
 
   MeshTri m;
   IoMshTri io;
@@ -630,10 +630,10 @@ TEST(DoffMapper, TagsLink2Tri3)
 TEST(DoffMapper, TagsLinkTri3DoNothing)
 {
   typedef MeshTri MeshT;
-  typedef typename MeshT::VertexH VertexH;
-  typedef typename MeshT::CellH CellH;
-  typedef typename MeshT::FacetH FacetH;
-  typedef typename MeshT::RidgeH RidgeH;
+  typedef MeshT::VertexH VertexH;
+  typedef MeshT::CellH CellH;
+  typedef MeshT::FacetH FacetH;
+  typedef MeshT::RidgeH RidgeH;
 
   MeshTri m;
   IoMshTri io;
@@ -716,10 +716,10 @@ TEST(DoffMapper, TagsLinkTri3DoNothing)
 TEST(DoffMapper, RegionSplitting)
 {
   typedef MeshTri MeshT;
-  typedef typename MeshT::VertexH VertexH;
-  typedef typename MeshT::CellH CellH;
-  typedef typename MeshT::FacetH FacetH;
-  typedef typename MeshT::RidgeH RidgeH;
+  typedef MeshT::VertexH VertexH;
+  typedef MeshT::CellH CellH;
+  typedef MeshT::FacetH FacetH;
+  typedef MeshT::RidgeH RidgeH;
 
   MeshTri m;
   IoMshTri io;

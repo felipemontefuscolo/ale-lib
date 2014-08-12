@@ -342,10 +342,10 @@ class ShapeTri1Tests : public testing::Test
              // accessed from sub-classes.
 
   typedef MeshTri MeshT;
-  typedef typename MeshT::VertexH VertexH;
-  typedef typename MeshT::CellH CellH;
-  typedef typename MeshT::FacetH FacetH;
-  typedef typename MeshT::RidgeH RidgeH;
+  typedef MeshT::VertexH VertexH;
+  typedef MeshT::CellH CellH;
+  typedef MeshT::FacetH FacetH;
+  typedef MeshT::RidgeH RidgeH;
   typedef MeshIoVtk<MeshT::CellType> MeshWriter;
 
   ShapeTri1Tests() : m(dim2) {}
@@ -529,10 +529,10 @@ class ShapeTet1Tests : public testing::Test
              // accessed from sub-classes.
 
   typedef MeshTet MeshT;
-  typedef typename MeshT::VertexH VertexH;
-  typedef typename MeshT::CellH CellH;
-  typedef typename MeshT::FacetH FacetH;
-  typedef typename MeshT::RidgeH RidgeH;
+  typedef MeshT::VertexH VertexH;
+  typedef MeshT::CellH CellH;
+  typedef MeshT::FacetH FacetH;
+  typedef MeshT::RidgeH RidgeH;
   typedef MeshIoVtk<MeshT::CellType> MeshWriter;
 
   ShapeTet1Tests() : m(dim3) {}

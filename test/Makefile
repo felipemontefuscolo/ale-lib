@@ -34,7 +34,7 @@ CXXFLAGS += -g3 -Wall -Wextra -gdwarf-2 -DDEBUG
 #-gdwarf-2 is for handle inline functions in gdb
 
 LDFLAGS	= -L${ALE_LIBS_DIR} -lalelib
-LDFLAGS+= -fopenmp -lpthread 
+LDFLAGS+= -fopenmp -lpthread -pthread
 #                            -L$(METIS_LD) -lmetis
 
 # All Google Test headers.  Usually you shouldn't change this
@@ -51,6 +51,10 @@ GTEST_INCLUDE = -I$(GTEST_DIR)/include
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
 .PHONY: all clean
+
+
+clean:
+	$(ALE_RM) *.o *.d *.exe *~ gtest.a gtest_main.a
 
 # For simplicity and to avoid depending on Google Test's
 # implementation details, the dependencies specified below are
@@ -95,10 +99,9 @@ alltests.exe: $(TOBJECTS) gtest.a gtest_main.a libalelib.a
 -include $(CPPSOURCES:.cpp=.d)
 
 %.d: %.cpp $(ALE_LIBS_DIR)/libalelib.a
-	$(ALE_CXX) $< -MM -MT '$*.o $*.d ' -MD $(CXXFLAGS) $(CPPFLAGS)
+	$(ALE_CXX) $< -MM -MT '$*.o $*.d ' -M $(CXXFLAGS) $(CPPFLAGS)
 
-clean:
-	$(ALE_RM) *.o *.d *.exe *~ gtest.a gtest_main.a
+
 
 #all: gtest.a gtest_main.a $(CPPSOURCES:.cpp=.cpp)
 #
