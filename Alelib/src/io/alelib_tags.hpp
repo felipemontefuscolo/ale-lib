@@ -222,6 +222,154 @@ EMshTag ctype2mshTag(ECellType type)
 }
 
 static inline
+void mshTypeAndOrder(EMshTag msh, /*out*/ ECellType& type, /*out*/int& order )
+{
+  switch (msh)
+  {
+    case MSH_LIN_2      : type = EDGE;            order = ; break;
+    case MSH_TRI_3      : type = TRIANGLE;        order = ; break;
+    case MSH_QUA_4      : type = QUADRANGLE;      order = ; break;
+    case MSH_TET_4      : type = TETRAHEDRON;     order = ; break;
+    case MSH_HEX_8      : type = HEXAHEDRON;      order = ; break;
+    case MSH_PRI_6      : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PYR_5      : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_LIN_3      : type = EDGE;            order = ; break;
+    case MSH_TRI_6      : type = TRIANGLE;        order = ; break;
+    case MSH_QUA_9      : type = QUADRANGLE;      order = ; break;
+    case MSH_TET_10     : type = TETRAHEDRON;     order = ; break;
+    case MSH_HEX_27     : type = HEXAHEDRON;      order = ; break;
+    case MSH_PRI_18     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PYR_14     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PNT        : type = POINT;           order = ; break;
+    case MSH_QUA_8      : type = QUADRANGLE;      order = ; break;
+    case MSH_HEX_20     : type = HEXAHEDRON;      order = ; break;
+    case MSH_PRI_15     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PYR_13     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_TRI_9      : type = TRIANGLE;        order = ; break;
+    case MSH_TRI_10     : type = TRIANGLE;        order = ; break;
+    case MSH_TRI_12     : type = TRIANGLE;        order = ; break;
+    case MSH_TRI_15     : type = TRIANGLE;        order = ; break;
+    case MSH_TRI_15I    : type = TRIANGLE;        order = ; break;
+    case MSH_TRI_21     : type = TRIANGLE;        order = ; break;
+    case MSH_LIN_4      : type = EDGE;            order = ; break;
+    case MSH_LIN_5      : type = EDGE;            order = ; break;
+    case MSH_LIN_6      : type = EDGE;            order = ; break;
+    case MSH_TET_20     : type = TETRAHEDRON;     order = ; break;
+    case MSH_TET_35     : type = TETRAHEDRON;     order = ; break;
+    case MSH_TET_56     : type = TETRAHEDRON;     order = ; break;
+    case MSH_TET_22     : type = TETRAHEDRON;     order = ; break;
+    case MSH_TET_28     : type = TETRAHEDRON;     order = ; break;
+    case MSH_POLYG_     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_POLYH_     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_QUA_16     : type = QUADRANGLE;      order = ; break;
+    case MSH_QUA_25     : type = QUADRANGLE;      order = ; break;
+    case MSH_QUA_36     : type = QUADRANGLE;      order = ; break;
+    case MSH_QUA_12     : type = QUADRANGLE;      order = ; break;
+    case MSH_QUA_16I    : type = QUADRANGLE;      order = ; break;
+    case MSH_QUA_20     : type = QUADRANGLE;      order = ; break;
+    case MSH_TRI_28     : type = TRIANGLE;        order = ; break;
+    case MSH_TRI_36     : type = TRIANGLE;        order = ; break;
+    case MSH_TRI_45     : type = TRIANGLE;        order = ; break;
+    case MSH_TRI_55     : type = TRIANGLE;        order = ; break;
+    case MSH_TRI_66     : type = TRIANGLE;        order = ; break;
+    case MSH_QUA_49     : type = QUADRANGLE;      order = ; break;
+    case MSH_QUA_64     : type = QUADRANGLE;      order = ; break;
+    case MSH_QUA_81     : type = QUADRANGLE;      order = ; break;
+    case MSH_QUA_100    : type = QUADRANGLE;      order = ; break;
+    case MSH_QUA_121    : type = QUADRANGLE;      order = ; break;
+    case MSH_TRI_18     : type = TRIANGLE;        order = ; break;
+    case MSH_TRI_21I    : type = TRIANGLE;        order = ; break;
+    case MSH_TRI_24     : type = TRIANGLE;        order = ; break;
+    case MSH_TRI_27     : type = TRIANGLE;        order = ; break;
+    case MSH_TRI_30     : type = TRIANGLE;        order = ; break;
+    case MSH_QUA_24     : type = QUADRANGLE;      order = ; break;
+    case MSH_QUA_28     : type = QUADRANGLE;      order = ; break;
+    case MSH_QUA_32     : type = QUADRANGLE;      order = ; break;
+    case MSH_QUA_36I    : type = QUADRANGLE;      order = ; break;
+    case MSH_QUA_40     : type = QUADRANGLE;      order = ; break;
+    case MSH_LIN_7      : type = EDGE;            order = ; break;
+    case MSH_LIN_8      : type = EDGE;            order = ; break;
+    case MSH_LIN_9      : type = EDGE;            order = ; break;
+    case MSH_LIN_10     : type = EDGE;            order = ; break;
+    case MSH_LIN_11     : type = EDGE;            order = ; break;
+    case MSH_LIN_B      : type = EDGE;            order = ; break;
+    case MSH_TRI_B      : type = TRIANGLE;        order = ; break;
+    case MSH_POLYG_B    : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_LIN_C      : type = EDGE;            order = ; break;
+    case MSH_TET_84     : type = TETRAHEDRON;     order = ; break;
+    case MSH_TET_120    : type = TETRAHEDRON;     order = ; break;
+    case MSH_TET_165    : type = TETRAHEDRON;     order = ; break;
+    case MSH_TET_220    : type = TETRAHEDRON;     order = ; break;
+    case MSH_TET_286    : type = TETRAHEDRON;     order = ; break;
+    case MSH_TET_34     : type = TETRAHEDRON;     order = ; break;
+    case MSH_TET_40     : type = TETRAHEDRON;     order = ; break;
+    case MSH_TET_46     : type = TETRAHEDRON;     order = ; break;
+    case MSH_TET_52     : type = TETRAHEDRON;     order = ; break;
+    case MSH_TET_58     : type = TETRAHEDRON;     order = ; break;
+    case MSH_LIN_1      : type = EDGE;            order = ; break;
+    case MSH_TRI_1      : type = TRIANGLE;        order = ; break;
+    case MSH_QUA_1      : type = QUADRANGLE;      order = ; break;
+    case MSH_TET_1      : type = TETRAHEDRON;     order = ; break;
+    case MSH_HEX_1      : type = HEXAHEDRON;      order = ; break;
+    case MSH_PRI_1      : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PRI_40     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PRI_75     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_HEX_64     : type = HEXAHEDRON;      order = ; break;
+    case MSH_HEX_125    : type = HEXAHEDRON;      order = ; break;
+    case MSH_HEX_216    : type = HEXAHEDRON;      order = ; break;
+    case MSH_HEX_343    : type = HEXAHEDRON;      order = ; break;
+    case MSH_HEX_512    : type = HEXAHEDRON;      order = ; break;
+    case MSH_HEX_729    : type = HEXAHEDRON;      order = ; break;
+    case MSH_HEX_1000   : type = HEXAHEDRON;      order = ; break;
+    case MSH_HEX_32     : type = HEXAHEDRON;      order = ; break;
+    case MSH_HEX_44     : type = HEXAHEDRON;      order = ; break;
+    case MSH_HEX_56     : type = HEXAHEDRON;      order = ; break;
+    case MSH_HEX_68     : type = HEXAHEDRON;      order = ; break;
+    case MSH_HEX_80     : type = HEXAHEDRON;      order = ; break;
+    case MSH_HEX_92     : type = HEXAHEDRON;      order = ; break;
+    case MSH_HEX_104    : type = HEXAHEDRON;      order = ; break;
+    case MSH_PRI_126    : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PRI_196    : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PRI_288    : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PRI_405    : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PRI_550    : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PRI_24     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PRI_33     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PRI_42     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PRI_51     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PRI_60     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PRI_69     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PRI_78     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PYR_30     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PYR_55     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PYR_91     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PYR_140    : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PYR_204    : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PYR_285    : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PYR_385    : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PYR_21     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PYR_29     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PYR_37     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PYR_45     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PYR_53     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PYR_61     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PYR_69     : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PYR_1      : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_PNT_SUB    : type = UNDEFINED_CELLT; order = ; break;
+    case MSH_LIN_SUB    : type = EDGE;            order = ; break;
+    case MSH_TRI_SUB    : type = TRIANGLE;        order = ; break;
+    case MSH_TET_SUB    : type = TETRAHEDRON;     order = ; break;
+    case MSH_TET_16     : type = TETRAHEDRON;     order = ; break;
+    case MSH_TRI_MINI   : type = TRIANGLE;        order = ; break;
+    default: type = ; order = ; break;
+  }
+  
+  
+
+}
+
+
+static inline
 ECellFamily ctype2cfamily(ECellType type)
 {
   std::tr1::array<ECellFamily, N_CELL_TYPES> tab = fi_AlelibTagsInitializers::ctype2cfamily_ini();

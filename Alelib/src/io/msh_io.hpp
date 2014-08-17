@@ -27,6 +27,7 @@
 #include "../util/timer.hpp"
 #include "path_handle.hpp"
 #include "../mesh/enums.hpp"
+#include "Alelib/src/dof_mapper/var_dof.hpp"
 
 namespace alelib
 {
@@ -43,11 +44,13 @@ public:
   typedef typename MeshT::RidgeH RidgeH;
   typedef typename MeshT::FacetH FacetH;
   typedef typename MeshT::CellH CellH;  
+  typedef VarDofs<MeshT> VarT;
 
   static const ECellType CellType = ECT;
 
   
   void readFile(const char* filename, MeshT * mesh);
+  void readFile(const char* filename, MeshT * mesh, Real * x_dofs, VarT const& variable, int interp_degree);
   ECellType identifiesMeshType(const char* filename, int* space_dim = NULL) const;
   
   Timer timer;
