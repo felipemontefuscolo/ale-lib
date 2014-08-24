@@ -466,14 +466,15 @@ void MeshIoMsh<CT>::readFile(const char* filename, MeshT * mesh)
 
 /// In this version, the coordinates of the read mesh are returned in the argument vector `x_dofs'.
 /// The numbering must obey the argument `variable'
-/// @param interp_degree an integer corresponding to the Lagrange polynomial degree represented by `x_dofs'.
+/// @param x_dofs the vector containing the degrees of freedom of the mesh (vertices positions, possibly high-order nodes, etc).
+/// @param variable an object which maps mesh entities to the vector `x_dofs'
+/// @param interp_degree an integer correspondent to the degree of the geometry interpolants (Lagrange polynomials)
 ///                      If it is different from what is in the mesh file, an error occurs.
 template<ECellType CT>
 void MeshIoMsh<CT>::readFile(const char* filename, MeshT * mesh, Real * x_dofs, VarT const& variable, int interp_degree)
 {
 
   mesh->clear();
-
 
   ALELIB_ASSERT(mesh, "invalid mesh pointer", std::invalid_argument);
 
@@ -495,8 +496,6 @@ void MeshIoMsh<CT>::readFile(const char* filename, MeshT * mesh, Real * x_dofs, 
   long    elems_file_pos;  // $Elements
 
 
-
-
   // ---------------------------------------
   // counting elements and checking mesh order/type
 
@@ -513,8 +512,8 @@ void MeshIoMsh<CT>::readFile(const char* filename, MeshT * mesh, Real * x_dofs, 
   // Detectando a ordem da malha, verificando sequencia dos elementos,
   // e contando o número de células.
   // ---------------------------------------
-  int msh_type;   // 
-  int msh_order;
+  ECellType msh_type;   // 
+  int       msh_order;
 
   bool wrong_file_err=true;
   index_t  elem_number;               // contagem para verificação de erros.
@@ -532,7 +531,8 @@ void MeshIoMsh<CT>::readFile(const char* filename, MeshT * mesh, Real * x_dofs, 
     }
 
     // check type
-    if (type_tag == mesh_cell_msh_tag)
+    mshTypeAndOrder(EMshTag(type_tag), msh_type, msh_order);
+    if (msh_order == interp_degree && msh_type == CT)
     {
       wrong_file_err=false;
       ++num_cells;

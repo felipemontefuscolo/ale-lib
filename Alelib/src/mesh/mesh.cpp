@@ -225,6 +225,10 @@ void Mesh<CT>::removeCell(CellH ch, bool remove_unref_verts)
       if      (ics[0] == ch) I = 0;
       else if (ics[1] == ch) I = 1;
       else if (ics[2] == ch) I = 2;
+      else {
+		ALELIB_ASSERT(false, "maybe there is a bug in this function ...", std::runtime_error);
+		throw;
+	  }
       int J=(I+1)%3, K=(I+2)%3;
 
       --(f.valency);
