@@ -1,10 +1,10 @@
 class CellH
 {
-  template<ECellType CT_>
+  template<typename Traits_>
   friend class Mesh;
 
-  typedef Mesh<Ctype> MeshT;  
-  typedef typename Mesh<Ctype>::VertexH VertexH;  
+  typedef Mesh<Traits> MeshT;  
+  typedef typename MeshT::VertexH VertexH;  
   typedef typename MeshT::CellT CellT;
   
   typedef CellH Self;

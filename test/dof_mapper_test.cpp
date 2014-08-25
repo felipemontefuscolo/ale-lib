@@ -64,17 +64,23 @@ static const int dim1 = 1;
 static const int dim2 = 2;
 static const int dim3 = 3;
 
-typedef Mesh<EDGE>        MeshEdg;
-typedef Mesh<TRIANGLE>    MeshTri;
-typedef Mesh<QUADRANGLE>  MeshQua;
-typedef Mesh<TETRAHEDRON> MeshTet;
-typedef Mesh<HEXAHEDRON>  MeshHex;
+struct TraitsEdg { static const ECellType CType = EDGE        ; };
+struct TraitsTri { static const ECellType CType = TRIANGLE    ; };
+struct TraitsQua { static const ECellType CType = QUADRANGLE  ; };
+struct TraitsTet { static const ECellType CType = TETRAHEDRON ; };
+struct TraitsHex { static const ECellType CType = HEXAHEDRON  ; };
 
-typedef MeshIoMsh<EDGE>        IoMshEdg;
-typedef MeshIoMsh<TRIANGLE>    IoMshTri;
-typedef MeshIoMsh<QUADRANGLE>  IoMshQua;
-typedef MeshIoMsh<TETRAHEDRON> IoMshTet;
-typedef MeshIoMsh<HEXAHEDRON>  IoMshHex;
+typedef Mesh<TraitsEdg> MeshEdg;
+typedef Mesh<TraitsTri> MeshTri;
+typedef Mesh<TraitsQua> MeshQua;
+typedef Mesh<TraitsTet> MeshTet;
+typedef Mesh<TraitsHex> MeshHex;
+
+typedef MeshIoMsh<MeshEdg> IoMshEdg;
+typedef MeshIoMsh<MeshTri> IoMshTri;
+typedef MeshIoMsh<MeshQua> IoMshQua;
+typedef MeshIoMsh<MeshTet> IoMshTet;
+typedef MeshIoMsh<MeshHex> IoMshHex;
 
 typedef DofMapper<MeshEdg> DofMapEdg;
 typedef DofMapper<MeshTri> DofMapTri;

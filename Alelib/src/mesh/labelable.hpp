@@ -48,7 +48,7 @@ class Labelable
 {
   template<class,class> friend class SeqList;
   
-  template<ECellType> friend class Mesh;
+  template<typename> friend class Mesh;
   
   // poderia usar bit-field, mas não é portável
   int8_t  m_tag; // 0 a 256

@@ -1,9 +1,9 @@
 class FacetH
 {
-  template<ECellType CT_>
+  template<typename Traits_>
   friend class Mesh;
 
-  typedef Mesh<Ctype> MeshT;
+  typedef Mesh<Traits> MeshT; 
   
   typedef FacetH Self;
   

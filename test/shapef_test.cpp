@@ -63,11 +63,18 @@ static const int dim1 = 1;
 static const int dim2 = 2;
 static const int dim3 = 3;
 
-typedef Mesh<EDGE>        MeshEdg;
-typedef Mesh<TRIANGLE>    MeshTri;
-typedef Mesh<QUADRANGLE>  MeshQua;
-typedef Mesh<TETRAHEDRON> MeshTet;
-typedef Mesh<HEXAHEDRON>  MeshHex;
+struct TraitsEdg { static const ECellType CType = EDGE        ; };
+struct TraitsTri { static const ECellType CType = TRIANGLE    ; };
+struct TraitsQua { static const ECellType CType = QUADRANGLE  ; };
+struct TraitsTet { static const ECellType CType = TETRAHEDRON ; };
+struct TraitsHex { static const ECellType CType = HEXAHEDRON  ; };
+
+
+typedef Mesh<TraitsEdg> MeshEdg;
+typedef Mesh<TraitsTri> MeshTri;
+typedef Mesh<TraitsQua> MeshQua;
+typedef Mesh<TraitsTet> MeshTet;
+typedef Mesh<TraitsHex> MeshHex;
 
 // calculates the derivative a function f(x)
 // f: callable object in form  "Real f(Real const*)"
@@ -346,7 +353,7 @@ class ShapeTri1Tests : public testing::Test
   typedef MeshT::CellH CellH;
   typedef MeshT::FacetH FacetH;
   typedef MeshT::RidgeH RidgeH;
-  typedef MeshIoVtk<MeshT::CellType> MeshWriter;
+  typedef MeshIoVtk<MeshT> MeshWriter;
 
   ShapeTri1Tests() : m(dim2) {}
 
@@ -533,7 +540,7 @@ class ShapeTet1Tests : public testing::Test
   typedef MeshT::CellH CellH;
   typedef MeshT::FacetH FacetH;
   typedef MeshT::RidgeH RidgeH;
-  typedef MeshIoVtk<MeshT::CellType> MeshWriter;
+  typedef MeshIoVtk<MeshT> MeshWriter;
 
   ShapeTet1Tests() : m(dim3) {}
 

@@ -33,6 +33,7 @@ namespace alelib {
 
 namespace fi_MshTagsInitializers
 {
+  static inline
   std::tr1::array<int, MSH_MAX_INDEX+1> n_nodes_4_elm_T()
   {
     std::tr1::array<int, MSH_MAX_INDEX+1> tab;
@@ -73,6 +74,7 @@ namespace fi_MshTagsInitializers
     return tab;
   }
  
+  static inline
   std::tr1::array<int, MSH_MAX_INDEX+1> order_4_elm_T()
   {
     std::tr1::array<int, MSH_MAX_INDEX+1> tab;
@@ -113,6 +115,7 @@ namespace fi_MshTagsInitializers
     return tab;
   }
  
+  static inline
   std::tr1::array<int, MSH_MAX_INDEX+1> dim_4_elm_T()
   {
     std::tr1::array<int, MSH_MAX_INDEX+1> tab;
@@ -155,7 +158,7 @@ namespace fi_MshTagsInitializers
   
 }
 
-
+static inline
 int numNodeForMshTag(EMshTag type)
 {
   static const
@@ -171,7 +174,7 @@ int numNodeForMshTag(EMshTag type)
   return nds[idx];
 }
 
-
+static inline
 int orderForMshTag(EMshTag type)
 {
   static const
@@ -187,7 +190,7 @@ int orderForMshTag(EMshTag type)
   return orders[idx];
 }
 
-
+static inline
 int dimForMshTag(EMshTag type)
 {
   static const

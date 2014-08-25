@@ -46,14 +46,14 @@ void reorder_aux(std::vector<int>& v, std::vector<int>& order)
   return;
 }
 
-template<ECellType CT, class T>
+template<ECellType CT, typename Mesh_t, class T>
 struct RDL_caller {};
 
-template<class T>
-struct RDL_caller<TRIANGLE,T>
+template<typename Mesh_t, class T>
+struct RDL_caller<TRIANGLE,Mesh_t,T>
 {
   inline
-  void operator() (Mesh<TRIANGLE> const* mp, typename Mesh<TRIANGLE>::CellH c, int n, int ncomps, T * dofs) const
+  void operator() (Mesh_t const* mp, typename Mesh_t::CellH c, int n, int ncomps, T * dofs) const
   {
     // n = order
 
@@ -62,8 +62,8 @@ struct RDL_caller<TRIANGLE,T>
 
     //int const ndofs = (n+1)*(n+2)/2;
 
-    typedef Mesh<TRIANGLE> MeshT;
-    typedef typename Mesh<TRIANGLE>::CellH CellH;
+    typedef Mesh_t MeshT;
+    typedef typename MeshT::CellH CellH;
 
     for (int i = 0; i < MeshT::facets_per_cell; ++i)
     {
@@ -91,20 +91,20 @@ struct RDL_caller<TRIANGLE,T>
 };
 
 
-template<class T>
-struct RDL_caller<TETRAHEDRON,T>
+template<typename Mesh_t, class T>
+struct RDL_caller<TETRAHEDRON,Mesh_t,T>
 {
 inline
-  void operator() (Mesh<TETRAHEDRON> const* mp, typename Mesh<TETRAHEDRON>::CellH c, int n, int ncomps, T * dofs) const
+  void operator() (Mesh_t const* mp, typename Mesh_t::CellH c, int n, int ncomps, T * dofs) const
   {
     // n = order
 
     if (n<3)
       return;
 
-    typedef Mesh<TETRAHEDRON> MeshT;
-    typedef typename Mesh<TETRAHEDRON>::CellH CellH;
-    typedef typename Mesh<TETRAHEDRON>::VertexH VertexH;
+    typedef Mesh_t MeshT;
+    typedef typename MeshT::CellH CellH;
+    typedef typename MeshT::VertexH VertexH;
 
     // RIDGES FIRST
     for (int i = 0; i < MeshT::ridges_per_cell; ++i)
@@ -173,10 +173,10 @@ inline
 /// @param n the degree of the Lagrange polinomial
 /// @param ncomps numeber of componentes per dof
 /// @param[out] dofs the dofs to be reordered
-template<ECellType CT, class T>
-void reorderDofsLagrange(Mesh<CT> const* mp, typename Mesh<CT>::CellH c, int n, int ncomps, T * dofs)
+template<typename Mesh_t, class T>
+void reorderDofsLagrange(Mesh_t const* mp, typename Mesh_t::CellH c, int n, int ncomps, T * dofs)
 {
-  internal::RDL_caller<CT,T> caller;
+  internal::RDL_caller<Mesh_t::CellType, Mesh_t,T> caller;
   caller(mp, c, n, ncomps, dofs);
 }
 

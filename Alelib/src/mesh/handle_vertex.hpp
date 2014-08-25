@@ -1,13 +1,13 @@
 class VertexH
 {
-  template<ECellType CT_>
+  template<typename Traits_>
   friend class Mesh;
 
-  typedef Mesh<Ctype> MeshT;
+  typedef Mesh<Traits> MeshT; 
   
-  typedef Mesh<Ctype>::VertexH Self;
+  typedef MeshT::VertexH Self;
   
-  //typedef typename Mesh<Ctype>::CellH CellH;  
+  //typedef typename Mesh<CType>::CellH CellH;  
 
   index_t m_id;
 

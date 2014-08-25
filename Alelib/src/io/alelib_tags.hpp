@@ -33,7 +33,7 @@ namespace alelib
 namespace fi_AlelibTagsInitializers
 {
   static inline
-  std::tr1::array<int, N_CELL_TYPES> ctypeNumNodes_ini()
+  std::tr1::array<int, N_CELL_TYPES> CTypeNumNodes_ini()
   {
     std::tr1::array<int, N_CELL_TYPES> tab;
 
@@ -48,7 +48,7 @@ namespace fi_AlelibTagsInitializers
   }
 
   static inline
-  std::tr1::array<int, N_CELL_TYPES> ctypeDim_ini()
+  std::tr1::array<int, N_CELL_TYPES> CTypeDim_ini()
   {
     std::tr1::array<int, N_CELL_TYPES> tab;
 
@@ -63,7 +63,7 @@ namespace fi_AlelibTagsInitializers
   }
 
   static inline
-  std::tr1::array<const char*, N_CELL_TYPES> ctypeName_ini()
+  std::tr1::array<const char*, N_CELL_TYPES> CTypeName_ini()
   {
     std::tr1::array<const char*, N_CELL_TYPES> tab;
 
@@ -78,7 +78,7 @@ namespace fi_AlelibTagsInitializers
   }
 
   static inline
-  std::tr1::array<ECellType, MSH_MAX_INDEX+1> mshTag2ctype_ini()
+  std::tr1::array<ECellType, MSH_MAX_INDEX+1> mshTag2CType_ini()
   {
     std::tr1::array<ECellType, MSH_MAX_INDEX+1> tab;
 
@@ -93,7 +93,7 @@ namespace fi_AlelibTagsInitializers
   }
 
   static inline
-  std::tr1::array<EMshTag, N_CELL_TYPES> ctype2mshTag_ini()
+  std::tr1::array<EMshTag, N_CELL_TYPES> CType2mshTag_ini()
   {
     std::tr1::array<EMshTag, N_CELL_TYPES> tab;
 
@@ -108,7 +108,7 @@ namespace fi_AlelibTagsInitializers
   }
 
   static inline
-  std::tr1::array<ECellFamily, N_CELL_TYPES> ctype2cfamily_ini()
+  std::tr1::array<ECellFamily, N_CELL_TYPES> CType2cfamily_ini()
   {
     std::tr1::array<ECellFamily, N_CELL_TYPES> tab;
 
@@ -140,10 +140,10 @@ namespace fi_AlelibTagsInitializers
 }
 
 static inline
-int ctypeNumNodes(ECellType type)
+int CTypeNumNodes(ECellType type)
 {
   static const
-  std::tr1::array<int, N_CELL_TYPES> n_nds = fi_AlelibTagsInitializers::ctypeNumNodes_ini();
+  std::tr1::array<int, N_CELL_TYPES> n_nds = fi_AlelibTagsInitializers::CTypeNumNodes_ini();
 
   unsigned idx = log2_i32(type);
   if (idx >= N_CELL_TYPES)
@@ -157,11 +157,11 @@ int ctypeNumNodes(ECellType type)
 }
 
 static inline
-int ctypeDim(ECellType type)
+int CTypeDim(ECellType type)
 {
 
   static const
-  std::tr1::array<int, N_CELL_TYPES> dims = fi_AlelibTagsInitializers::ctypeDim_ini();
+  std::tr1::array<int, N_CELL_TYPES> dims = fi_AlelibTagsInitializers::CTypeDim_ini();
 
   unsigned idx = log2_i32(type);
   if (idx >= N_CELL_TYPES)
@@ -174,10 +174,10 @@ int ctypeDim(ECellType type)
 }
 
 static inline
-const char* ctypeName(ECellType type)
+const char* CTypeName(ECellType type)
 {
   static const
-  std::tr1::array<const char*, N_CELL_TYPES> names = fi_AlelibTagsInitializers::ctypeName_ini();
+  std::tr1::array<const char*, N_CELL_TYPES> names = fi_AlelibTagsInitializers::CTypeName_ini();
 
   unsigned idx = log2_i32(type);
   if (idx >= N_CELL_TYPES)
@@ -190,10 +190,10 @@ const char* ctypeName(ECellType type)
 }
 
 static inline
-ECellType mshTag2ctype(EMshTag type)
+ECellType mshTag2CType(EMshTag type)
 {
   static const
-  std::tr1::array<ECellType, MSH_MAX_INDEX+1> tab = fi_AlelibTagsInitializers::mshTag2ctype_ini();
+  std::tr1::array<ECellType, MSH_MAX_INDEX+1> tab = fi_AlelibTagsInitializers::mshTag2CType_ini();
 
   unsigned idx = static_cast<unsigned>(type);
   if (idx-1 >= MSH_MAX_INDEX)
@@ -207,10 +207,10 @@ ECellType mshTag2ctype(EMshTag type)
 }
 
 static inline
-EMshTag ctype2mshTag(ECellType type)
+EMshTag CType2mshTag(ECellType type)
 {
   static const
-  std::tr1::array<EMshTag, N_CELL_TYPES> tab = fi_AlelibTagsInitializers::ctype2mshTag_ini();
+  std::tr1::array<EMshTag, N_CELL_TYPES> tab = fi_AlelibTagsInitializers::CType2mshTag_ini();
 
   unsigned idx = log2_i32(type);
   if (idx >= N_CELL_TYPES)
@@ -371,9 +371,9 @@ void mshTypeAndOrder(EMshTag msh, /*out*/ ECellType& type, /*out*/int& order )
 
 
 static inline
-ECellFamily ctype2cfamily(ECellType type)
+ECellFamily CType2cfamily(ECellType type)
 {
-  std::tr1::array<ECellFamily, N_CELL_TYPES> tab = fi_AlelibTagsInitializers::ctype2cfamily_ini();
+  std::tr1::array<ECellFamily, N_CELL_TYPES> tab = fi_AlelibTagsInitializers::CType2cfamily_ini();
 
   unsigned idx = log2_i32(type);
   if (idx >= N_CELL_TYPES)

@@ -49,16 +49,23 @@ static const int dim1 = 1;
 static const int dim2 = 2;
 static const int dim3 = 3;
 
-typedef Mesh<EDGE>        MeshEdg;
-typedef Mesh<TRIANGLE>    MeshTri;
-typedef Mesh<QUADRANGLE>  MeshQua;
-typedef Mesh<TETRAHEDRON> MeshTet;
-typedef Mesh<HEXAHEDRON>  MeshHex;
+struct TraitsEdg { static const ECellType CType = EDGE        ; };
+struct TraitsTri { static const ECellType CType = TRIANGLE    ; };
+struct TraitsQua { static const ECellType CType = QUADRANGLE  ; };
+struct TraitsTet { static const ECellType CType = TETRAHEDRON ; };
+struct TraitsHex { static const ECellType CType = HEXAHEDRON  ; };
 
-template<ECellType T>
-void checkMesh(Mesh<T> const&m)
+
+typedef Mesh<TraitsEdg> MeshEdg;
+typedef Mesh<TraitsTri> MeshTri;
+typedef Mesh<TraitsQua> MeshQua;
+typedef Mesh<TraitsTet> MeshTet;
+typedef Mesh<TraitsHex> MeshHex;
+
+template<typename Mesh_t>
+void checkMesh(Mesh_t const&m)
 {
-  typedef Mesh<T> MeshT;
+  typedef Mesh_t MeshT;
   typedef typename MeshT::VertexH VertexH;
   typedef typename MeshT::CellH CellH;
   typedef typename MeshT::FacetH FacetH;
@@ -196,7 +203,7 @@ class TriMesh1Tests : public testing::Test
   typedef MeshT::CellH CellH;
   typedef MeshT::FacetH FacetH;
   typedef MeshT::RidgeH RidgeH;
-  typedef MeshIoVtk<MeshT::CellType> MeshWriter;
+  typedef MeshIoVtk<MeshT> MeshWriter;
 
   TriMesh1Tests() : m(dim3) {}
 
@@ -314,7 +321,7 @@ class TriMesh2Tests : public testing::Test
   typedef MeshT::CellH CellH;
   typedef MeshT::FacetH FacetH;
   typedef MeshT::RidgeH RidgeH;
-  typedef MeshIoVtk<MeshT::CellType> MeshWriter;
+  typedef MeshIoVtk<MeshT> MeshWriter;
 
   TriMesh2Tests() : m(dim3) {}
 
@@ -373,7 +380,7 @@ class TetMesh1Tests : public testing::Test
   typedef MeshT::CellH CellH;
   typedef MeshT::FacetH FacetH;
   typedef MeshT::RidgeH RidgeH;
-  typedef MeshIoVtk<MeshT::CellType> MeshWriter;
+  typedef MeshIoVtk<MeshT> MeshWriter;
 
   TetMesh1Tests() : m(dim3) {}
 
@@ -567,7 +574,7 @@ class TetMesh2Tests : public testing::Test
   typedef MeshT::CellH CellH;
   typedef MeshT::FacetH FacetH;
   typedef MeshT::RidgeH RidgeH;
-  typedef MeshIoVtk<MeshT::CellType> MeshWriter;
+  typedef MeshIoVtk<MeshT> MeshWriter;
 
   TetMesh2Tests() : m(dim3) {}
 
@@ -1185,9 +1192,9 @@ TEST_F(TriMesh2Tests, PrintCustomCoordsFieldVtk)
 TEST(MshIoTests, IdentifiesMeshTypeTest)
 {
   //MeshIoMsh<EDGE>        R1;
-  MeshIoMsh<TRIANGLE>    R2;
+  MeshIoMsh<MeshTri> R2;
   //MeshIoMsh<QUADRANGLE>  R3;
-  MeshIoMsh<TETRAHEDRON> R4;
+  MeshIoMsh<MeshTet> R4;
   //MeshIoMsh<HEXAHEDRON>  R5;
   
   int sdim;
@@ -1214,9 +1221,9 @@ TEST(MshIoTests, IdentifiesMeshTypeTest)
 TEST(MshIoTests, ReadFileTest)
 {
   //MeshIoMsh<EDGE>        R1;
-  MeshIoMsh<TRIANGLE>    R2;
+  MeshIoMsh<MeshTri>    R2;
   //MeshIoMsh<QUADRANGLE>  R3;
-  MeshIoMsh<TETRAHEDRON> R4;
+  MeshIoMsh<MeshTet> R4;
   //MeshIoMsh<HEXAHEDRON>  R5;
 
   MeshTri m2;
