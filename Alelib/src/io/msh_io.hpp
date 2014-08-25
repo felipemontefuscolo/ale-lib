@@ -92,6 +92,18 @@ public:
 
     mesh->reserveVerts(num_pts);
 
+    int max_valency_est;
+    switch (CellType)
+    {
+      case EDGE:        max_valency_est = 2 ;  break;
+      case TRIANGLE:    max_valency_est = 6 ;  break;
+      case QUADRANGLE:  max_valency_est = 4 ;  break;
+      case TETRAHEDRON: max_valency_est = 24;  break;
+      case HEXAHEDRON:  max_valency_est = 8 ;  break;
+      default: ALELIB_ASSERT(false, "invalid cell type", std::runtime_error);
+    }
+    max_valency_est = max_valency_est + max_valency_est/3 - 1;
+    
     if (NULL == fgets(buffer, sizeof(buffer), file_ptr)) // escapa do \n
       ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
     for (index_t i=0; i< num_pts; ++i)
@@ -101,8 +113,8 @@ public:
       sscanf(buffer, "%d %lf %lf %lf", &node_number, &coord[0], &coord[1], &coord[2]);
       ALELIB_ASSERT(node_number==i+1, "wrong file format", std::invalid_argument);
 
-      mesh->addVertex(Point(coord[0],coord[1],coord[2]), 0);
-
+      VertexH v = mesh->addVertex(Point(coord[0],coord[1],coord[2]), 0);
+      v.reserve(mesh, max_valency_est);
     }
     // os pontos não estão completas: falta atribuir os labels
 

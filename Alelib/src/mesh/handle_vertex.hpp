@@ -116,6 +116,10 @@ public:
     return x;
   }
 
+  // reserve memory for its star
+  inline void reserve(MeshT* mp, SetVector<index_t>::size_type size)
+  { mp->m_verts[m_id].reserve(size); }
+
 //  // returns the number of (local) disjoint sets that contains this vertex.
 //  // if it is not singular, returns 0 or -1.
 //  inline int singularity()

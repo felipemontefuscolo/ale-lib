@@ -33,7 +33,7 @@ namespace alelib
 template<typename Traits>
 class Mesh
 {
-  static const ECellType CType = Traits::CType;
+  static const ECellType CType = Traits::CellType;
   
   // Some aliases
   typedef Cell<CType>  CellT;   // dim = d

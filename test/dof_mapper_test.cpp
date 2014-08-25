@@ -64,11 +64,11 @@ static const int dim1 = 1;
 static const int dim2 = 2;
 static const int dim3 = 3;
 
-struct TraitsEdg { static const ECellType CType = EDGE        ; };
-struct TraitsTri { static const ECellType CType = TRIANGLE    ; };
-struct TraitsQua { static const ECellType CType = QUADRANGLE  ; };
-struct TraitsTet { static const ECellType CType = TETRAHEDRON ; };
-struct TraitsHex { static const ECellType CType = HEXAHEDRON  ; };
+struct TraitsEdg { static const ECellType CellType = EDGE        ; };
+struct TraitsTri { static const ECellType CellType = TRIANGLE    ; };
+struct TraitsQua { static const ECellType CellType = QUADRANGLE  ; };
+struct TraitsTet { static const ECellType CellType = TETRAHEDRON ; };
+struct TraitsHex { static const ECellType CellType = HEXAHEDRON  ; };
 
 typedef Mesh<TraitsEdg> MeshEdg;
 typedef Mesh<TraitsTri> MeshTri;
