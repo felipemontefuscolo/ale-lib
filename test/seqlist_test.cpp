@@ -39,6 +39,12 @@
 #include <vector>
 #include <deque>
 
+namespace SEQLIST_TEST_CPP {
+
+
+
+
+
 using namespace std;
 using namespace alelib;
 
@@ -456,4 +462,6 @@ TEST(SeqListTest, TestStepWithDeque0)
 
 };
 
+
+} // SEQLIST_TEST_CPP
 

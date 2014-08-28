@@ -30,18 +30,46 @@
 namespace alelib
 {
 
-template<typename Traits>
-class Mesh
+template<ECellType CType, int Sdim = -1, bool SCoords_ = true>
+struct DefaultTraits
 {
-  static const ECellType CType = Traits::CellType;
   
-  // Some aliases
+  static const ECellType CellType = CType;
+  
+  static const int SpaceDim = Sdim!=-1 ? Sdim : (
+  
+                                CType == EDGE        ? 1 : (
+                                CType == TRIANGLE    ? 2 : (
+                                CType == QUADRANGLE  ? 2 : (
+                                CType == TETRAHEDRON ? 3 : (
+                                CType == HEXAHEDRON  ? 3 : (
+                                                       -1
+                                )))))
+                              );
+  
+  static const bool StoreCoords = SCoords_;
+
   typedef Cell<CType>  CellT;   // dim = d
   typedef Facet        FacetT;  // dim = d-1
   typedef Ridge        RidgeT;  // dim = d-2
   typedef Vertex       VertexT; // dim = 0
-  typedef Point        PointT;  // dim = 0
-  typedef Mesh<Traits> MeshT;
+  typedef Point        PointT;  // dim = 0  
+
+
+};
+
+template<typename Traits>
+class Mesh
+{
+  static const ECellType CType = Traits::CellType;
+  //public:
+  // Some aliases
+  typedef typename Traits::CellT   CellT;   // dim = d
+  typedef typename Traits::FacetT  FacetT;  // dim = d-1
+  typedef typename Traits::RidgeT  RidgeT;  // dim = d-2
+  typedef typename Traits::VertexT VertexT; // dim = 0
+  typedef typename Traits::PointT  PointT;  // dim = 0
+  typedef Mesh<Traits>             MeshT;
 
 
   // some sugar typedefs
@@ -401,8 +429,18 @@ public:
 
       if (it == &adj_id) // i.ei, no adj cell
       {
+        // TODO: can be improved with c++11
         // the new facet will always point to the new cell
-        new_c.facets[i] = pushFacet(FacetT(new_cid, i, NULL_IDX, NO_TAG, NO_FLAG, 1));
+        FacetT new_f;
+        new_f.icell = new_cid;
+        new_f.local_id = i;
+        new_f.opp_cell = NULL_IDX;
+        new_f.m_tag = NO_TAG ;
+        new_f.m_flags = NO_FLAG;
+        new_f.valency = 1;
+        new_c.facets[i] = pushFacet(new_f);
+        //// the new facet will always point to the new cell
+        //new_c.facets[i] = pushFacet(FacetT(new_cid, i, NULL_IDX, NO_TAG, NO_FLAG, 1));
       }
       else // if there is an adj cell
       {
@@ -440,8 +478,15 @@ public:
 
         if (it == &adj_id) // i.ei, no near cell
         {
+          RidgeT new_r;
+          new_r.icell = new_cid;
+          new_r.local_id = i;
+          new_r.m_tag = NO_TAG;
+          new_r.m_flags = NO_FLAG;
+          new_r.valency = 1;
+          new_c.ridges[i] = pushRidge(new_r);
           // the new facet will always point to the new cell
-          new_c.ridges[i] = pushRidge(RidgeT(new_cid, i, NO_TAG, NO_FLAG, 1));
+          //new_c.ridges[i] = pushRidge(RidgeT(new_cid, i, NO_TAG, NO_FLAG, 1));
         }
         else
         {

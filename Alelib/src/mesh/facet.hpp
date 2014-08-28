@@ -29,13 +29,17 @@ namespace alelib
 
 
 
-struct Facet : public Labelable
+struct Facet : private Labelable
 {
+  template<class,class> friend class SeqList;
+  template<typename> friend class Mesh;
+
   uint8_t   valency;   // padding. > 2 means non-manifold
   uint8_t   local_id;  // local id of this element on the incident cell
   index_t   icell;     // global id of the incident cell  
   index_t   opp_cell;  // opposite cell
 
+public:
   Facet(index_t   ic,
         uint8_t   loc_id,
         index_t   oc,
@@ -46,7 +50,7 @@ struct Facet : public Labelable
 
   Facet() : Labelable(), valency(0), local_id(NULL_IDX), icell(NULL_IDX), opp_cell(NULL_IDX) {}
 
-  
+private:
 
 };
 

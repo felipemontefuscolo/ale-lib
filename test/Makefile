@@ -50,7 +50,7 @@ GTEST_INCLUDE = -I$(GTEST_DIR)/include
 # trailing _.
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
-.PHONY: all clean
+.PHONY: all clean successfull
 
 
 clean:
@@ -82,21 +82,28 @@ $(ALE_LIBS_DIR)/libalelib.a:
 
 CPPSOURCES = $(wildcard *.cpp)
 TOBJECTS = $(CPPSOURCES:.cpp=.o)
+EXECUTABLES = $(CPPSOURCES:.cpp=.exe)
 
-#all: gtest.a gtest_main.a $(CPPSOURCES:.cpp=.o) $(CPPSOURCES:.cpp=.d) alltests.exe
-all: gtest.a gtest_main.a $(CPPSOURCES:.cpp=.o) alltests.exe
+#all: gtest.a gtest_main.a $(CPPSOURCES:.cpp=.o) $(CPPSOURCES:.cpp=.d) runall.exe
+all: gtest.a gtest_main.a $(CPPSOURCES:.cpp=.o) runall.exe
+#all: gtest.a gtest_main.a $(CPPSOURCES:.cpp=.exe) $(CPPSOURCES:.cpp=.o) successfull
 
-%.o: %.cpp $(GTEST_HEADERS) Makefile $(ALELIB_DIR)/conf/variables
-	#$(CXX) -c $(CPPFLAGS) $(CXXFLAGS)  $< $(LDFLAGS) -o $@ gtest.a gtest_main.a
+%.o: %.cpp $(GTEST_HEADERS) $(ALELIB_DIR)/conf/variables
 	$(CXX)  -c $(CPPFLAGS) $(CXXFLAGS) $< $(LDFLAGS) -o $@
 
+#%.exe: %.o $(GTEST_HEADERS) $(ALELIB_DIR)/conf/variables
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS)  $< -o $@ $(LDFLAGS) gtest.a gtest_main.a
 
-alltests.exe: $(TOBJECTS) gtest.a gtest_main.a $(ALE_LIBS_DIR)/libalelib.a Makefile
+runall.exe: $(TOBJECTS) gtest.a gtest_main.a $(ALE_LIBS_DIR)/libalelib.a Makefile
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(TOBJECTS) -o $@ $(LDFLAGS) gtest.a gtest_main.a
 	@echo 
 	@echo all tests successfully compiled
 	@echo 
 
+#successfull: $(EXECUTABLES)
+#	@echo 
+#	@echo all tests successfully compiled
+#	@echo 
 
 
 ifneq ($(MAKECMDGOALS),clean)

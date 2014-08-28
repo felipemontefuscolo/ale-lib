@@ -1,0 +1,164 @@
+
+Running main() from gtest_main.cc
+[==========] Running 8 tests from 1 test case.
+[----------] Global test environment set-up.
+[----------] 8 tests from DoffMapper
+[ RUN      ] DoffMapper.AssignsDofsTri
+[       OK ] DoffMapper.AssignsDofsTri (0 ms)
+[ RUN      ] DoffMapper.AssignsDofsTriTags
+[       OK ] DoffMapper.AssignsDofsTriTags (1 ms)
+[ RUN      ] DoffMapper.AssignsDofsTet
+[       OK ] DoffMapper.AssignsDofsTet (0 ms)
+[ RUN      ] DoffMapper.AssignsDofsTetTags
+[       OK ] DoffMapper.AssignsDofsTetTags (1 ms)
+[ RUN      ] DoffMapper.TagsLinkTri3
+[       OK ] DoffMapper.TagsLinkTri3 (0 ms)
+[ RUN      ] DoffMapper.TagsLink2Tri3
+[       OK ] DoffMapper.TagsLink2Tri3 (0 ms)
+[ RUN      ] DoffMapper.TagsLinkTri3DoNothing
+[       OK ] DoffMapper.TagsLinkTri3DoNothing (0 ms)
+[ RUN      ] DoffMapper.RegionSplitting
+dof_mapper_test.cpp:847: Failure
+Value of: mapper.variable(2).numRegions()
+  Actual: 2
+Expected: 3
+[  FAILED  ] DoffMapper.RegionSplitting (0 ms)
+[----------] 8 tests from DoffMapper (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 8 tests from 1 test case ran. (2 ms total)
+[  PASSED  ] 7 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] DoffMapper.RegionSplitting
+
+ 1 FAILED TEST
+Running main() from gtest_main.cc
+[==========] Running 18 tests from 6 test cases.
+[----------] Global test environment set-up.
+[----------] 3 tests from MeshTest
+[ RUN      ] MeshTest.Initialize2d
+Cell(Tet): 60
+Facet: 12
+Ridge: 12
+Vertex: 32
+[       OK ] MeshTest.Initialize2d (0 ms)
+[ RUN      ] MeshTest.AddVertex
+[       OK ] MeshTest.AddVertex (0 ms)
+[ RUN      ] MeshTest.RemoveUnrefVertex
+[       OK ] MeshTest.RemoveUnrefVertex (0 ms)
+[----------] 3 tests from MeshTest (0 ms total)
+
+[----------] 5 tests from TriMesh1Tests
+[ RUN      ] TriMesh1Tests.AddCell
+[       OK ] TriMesh1Tests.AddCell (0 ms)
+[ RUN      ] TriMesh1Tests.RemoveSingularCell
+[       OK ] TriMesh1Tests.RemoveSingularCell (0 ms)
+[ RUN      ] TriMesh1Tests.AddAndRemoveCell
+[       OK ] TriMesh1Tests.AddAndRemoveCell (1 ms)
+[ RUN      ] TriMesh1Tests.PrintVtkAscii
+[       OK ] TriMesh1Tests.PrintVtkAscii (0 ms)
+[ RUN      ] TriMesh1Tests.PrintVtkBinSplitEdge
+[       OK ] TriMesh1Tests.PrintVtkBinSplitEdge (1 ms)
+[----------] 5 tests from TriMesh1Tests (2 ms total)
+
+[----------] 4 tests from TetMesh1Tests
+[ RUN      ] TetMesh1Tests.AddCell
+[       OK ] TetMesh1Tests.AddCell (2 ms)
+[ RUN      ] TetMesh1Tests.RemoveCell
+[       OK ] TetMesh1Tests.RemoveCell (8 ms)
+[ RUN      ] TetMesh1Tests.PrintVtkAscii
+[       OK ] TetMesh1Tests.PrintVtkAscii (2 ms)
+[ RUN      ] TetMesh1Tests.PrintVtkBinSplitEdge
+[       OK ] TetMesh1Tests.PrintVtkBinSplitEdge (3 ms)
+[----------] 4 tests from TetMesh1Tests (15 ms total)
+
+[----------] 2 tests from TetMesh2Tests
+[ RUN      ] TetMesh2Tests.PrintNodalFieldVtk
+[       OK ] TetMesh2Tests.PrintNodalFieldVtk (2 ms)
+[ RUN      ] TetMesh2Tests.PrintCustomCoordsFieldVtk
+[       OK ] TetMesh2Tests.PrintCustomCoordsFieldVtk (1 ms)
+[----------] 2 tests from TetMesh2Tests (3 ms total)
+
+[----------] 2 tests from TriMesh2Tests
+[ RUN      ] TriMesh2Tests.PrintNodalFieldVtk
+[       OK ] TriMesh2Tests.PrintNodalFieldVtk (1 ms)
+[ RUN      ] TriMesh2Tests.PrintCustomCoordsFieldVtk
+[       OK ] TriMesh2Tests.PrintCustomCoordsFieldVtk (1 ms)
+[----------] 2 tests from TriMesh2Tests (2 ms total)
+
+[----------] 2 tests from MshIoTests
+[ RUN      ] MshIoTests.IdentifiesMeshTypeTest
+[       OK ] MshIoTests.IdentifiesMeshTypeTest (0 ms)
+[ RUN      ] MshIoTests.ReadFileTest
+[       OK ] MshIoTests.ReadFileTest (1 ms)
+[----------] 2 tests from MshIoTests (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 18 tests from 6 test cases ran. (23 ms total)
+[  PASSED  ] 18 tests.
+Running main() from gtest_main.cc
+[==========] Running 5 tests from 1 test case.
+[----------] Global test environment set-up.
+[----------] 5 tests from SeqListTest
+[ RUN      ] SeqListTest.TestStep0
+[       OK ] SeqListTest.TestStep0 (0 ms)
+[ RUN      ] SeqListTest.TestStep2
+[       OK ] SeqListTest.TestStep2 (0 ms)
+[ RUN      ] SeqListTest.ParallelItersTest0
+[       OK ] SeqListTest.ParallelItersTest0 (0 ms)
+[ RUN      ] SeqListTest.ParallelItersTest1
+[       OK ] SeqListTest.ParallelItersTest1 (0 ms)
+[ RUN      ] SeqListTest.TestStepWithDeque0
+[       OK ] SeqListTest.TestStepWithDeque0 (0 ms)
+[----------] 5 tests from SeqListTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test case ran. (0 ms total)
+[  PASSED  ] 5 tests.
+Running main() from gtest_main.cc
+[==========] Running 16 tests from 3 test cases.
+[----------] Global test environment set-up.
+[----------] 5 tests from ShapeEdge1Tests
+[ RUN      ] ShapeEdge1Tests.LagrangeDeltaProperty
+[       OK ] ShapeEdge1Tests.LagrangeDeltaProperty (0 ms)
+[ RUN      ] ShapeEdge1Tests.LagrangeGradient
+[       OK ] ShapeEdge1Tests.LagrangeGradient (1 ms)
+[ RUN      ] ShapeEdge1Tests.LagrangeHessian
+[       OK ] ShapeEdge1Tests.LagrangeHessian (1 ms)
+[ RUN      ] ShapeEdge1Tests.BubbleVGH
+[       OK ] ShapeEdge1Tests.BubbleVGH (0 ms)
+[ RUN      ] ShapeEdge1Tests.LagrangeIntegration
+[       OK ] ShapeEdge1Tests.LagrangeIntegration (0 ms)
+[----------] 5 tests from ShapeEdge1Tests (2 ms total)
+
+[----------] 5 tests from ShapeTri1Tests
+[ RUN      ] ShapeTri1Tests.LagrangeDeltaProperty
+[       OK ] ShapeTri1Tests.LagrangeDeltaProperty (1 ms)
+[ RUN      ] ShapeTri1Tests.LagrangeGradient
+[       OK ] ShapeTri1Tests.LagrangeGradient (32 ms)
+[ RUN      ] ShapeTri1Tests.LagrangeHessian
+[       OK ] ShapeTri1Tests.LagrangeHessian (11 ms)
+[ RUN      ] ShapeTri1Tests.BubbleVGH
+[       OK ] ShapeTri1Tests.BubbleVGH (0 ms)
+[ RUN      ] ShapeTri1Tests.LagrangeIntegration
+[       OK ] ShapeTri1Tests.LagrangeIntegration (9 ms)
+[----------] 5 tests from ShapeTri1Tests (53 ms total)
+
+[----------] 6 tests from ShapeTet1Tests
+[ RUN      ] ShapeTet1Tests.LagrangeDeltaProperty
+[       OK ] ShapeTet1Tests.LagrangeDeltaProperty (8 ms)
+[ RUN      ] ShapeTet1Tests.LagrangeGradient
+[       OK ] ShapeTet1Tests.LagrangeGradient (39 ms)
+[ RUN      ] ShapeTet1Tests.LagrangeHessian
+[       OK ] ShapeTet1Tests.LagrangeHessian (197 ms)
+[ RUN      ] ShapeTet1Tests.BubbleVGH
+[       OK ] ShapeTet1Tests.BubbleVGH (0 ms)
+[ RUN      ] ShapeTet1Tests.LagrangeBubble
+[       OK ] ShapeTet1Tests.LagrangeBubble (0 ms)
+[ RUN      ] ShapeTet1Tests.LagrangeIntegration
+[       OK ] ShapeTet1Tests.LagrangeIntegration (46 ms)
+[----------] 6 tests from ShapeTet1Tests (291 ms total)
+
+[----------] Global test environment tear-down
+[==========] 16 tests from 3 test cases ran. (346 ms total)
+[  PASSED  ] 16 tests.

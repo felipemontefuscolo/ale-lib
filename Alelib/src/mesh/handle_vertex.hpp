@@ -3,7 +3,8 @@ class VertexH
   template<typename Traits_>
   friend class Mesh;
 
-  typedef Mesh<Traits> MeshT; 
+  typedef Mesh<Traits> MeshT;
+  typedef MeshT::VertexT VertexT;
   
   typedef MeshT::VertexH Self;
   
@@ -51,6 +52,12 @@ public:
     return NULL_IDX;
   }
 
+  VertexT& user(MeshT* mp) const
+  { return mp->m_verts[m_id];}
+  
+  VertexT const& user(MeshT const* mp) const
+  { return mp->m_verts[m_id];}
+
   void setTag(MeshT* mp, int tag)
   { mp->m_verts[m_id].setTag(tag); }
 
@@ -62,7 +69,7 @@ public:
   // it has some cost ...
   bool isBoundary(MeshT const* mp) const
   {
-    typedef typename Vertex::VectorT VectorT;
+    typedef typename VertexT::VectorT VectorT;
     typedef typename VectorT::const_iterator iterator;
     
     VectorT const& star = mp->m_verts[m_id].icells;

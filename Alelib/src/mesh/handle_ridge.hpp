@@ -4,6 +4,7 @@ class RidgeH
   friend class Mesh;
 
   typedef Mesh<Traits> MeshT; 
+  typedef MeshT::RidgeT RidgeT;
 
   typedef RidgeH Self;
 
@@ -37,6 +38,12 @@ public:
 
   bool isDisabled(MeshT const* mp) const
   { return mp->m_ridges[m_id].isDisabled();};
+
+  RidgeT& user(MeshT* mp) const
+  { return mp->m_verts[m_id];}
+  
+  RidgeT const& user(MeshT const* mp) const
+  { return mp->m_verts[m_id];}
 
   void setTag(MeshT* mp, int tag)
   { mp->m_ridges[m_id].setTag(tag); }

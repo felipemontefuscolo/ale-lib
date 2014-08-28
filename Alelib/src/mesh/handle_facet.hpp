@@ -3,7 +3,8 @@ class FacetH
   template<typename Traits_>
   friend class Mesh;
 
-  typedef Mesh<Traits> MeshT; 
+  typedef Mesh<Traits> MeshT;
+  typedef MeshT::FacetT FacetT;
   
   typedef FacetH Self;
   
@@ -19,6 +20,12 @@ public:
 
   inline index_t id(MeshT const*) const
   { return m_id; }
+
+  FacetT& user(MeshT* mp) const
+  { return mp->m_verts[m_id];}
+  
+  FacetT const& user(MeshT const* mp) const
+  { return mp->m_verts[m_id];}
 
   void setTag(MeshT* mp, int tag)
   { mp->m_facets[m_id].setTag(tag); }

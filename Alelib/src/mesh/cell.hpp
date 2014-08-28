@@ -11,17 +11,18 @@ namespace alelib
 
 // dummy
 template<ECellType CT>
-struct Cell  : public Labelable
-{ };
+class Cell;
 
 
-#define ALE_CELL_CONSTRUCTOR  inline Cell(int8_t tag, Flags flags) : Labelable(tag,flags)                          \
-                                                                                                                   \
+#define ALE_CELL_CONSTRUCTOR                                                                                       \
+      public:                                                                                                      \
+      inline Cell(int8_t tag, Flags flags) : Labelable(tag,flags)                                                  \
       {                                                                                                            \
         reset();                                                                                                   \
       }                                                                                                            \
                                                                                                                    \
       inline Cell() : Labelable() {}                                                                               \
+      private:                                                                                                     \
                                                                                                                    \
       inline void reset()                                                                                          \
       {                                                                                                            \
@@ -75,8 +76,11 @@ struct Cell  : public Labelable
 
 
 template<>
-struct Cell<POINT>  : public Labelable
+class Cell<POINT>  : private Labelable
 {
+  template<class,class> friend class SeqList;
+  template<typename> friend class Mesh;
+
   static const unsigned dim                = 0;
   static const unsigned n_verts            = 0;
   static const unsigned n_verts_p_facet    = 0;
@@ -88,8 +92,11 @@ struct Cell<POINT>  : public Labelable
 };
 
 template<>
-struct Cell<EDGE>  : public Labelable
+class Cell<EDGE>  : private Labelable
 {
+  template<class,class> friend class SeqList;
+  template<typename> friend class Mesh;
+  
   static const unsigned dim                = 1;
   static const unsigned n_verts            = 2;
   static const unsigned n_verts_p_facet    = 1;
@@ -105,8 +112,11 @@ struct Cell<EDGE>  : public Labelable
 };
 
 template<>
-struct Cell<TRIANGLE>  : public Labelable
+class Cell<TRIANGLE>  : private Labelable
 {
+  template<class,class> friend class SeqList;
+  template<typename> friend class Mesh;
+
   static const unsigned dim                = 2;
   static const unsigned n_verts            = 3;
   static const unsigned n_verts_p_facet    = 2;
@@ -122,8 +132,11 @@ struct Cell<TRIANGLE>  : public Labelable
 };
 
 template<>
-struct Cell<QUADRANGLE>  : public Labelable
+class Cell<QUADRANGLE>  : private Labelable
 {
+  template<class,class> friend class SeqList;
+  template<typename> friend class Mesh;
+
   static const unsigned dim                = 2;
   static const unsigned n_verts            = 4;
   static const unsigned n_verts_p_facet    = 2;
@@ -139,8 +152,11 @@ struct Cell<QUADRANGLE>  : public Labelable
 };
 
 template<>
-struct Cell<TETRAHEDRON>  : public Labelable
+class Cell<TETRAHEDRON>  : private Labelable
 {
+  template<class,class> friend class SeqList;
+  template<typename> friend class Mesh;
+
   static const unsigned dim                = 3;
   static const unsigned n_verts            = 4;
   static const unsigned n_verts_p_facet    = 3;
@@ -156,8 +172,11 @@ struct Cell<TETRAHEDRON>  : public Labelable
 };
 
 template<>
-struct Cell<HEXAHEDRON>  : public Labelable
+class Cell<HEXAHEDRON>  : private Labelable
 {
+  template<class,class> friend class SeqList;
+  template<typename> friend class Mesh;
+
   static const unsigned dim                = 3 ;
   static const unsigned n_verts            = 8 ;
   static const unsigned n_verts_p_facet    = 4 ;
@@ -179,13 +198,13 @@ struct Cell<HEXAHEDRON>  : public Labelable
 #undef ALE_DEF_2D_CELLS_MEMBERS
 #undef ALE_DEF_3D_CELLS_MEMBERS
 
-struct internalDummyStruct
-{
-  //index_t  adj_cells[1];
-  index_t  facets[1];
-  index_t  ridges[1];
-  index_t  verts[1];
-};
+//class internalDummyclass
+//{
+//  //index_t  adj_cells[1];
+//  index_t  facets[1];
+//  index_t  ridges[1];
+//  index_t  verts[1];
+//};
 
 } // end namespace alelib
 

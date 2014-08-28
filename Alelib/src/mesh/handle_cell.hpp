@@ -41,6 +41,12 @@ public:
   bool isDisabled(MeshT const* mp) const
   { return mp->m_cells[m_id].isDisabled();};
 
+  CellT& user(MeshT* mp) const
+  { return mp->m_verts[m_id];}
+  
+  CellT const& user(MeshT const* mp) const
+  { return mp->m_verts[m_id];}
+
   void setTag(MeshT* mp, int tag)
   { mp->m_cells[m_id].setTag(tag); }
 

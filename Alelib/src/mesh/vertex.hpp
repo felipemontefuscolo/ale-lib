@@ -33,8 +33,11 @@ namespace alelib
 
 
 
-struct Vertex : public Labelable
+class Vertex : public Labelable
 {
+  template<class,class> friend class SeqList;
+  template<typename> friend class Mesh;
+  
   typedef SetVector<index_t> VectorT;
   
   uint8_t status;    // padding.
@@ -49,14 +52,16 @@ struct Vertex : public Labelable
    // mk_inboundary = (1<<0)
   };
 
-  // Construtor.
+public:
+  /// Construtor.
   explicit
   Vertex(int8_t tag, Flags flags=NO_FLAG, Masks stat=mk_none) : Labelable(tag, flags), status(static_cast<uint8_t>(stat))
   { }
 
   /// Construtor.
-  ///
   Vertex() : Labelable(), status(mk_none) {}
+
+private:
 
 
   inline unsigned valency() const

@@ -30,8 +30,11 @@ namespace alelib
 // terminology of the word ridge: http://en.wikipedia.org/wiki/Polytope
 
 
-struct Ridge : public Labelable
+struct Ridge : private Labelable
 {
+  template<class,class> friend class SeqList;
+  template<typename> friend class Mesh;
+
   uint8_t  status;     // padding.
   uint8_t  local_id;   // local id of this element on the incident cell
   uint16_t valency;    // number os cells that contain this ridge
@@ -44,6 +47,7 @@ struct Ridge : public Labelable
   //  mk_inboundary = (1<<0)
   };
 
+public:
   Ridge(index_t   ic,
         uint8_t   loc_id,
         uint8_t   tag = NO_TAG,
@@ -53,7 +57,7 @@ struct Ridge : public Labelable
 
   Ridge() : Labelable(), status(mk_none), local_id(NULL_IDX), valency(0), icell(NULL_IDX){}
 
-  
+private:
 
 };
 

@@ -30,7 +30,7 @@
 // --gtest_catch_exceptions=0
 
 
-
+#include "common.hpp"
 #include <gtest/gtest.h>
 #include <Alelib/Mesh>
 #include <Alelib/IO>
@@ -48,26 +48,39 @@
 #include <tr1/tuple>
 #include <cmath>
 
+namespace SHAPEF_TEST_CPP {
+
+
+
+
+
 using namespace std::tr1::placeholders;
-
-
-using namespace alelib;
-using namespace std;
-
-#define MAX(a,b) ((a) > (b) ? (a) : (b))
 
 Real const ALE_EPS = std::numeric_limits<Real>::epsilon();
 Real const ALE_TOL = 500000*ALE_EPS; // ~ 1.1e-10 para double
 
-static const int dim1 = 1;
-static const int dim2 = 2;
-static const int dim3 = 3;
 
-struct TraitsEdg { static const ECellType CellType = EDGE        ; };
-struct TraitsTri { static const ECellType CellType = TRIANGLE    ; };
-struct TraitsQua { static const ECellType CellType = QUADRANGLE  ; };
-struct TraitsTet { static const ECellType CellType = TETRAHEDRON ; };
-struct TraitsHex { static const ECellType CellType = HEXAHEDRON  ; };
+// customizing types
+struct MyCellTri : public Cell<TRIANGLE>
+{
+  MyCellTri() : Cell<TRIANGLE>() {};
+  
+  //int aasdfasdf[38];
+  
+};
+
+struct MyVertex2 : public Vertex
+{
+  int a[1];
+  
+};
+
+
+struct TraitsEdg : public DefaultTraits<EDGE       > { };
+struct TraitsTri : public DefaultTraits<TRIANGLE   > { typedef MyVertex2 VertexT;};
+struct TraitsQua : public DefaultTraits<QUADRANGLE > { };
+struct TraitsTet : public DefaultTraits<TETRAHEDRON> { };
+struct TraitsHex : public DefaultTraits<HEXAHEDRON > { };
 
 
 typedef Mesh<TraitsEdg> MeshEdg;
@@ -839,4 +852,6 @@ TEST_F(ShapeTet1Tests, LagrangeIntegration)
 
 }
 
+
+} // SHAPEF_TEST_CPP
 
