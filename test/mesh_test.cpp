@@ -61,7 +61,7 @@ class TriMesh1Tests : public testing::Test
   typedef MeshT::RidgeH RidgeH;
   typedef MeshIoVtk<MeshT> MeshWriter;
 
-  TriMesh1Tests() : m(dim3) {}
+  TriMesh1Tests() : m() {}
 
   MeshT m;
 
@@ -180,7 +180,7 @@ class TriMesh2Tests : public testing::Test
   typedef MeshT::RidgeH RidgeH;
   typedef MeshIoVtk<MeshT> MeshWriter;
 
-  TriMesh2Tests() : m(dim3) {}
+  TriMesh2Tests() : m() {}
 
   MeshT m;
 
@@ -239,7 +239,7 @@ class TetMesh1Tests : public testing::Test
   typedef MeshT::RidgeH RidgeH;
   typedef MeshIoVtk<MeshT> MeshWriter;
 
-  TetMesh1Tests() : m(dim3) {}
+  TetMesh1Tests() : m() {}
 
   MeshT m;
 
@@ -433,7 +433,7 @@ class TetMesh2Tests : public testing::Test
   typedef MeshT::RidgeH RidgeH;
   typedef MeshIoVtk<MeshT> MeshWriter;
 
-  TetMesh2Tests() : m(dim3) {}
+  TetMesh2Tests() : m() {}
 
   MeshT m;
 
@@ -497,11 +497,11 @@ class TetMesh2Tests : public testing::Test
 
 TEST(MeshTest, Initialize2d)
 {
-  MeshEdg m0(dim3);
-  MeshTri m1(dim3);
-  MeshQua m2(dim3);
-  MeshTet m3(dim3);
-  MeshHex m4(dim3);
+  MeshEdg m0;
+  MeshTri m1;
+  MeshQua m2;
+  MeshTet m3;
+  MeshHex m4;
 
   //MeshEdg::printElementsSize();
   //MeshTri::printElementsSize();
@@ -514,7 +514,7 @@ TEST(MeshTest, AddVertex)
 {
   typedef MeshTri MeshT;
   typedef MeshT::VertexH VertexH;
-  MeshT m(dim2);
+  MeshT m;
 
   EXPECT_EQ(0u, m.numVertices());
 
@@ -537,7 +537,7 @@ TEST(MeshTest, RemoveUnrefVertex)
 {
   typedef MeshTri MeshT;
   typedef MeshT::VertexH VertexH;
-  MeshT m(dim2);
+  MeshT m;
 
   VertexH vts[5];
 

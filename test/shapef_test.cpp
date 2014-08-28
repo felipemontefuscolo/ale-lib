@@ -368,7 +368,7 @@ class ShapeTri1Tests : public testing::Test
   typedef MeshT::RidgeH RidgeH;
   typedef MeshIoVtk<MeshT> MeshWriter;
 
-  ShapeTri1Tests() : m(dim2) {}
+  ShapeTri1Tests() : m() {}
 
   MeshT m;
 
@@ -555,7 +555,7 @@ class ShapeTet1Tests : public testing::Test
   typedef MeshT::RidgeH RidgeH;
   typedef MeshIoVtk<MeshT> MeshWriter;
 
-  ShapeTet1Tests() : m(dim3) {}
+  ShapeTet1Tests() : m() {}
 
   MeshT m;
 

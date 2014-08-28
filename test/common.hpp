@@ -67,11 +67,11 @@ struct MyRidge : public Ridge { int mycolor;};
 //typedef Facet             MyFacet  ;
 //typedef Ridge             MyRidge  ;
 
-struct TraitsEdg : public DefaultTraits<EDGE       > { typedef MyCellEdg CellT; typedef MyVertex VertexT; typedef MyFacet FacetT; typedef MyRidge RidgeT;};
-struct TraitsTri : public DefaultTraits<TRIANGLE   > { typedef MyCellTri CellT; typedef MyVertex VertexT; typedef MyFacet FacetT; typedef MyRidge RidgeT;};
-struct TraitsQua : public DefaultTraits<QUADRANGLE > { typedef MyCellQua CellT; typedef MyVertex VertexT; typedef MyFacet FacetT; typedef MyRidge RidgeT;};
-struct TraitsTet : public DefaultTraits<TETRAHEDRON> { typedef MyCellTet CellT; typedef MyVertex VertexT; typedef MyFacet FacetT; typedef MyRidge RidgeT;};
-struct TraitsHex : public DefaultTraits<HEXAHEDRON > { typedef MyCellHex CellT; typedef MyVertex VertexT; typedef MyFacet FacetT; typedef MyRidge RidgeT;};
+struct TraitsEdg : public DefaultTraits<EDGE       , true, 3> { typedef MyCellEdg CellT; typedef MyVertex VertexT; typedef MyFacet FacetT; typedef MyRidge RidgeT;};
+struct TraitsTri : public DefaultTraits<TRIANGLE   , true, 3> { typedef MyCellTri CellT; typedef MyVertex VertexT; typedef MyFacet FacetT; typedef MyRidge RidgeT;};
+struct TraitsQua : public DefaultTraits<QUADRANGLE , true, 3> { typedef MyCellQua CellT; typedef MyVertex VertexT; typedef MyFacet FacetT; typedef MyRidge RidgeT;};
+struct TraitsTet : public DefaultTraits<TETRAHEDRON, true, 3> { typedef MyCellTet CellT; typedef MyVertex VertexT; typedef MyFacet FacetT; typedef MyRidge RidgeT;};
+struct TraitsHex : public DefaultTraits<HEXAHEDRON , true, 3> { typedef MyCellHex CellT; typedef MyVertex VertexT; typedef MyFacet FacetT; typedef MyRidge RidgeT;};
 
 
 typedef Mesh<TraitsEdg> MeshEdg;

@@ -30,13 +30,13 @@
 namespace alelib
 {
 
-template<ECellType CType, int Sdim = -1, bool SCoords_ = true>
+template<ECellType CType, bool SCoords_ = true, int Sdim = -1>
 struct DefaultTraits
 {
   
   static const ECellType CellType = CType;
   
-  static const int SpaceDim = Sdim!=-1 ? Sdim : (
+  static const int SpaceDim = Sdim>=0 ? Sdim : (
   
                                 CType == EDGE        ? 1 : (
                                 CType == TRIANGLE    ? 2 : (
@@ -104,10 +104,6 @@ class Mesh
   // Point (coords)
   PointList m_points;
   
-
-  const int m_spacedim;
-
-
   marray::Array<int, 2> const m_table_fC_x_vC;
   marray::Array<int, 2> const m_table_vC_x_fC;
   marray::Array<int, 2> const m_table_fC_x_bC;
@@ -138,6 +134,8 @@ public:
 
 
   static const ECellType CellType = CType;
+  static const int       SpaceDim = Traits::SpaceDim;
+  static const bool      StoreCoords = Traits::StoreCoords;
 
   typedef std::size_t size_type;
 
@@ -285,24 +283,23 @@ private:
 public:
 
 
-  Mesh(unsigned spacedim = CTypeDim(CellType)) : m_spacedim       (spacedim),
-                                                 m_table_fC_x_vC  (init_tables<CellType>(0)),
-                                                 m_table_vC_x_fC  (init_tables<CellType>(1)),
-                                                 m_table_fC_x_bC  (init_tables<CellType>(2)),
-                                                 m_table_bC_x_vC  (init_tables<CellType>(3)),
-                                                 m_table_bC_x_fC  (init_tables<CellType>(4))
-  { ALELIB_CHECK((spacedim-1)<=2, "Invalid space dimension", std::invalid_argument); }
+  Mesh() : m_table_fC_x_vC  (init_tables<CellType>(0)),
+           m_table_vC_x_fC  (init_tables<CellType>(1)),
+           m_table_fC_x_bC  (init_tables<CellType>(2)),
+           m_table_bC_x_vC  (init_tables<CellType>(3)),
+           m_table_bC_x_fC  (init_tables<CellType>(4))
+  { }
 
   ~Mesh() {}
 
-  static Mesh* create(unsigned spacedim)
+  static Mesh* create()
   {
-    return new MeshT(spacedim);
+    return new MeshT();
   }
 
 
   int spaceDim() const
-  { return m_spacedim; }
+  { return SpaceDim; }
 
   // BASIC MESH OPERATORS
   // C.f. "A Topological Approach for Handling Triangle Insertion and Removal into Two-
