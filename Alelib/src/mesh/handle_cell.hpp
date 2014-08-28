@@ -93,6 +93,7 @@ public:
 
   inline void verticesCoord(MeshT const* mp, Real* coords) const
   {
+    ALE_STATIC_CHECK(StoreCoords, ThisMeshDoesNotStoreCoordinates);
     CellT const& c = mp->m_cells[m_id];
     int const sd = mp->spaceDim();
     for (int i = 0; i < (int)CellT::n_verts; ++i)
@@ -146,8 +147,9 @@ public:
 
 
 
-  inline void points(MeshT const* mp, Point * pts) const
+  inline void points(MeshT const* mp, PointT * pts) const
   {
+    ALE_STATIC_CHECK(StoreCoords, ThisMeshDoesNotStoreCoordinates);
     VertexH vs[CellT::n_verts];
     vertices(mp, vs);
     for (int i = 0; i < (int)CellT::n_verts; ++i)

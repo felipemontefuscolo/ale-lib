@@ -63,8 +63,9 @@ public:
     }
   }
 
-  void points(MeshT const* mp, Point* ridge_pts) const
+  void points(MeshT const* mp, PointT* ridge_pts) const
   {
+    ALE_STATIC_CHECK(StoreCoords, ThisMeshDoesNotStoreCoordinates);
     VertexH vs[2];
     vertices(mp, vs);
     ridge_pts[0] = mp->m_points[vs[0].id(mp)];

@@ -104,8 +104,9 @@ public:
       *facet_verts++ = VertexH(mp->m_cells[cell].verts[mp->m_table_fC_x_vC(f_pos,i)]);
   }
 
-  inline void points(MeshT const* mp, Point * facet_points) const
+  inline void points(MeshT const* mp, PointT * facet_points) const
   {
+    ALE_STATIC_CHECK(StoreCoords, ThisMeshDoesNotStoreCoordinates);
     VertexH vs[MeshT::verts_per_facet];
     vertices(mp, vs);
     for (int i = 0; i < MeshT::verts_per_facet; ++i)

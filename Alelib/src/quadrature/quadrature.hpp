@@ -50,13 +50,13 @@ public:
   
 
   Real const* point(int qp) const
-  { return m_points[qp]; }
+  { return m_qpoints[qp]; }
   
   Real weight(int qp) const
   { return m_weights[qp]; }
 
   int numPoints() const
-  { return m_points.size(); }
+  { return m_qpoints.size(); }
 
   int degree() const
   { return m_degree; }
@@ -64,7 +64,7 @@ public:
 protected:
   int m_degree;
   
-  std::vector<Vec3> m_points;
+  std::vector<Vec3> m_qpoints;
   std::vector<Real> m_weights;
 };
 

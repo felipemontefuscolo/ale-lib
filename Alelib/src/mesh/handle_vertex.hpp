@@ -92,26 +92,24 @@ public:
 
   
 
-
-
-//
-//  inline index_t incidCell() const
-//  { return VertexH::incidCell(m_msh, m_id); };
-//
-//  inline int localId() const
-//  { return VertexH::localId(m_msh, m_id); };
-
-  inline void coord(MeshT const* mp, Real *coord) const
-  { return mp->m_points[m_id].coord(coord, mp->spaceDim()); }
   
-  inline void coord(MeshT const* mp, Real *coord, int spacedim) const
-  { return mp->m_points[m_id].coord(coord, spacedim); }
+  inline void coord(MeshT const* mp, Real *coord, int spacedim = MeshT::SpaceDim) const
+  {
+    ALE_STATIC_CHECK(StoreCoords, ThisMeshDoesNotStoreCoordinates);
+    return mp->m_points[m_id].coord(coord, spacedim);
+  }
 
   inline Real coord(MeshT const* mp, int i) const
-  { return mp->m_points[m_id].coord(i); }
+  {
+    ALE_STATIC_CHECK(StoreCoords, ThisMeshDoesNotStoreCoordinates);
+    return mp->m_points[m_id].coord(i);
+  }
 
   inline void setCoord(MeshT* mp, Real const* coord)
-  { return mp->m_points[m_id].setCoord(coord, mp->spaceDim()); }
+  {
+    if (StoreCoords)
+      return mp->m_points[m_id].setCoord(coord, mp->spaceDim());
+  }
 
   // number os cells that contain this vertex
   inline unsigned valency(MeshT const* mp) const
@@ -195,10 +193,16 @@ private:
   { return mp->m_verts[vtx].isDisabled(); }
 
   static inline Real coord(MeshT const* mp, index_t vtx, int i)
-  { return mp->m_points[vtx].coord(i);  }
+  {
+    ALE_STATIC_CHECK(StoreCoords, ThisMeshDoesNotStoreCoordinates);
+    return mp->m_points[vtx].coord(i);
+  }
 
   static inline void setCoord(MeshT* mp, index_t vtx, Real const* coord)
-  { return mp->m_points[vtx].setCoord(coord, mp->m_spacedim); }
+  {
+    if (StoreCoords)
+      return mp->m_points[vtx].setCoord(coord, mp->m_spacedim);
+  }
 
   // number os cells that contain a vertex
   static inline int valency(MeshT const* mp, index_t vtx)

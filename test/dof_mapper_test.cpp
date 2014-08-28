@@ -63,33 +63,6 @@ using namespace std::tr1::placeholders;
 //Real const ALE_TOL = 500000*ALE_EPS; // ~ 1.1e-10 para double
 
 
-// customizing types
-struct MyCellTri : public Cell<TRIANGLE>
-{
-  MyCellTri() : Cell<TRIANGLE>() {};
-  
-  //int aasdfasdf[38];
-  
-};
-
-struct MyVertex2 : public Vertex
-{
-  int a[1];
-  
-};
-
-
-struct TraitsEdg : public DefaultTraits<EDGE       > { };
-struct TraitsTri : public DefaultTraits<TRIANGLE   > { typedef MyVertex2 VertexT;};
-struct TraitsQua : public DefaultTraits<QUADRANGLE > { };
-struct TraitsTet : public DefaultTraits<TETRAHEDRON> { };
-struct TraitsHex : public DefaultTraits<HEXAHEDRON > { };
-
-typedef Mesh<TraitsEdg> MeshEdg;
-typedef Mesh<TraitsTri> MeshTri;
-typedef Mesh<TraitsQua> MeshQua;
-typedef Mesh<TraitsTet> MeshTet;
-typedef Mesh<TraitsHex> MeshHex;
 
 typedef MeshIoMsh<MeshEdg> IoMshEdg;
 typedef MeshIoMsh<MeshTri> IoMshTri;

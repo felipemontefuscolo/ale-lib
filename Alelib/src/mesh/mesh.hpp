@@ -345,11 +345,12 @@ public:
   { return VertexH(this, pushVertex()); }
 
   /// @return the id of the added vertex
-  inline VertexH addVertex(Point pt, int8_t tag=NO_TAG)
+  inline VertexH addVertex(PointT const& pt, int8_t tag=NO_TAG)
   {
-    index_t const id = pushVertex();
+    index_t const id = pushVertex(VertexT(), pt);
     m_verts[id].setTag(tag);
-    m_points[id] = pt;
+    if (StoreCoords)
+      m_points[id] = pt;
     return VertexH(this, id);
   }
 
@@ -765,16 +766,18 @@ private:
   index_t pushVertex()
   {
     index_t const id = m_verts.insert();
-    if (id == (index_t)m_points.size())
-      m_points.push_back(PointT());
+    if (StoreCoords)
+      if (id == (index_t)m_points.size())
+        m_points.push_back(PointT());
     return id;
   }
 
   index_t pushVertex(VertexT const& a, PointT const& b)
   {
     index_t const id = m_verts.insert(a);
-    if (id == (index_t)m_points.size())
-      m_points.push_back(b);
+    if (StoreCoords)
+      if (id == (index_t)m_points.size())
+        m_points.push_back(b);
     return id;
   }
 
