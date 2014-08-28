@@ -322,7 +322,7 @@ void writeMesh(double* time = NULL)
     int const nvir = CTypeTraits<CellType>::np_in_ridge(m_subdivs_lvl); // number of pts that will be created
     if (MeshT::cell_dim > 2 && nvir > 0)
     {
-      Point p[2];
+      Point<3> p[2];
       Real x[3];
       RidgeH r = m_mesh->ridgeBegin();
       RidgeH rend = m_mesh->ridgeEnd();
@@ -351,9 +351,9 @@ void writeMesh(double* time = NULL)
     {
       static const ECellType FT = CTypeTraits<CellType>::EFacetType;
 
-      Point vts[4]; // vertices of the facet
+      Point<3> vts[4]; // vertices of the facet
 
-      std::vector<Point> x(n_new_pts); // new points
+      std::vector<Point<3> > x(n_new_pts); // new points
 
       FacetH f = m_mesh->facetBegin();
       FacetH fend = m_mesh->facetEnd();
@@ -381,9 +381,9 @@ void writeMesh(double* time = NULL)
     int const n_new_pts = CTypeTraits<CellType>::np_in_cell(m_subdivs_lvl); // number of pts that will be created
     if (n_new_pts > 0)
     {
-      Point vts[8]; // vertices of the cell
+      Point<3> vts[8]; // vertices of the cell
 
-      std::vector<Point> x(n_new_pts); // new points
+      std::vector<Point<3> > x(n_new_pts); // new points
 
       CellH c = m_mesh->cellBegin();
       CellH cend = m_mesh->cellEnd();

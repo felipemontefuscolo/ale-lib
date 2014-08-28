@@ -43,17 +43,19 @@ class MeshIoMsh : public iPathHandle
 {
   Mesh_t const* m_mesh;
 public:
-  
+
   typedef Mesh_t MeshT;
   typedef typename MeshT::VertexH VertexH;
   typedef typename MeshT::RidgeH RidgeH;
   typedef typename MeshT::FacetH FacetH;
-  typedef typename MeshT::CellH CellH;  
+  typedef typename MeshT::CellH CellH;
+  typedef typename MeshT::PointT PointT;
+
   typedef VarDofs<MeshT> VarT;
 
   static const ECellType CellType = MeshT::CellType;
 
-  
+
   void readFile(const char* filename, MeshT * mesh)
   {
 
@@ -103,7 +105,7 @@ public:
       default: ALELIB_ASSERT(false, "invalid cell type", std::runtime_error);
     }
     max_valency_est = max_valency_est + max_valency_est/3 - 1;
-    
+
     if (NULL == fgets(buffer, sizeof(buffer), file_ptr)) // escapa do \n
       ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
     for (index_t i=0; i< num_pts; ++i)
@@ -113,7 +115,7 @@ public:
       sscanf(buffer, "%d %lf %lf %lf", &node_number, &coord[0], &coord[1], &coord[2]);
       ALELIB_ASSERT(node_number==i+1, "wrong file format", std::invalid_argument);
 
-      VertexH v = mesh->addVertex(Point(coord[0],coord[1],coord[2]), 0);
+      VertexH v = mesh->addVertex(coord, 0);
       v.reserve(mesh, max_valency_est);
     }
     // os pontos não estão completas: falta atribuir os labels
@@ -418,8 +420,8 @@ public:
     fclose(file_ptr);
 
   }
-    
-  
+
+
   ECellType identifiesMeshType(const char* filename, int* space_dim_ = NULL) const
   {
 
@@ -517,7 +519,7 @@ public:
 
   }
 
-  
+
   Timer timer;
 };
 

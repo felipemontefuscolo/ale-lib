@@ -72,8 +72,8 @@ template<ECellType C> struct CTypeTraits {};
                         inline static int n_sub_cells(int n) { return nsubc; }               \
                         inline static void master_to_real(int n_pts,                         \
                                                    Real const* ref_pts,               \
-                                                   Point const* verts,                \
-                                                   Point*       real_pts);            \
+                                                   Point<3> const* verts,                \
+                                                   Point<3>*       real_pts);            \
                         inline static void master_to_real(int n_pts,                         \
                                                    Real const* ref_pts,               \
                                                    Real const* verts,                 \
@@ -94,8 +94,8 @@ ALE_TAGTRAITS(HEXAHEDRON , 12,      n-1,   (n-1)*(n-1)  , (n-1)*(n-1)*(n-1)  , (
 
 void CTypeTraits<EDGE>::master_to_real(int n_pts,
                                        Real const* L,          // pts in master cell
-                                       Point const* verts,
-                                       Point*       X)         // pts in real cell
+                                       Point<3> const* verts,
+                                       Point<3>*       X)         // pts in real cell
 {
   if(n_pts <= 0)
     return;
@@ -137,8 +137,8 @@ void CTypeTraits<EDGE>::master_to_real(int n_pts,
 
 void CTypeTraits<TRIANGLE>::master_to_real(int n_pts,
                                            Real const* L,          // pts in master cell
-                                           Point const* verts,
-                                           Point*       X)         // pts in real cell
+                                           Point<3> const* verts,
+                                           Point<3>*       X)         // pts in real cell
 {
   if(n_pts <= 0)
     return;
@@ -178,8 +178,8 @@ void CTypeTraits<TRIANGLE>::master_to_real(int n_pts,
 
 void CTypeTraits<TETRAHEDRON>::master_to_real(int n_pts,
                                          Real const* L,          // pts in master cell
-                                         Point const* verts,
-                                         Point*       X)         // pts in real cell
+                                         Point<3> const* verts,
+                                         Point<3>*       X)         // pts in real cell
 {
   if(n_pts <= 0)
     return;

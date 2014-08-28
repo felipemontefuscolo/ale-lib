@@ -36,7 +36,7 @@ struct DefaultTraits
   
   static const ECellType CellType = CType;
   
-  static const int SpaceDim = Sdim>=0 ? Sdim : (
+  static const int SpaceDim = Sdim>0 ? Sdim : (
   
                                 CType == EDGE        ? 1 : (
                                 CType == TRIANGLE    ? 2 : (
@@ -49,11 +49,11 @@ struct DefaultTraits
   
   static const bool StoreCoords = SCoords_;
 
-  typedef Cell<CType>  CellT;   // dim = d
-  typedef Facet        FacetT;  // dim = d-1
-  typedef Ridge        RidgeT;  // dim = d-2
-  typedef Vertex       VertexT; // dim = 0
-  typedef Point        PointT;  // dim = 0  
+  typedef Cell<CType>     CellT;   // dim = d
+  typedef Facet           FacetT;  // dim = d-1
+  typedef Ridge           RidgeT;  // dim = d-2
+  typedef Vertex          VertexT; // dim = 0
+  typedef Point<SpaceDim> PointT;  // dim = 0  
 
 
 };
@@ -68,9 +68,10 @@ class Mesh
   typedef typename Traits::FacetT  FacetT;  // dim = d-1
   typedef typename Traits::RidgeT  RidgeT;  // dim = d-2
   typedef typename Traits::VertexT VertexT; // dim = 0
-  typedef typename Traits::PointT  PointT;  // dim = 0
   typedef Mesh<Traits>             MeshT;
-
+public:
+  typedef typename Traits::PointT  PointT;  // dim = 0
+private:
 
   // some sugar typedefs
   typedef SeqList<std::vector<CellT>,   SetVector<index_t> > CellContainer;
@@ -138,6 +139,7 @@ public:
   static const bool      StoreCoords = Traits::StoreCoords;
 
   typedef std::size_t size_type;
+
 
 private:
   template<ECellType fept>
@@ -345,14 +347,24 @@ public:
   { return VertexH(this, pushVertex()); }
 
   /// @return the id of the added vertex
-  inline VertexH addVertex(PointT const& pt, int8_t tag=NO_TAG)
+  inline VertexH addVertex(Real const* coords, int8_t tag=NO_TAG)
   {
-    index_t const id = pushVertex(VertexT(), pt);
+    index_t const id = pushVertex(VertexT(), coords);
     m_verts[id].setTag(tag);
     if (StoreCoords)
-      m_points[id] = pt;
+      m_points[id].setCoord(coords);
     return VertexH(this, id);
   }
+
+  ///// @return the id of the added vertex
+  //inline VertexH addVertex(PointT const& pt, int8_t tag=NO_TAG)
+  //{
+  //  index_t const id = pushVertex(VertexT(), pt);
+  //  m_verts[id].setTag(tag);
+  //  if (StoreCoords)
+  //    m_points[id] = pt;
+  //  return VertexH(this, id);
+  //}
 
   /// remove a vertex only if it is unreferenced
   /// return true if it was removed
@@ -772,12 +784,16 @@ private:
     return id;
   }
 
-  index_t pushVertex(VertexT const& a, PointT const& b)
+  index_t pushVertex(VertexT const& a, Real const* b)
   {
     index_t const id = m_verts.insert(a);
     if (StoreCoords)
+    {
       if (id == (index_t)m_points.size())
-        m_points.push_back(b);
+        m_points.push_back(PointT(b));
+      else
+        m_points[id].setCoord(b);
+    }
     return id;
   }
 

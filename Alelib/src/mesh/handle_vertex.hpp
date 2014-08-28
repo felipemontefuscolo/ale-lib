@@ -93,10 +93,10 @@ public:
   
 
   
-  inline void coord(MeshT const* mp, Real *coord, int spacedim = MeshT::SpaceDim) const
+  inline void coord(MeshT const* mp, Real *coord) const
   {
     ALE_STATIC_CHECK(StoreCoords, ThisMeshDoesNotStoreCoordinates);
-    return mp->m_points[m_id].coord(coord, spacedim);
+    return mp->m_points[m_id].coord(coord);
   }
 
   inline Real coord(MeshT const* mp, int i) const

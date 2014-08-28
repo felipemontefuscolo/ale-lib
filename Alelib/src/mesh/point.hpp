@@ -6,30 +6,42 @@ namespace alelib
   
   
   
-
+template<int Sdim>
 class Point
 {
-  Real m_coord[3]; // x,y,z
+  Real m_coord[Sdim]; // x,y,z
   
 public:
 
-  Point(Real x, Real y, Real z)
-  { m_coord[0]=x; m_coord[1]=y; m_coord[2]=z;}
-  
-  Point(Real x, Real y)
-  { m_coord[0]=x; m_coord[1]=y; m_coord[2]=0;}
+  static const int SpaceDim = Sdim;
+
+  explicit
+  Point(Real x, Real y = 0, Real z = 0)
+  {
+    m_coord[0] = x;
+    if (Sdim == 2)
+      m_coord[1] = y;
+    else if (Sdim == 3)
+    {
+      m_coord[1] = y;
+      m_coord[2] = z;
+    }
+  }
   
   explicit
-  Point(Real x)
-  { m_coord[0]=x; m_coord[1]=0; m_coord[2]=0;}
+  Point(Real const* c)
+  {
+    for (int i = 0; i < Sdim; ++i)
+      m_coord[i] = c[i];
+  }
   
   Point() : m_coord(){}
   
   /// Define a coordenada deste ponto.
   /// @param coord um vetor com a coordenada.
-  inline void setCoord(Real const* coord, int spacedim)
+  inline void setCoord(Real const* coord)
   {
-    for (int i = 0; i < spacedim; ++i)
+    for (int i = 0; i < SpaceDim; ++i)
       m_coord[i] = coord[i];
   }
 
@@ -38,9 +50,9 @@ public:
 
   /// Retorna a coordenada deste ponto em coord.
   /// @param[out] coord a coordenada.
-  inline void coord(Real *coord, int spacedim) const
+  inline void coord(Real *coord) const
   {
-    for (int i = 0; i < spacedim; ++i)
+    for (int i = 0; i < SpaceDim; ++i)
       coord[i] = m_coord[i];
   }
 
@@ -65,12 +77,6 @@ public:
   
   Real const& operator[](int i) const
   { return m_coord[i]; }
-  
-  friend
-  Point operator+ (Point const& a, Point const& b)
-  {
-    return Point(a.coord(0)+b.coord(0), a.coord(1)+b.coord(1), a.coord(2)+b.coord(2));
-  }
   
 };
 

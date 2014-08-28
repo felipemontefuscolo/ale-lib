@@ -75,20 +75,20 @@ class TriMesh1Tests : public testing::Test
 
     VertexH vts[N];
                                     // tag
-    vts[ 0] = m.addVertex(Point(0,0,0), 0);
-    vts[ 1] = m.addVertex(Point(1,0,0), 1);
-    vts[ 2] = m.addVertex(Point(0,1,0), 2);
-    vts[ 3] = m.addVertex(Point(1,1,0), 3);
-    vts[ 4] = m.addVertex(Point(2,1,0), 4);
-    vts[ 5] = m.addVertex(Point(0,2,0), 5);
-    vts[ 6] = m.addVertex(Point(1,2,0), 6);
-    vts[ 7] = m.addVertex(Point(2,2,0), 7);
-    vts[ 8] = m.addVertex(Point(3,2,0), 8);
-    vts[ 9] = m.addVertex(Point(0,3,0), 9);
-    vts[10] = m.addVertex(Point(1,3,0),10);
-    vts[11] = m.addVertex(Point(2,3,0),11);
-    vts[12] = m.addVertex(Point(3,3,0),12);
-    vts[13] = m.addVertex(Point(1,2,1),13);
+    vts[ 0] = m.addVertex(listOf<Real>(0,0,0), 0);
+    vts[ 1] = m.addVertex(listOf<Real>(1,0,0), 1);
+    vts[ 2] = m.addVertex(listOf<Real>(0,1,0), 2);
+    vts[ 3] = m.addVertex(listOf<Real>(1,1,0), 3);
+    vts[ 4] = m.addVertex(listOf<Real>(2,1,0), 4);
+    vts[ 5] = m.addVertex(listOf<Real>(0,2,0), 5);
+    vts[ 6] = m.addVertex(listOf<Real>(1,2,0), 6);
+    vts[ 7] = m.addVertex(listOf<Real>(2,2,0), 7);
+    vts[ 8] = m.addVertex(listOf<Real>(3,2,0), 8);
+    vts[ 9] = m.addVertex(listOf<Real>(0,3,0), 9);
+    vts[10] = m.addVertex(listOf<Real>(1,3,0),10);
+    vts[11] = m.addVertex(listOf<Real>(2,3,0),11);
+    vts[12] = m.addVertex(listOf<Real>(3,3,0),12);
+    vts[13] = m.addVertex(listOf<Real>(1,2,1),13);
 
     int const E = 11;
 
@@ -193,11 +193,11 @@ class TriMesh2Tests : public testing::Test
     int const N = 4;
 
     VertexH vts[N];
-                                    // tag
-    vts[ 0] = m.addVertex(Point(0,0), 0);
-    vts[ 1] = m.addVertex(Point(1,0), 1);
-    vts[ 2] = m.addVertex(Point(0,1), 2);
-    vts[ 3] = m.addVertex(Point(1,1), 3);
+                                               // tag
+    vts[ 0] = m.addVertex(listOf<Real>(0,0,0), 0);
+    vts[ 1] = m.addVertex(listOf<Real>(1,0,0), 1);
+    vts[ 2] = m.addVertex(listOf<Real>(0,1,0), 2);
+    vts[ 3] = m.addVertex(listOf<Real>(1,1,0), 3);
 
     int const E = 2;
 
@@ -253,41 +253,41 @@ class TetMesh1Tests : public testing::Test
 
     VertexH vts[N];
 
-    vts[ 0] = m.addVertex(Point(0   ,  0   ,  0   ));
-    vts[ 1] = m.addVertex(Point(1   ,  0   ,  0   ));
-    vts[ 2] = m.addVertex(Point(0   ,  1   ,  0   ));
-    vts[ 3] = m.addVertex(Point(0   ,  0   ,  1   ));
-    vts[ 4] = m.addVertex(Point(0.25,  0   ,  0   ));
-    vts[ 5] = m.addVertex(Point(0.5 ,  0   ,  0   ));
-    vts[ 6] = m.addVertex(Point(0.75,  0   ,  0   ));
-    vts[ 7] = m.addVertex(Point(0.75,  0.25,  0   ));
-    vts[ 8] = m.addVertex(Point(0.5 ,  0.5 ,  0   ));
-    vts[ 9] = m.addVertex(Point(0.25,  0.75,  0   ));
-    vts[10] = m.addVertex(Point(0   ,  0.75,  0   ));
-    vts[11] = m.addVertex(Point(0   ,  0.5 ,  0   ));
-    vts[12] = m.addVertex(Point(0   ,  0.25,  0   ));
-    vts[13] = m.addVertex(Point(0   ,  0   ,  0.75));
-    vts[14] = m.addVertex(Point(0   ,  0   ,  0.5 ));
-    vts[15] = m.addVertex(Point(0   ,  0   ,  0.25));
-    vts[16] = m.addVertex(Point(0   ,  0.25,  0.75));
-    vts[17] = m.addVertex(Point(0   ,  0.5 ,  0.5 ));
-    vts[18] = m.addVertex(Point(0   ,  0.75,  0.25));
-    vts[19] = m.addVertex(Point(0.25,  0   ,  0.75));
-    vts[20] = m.addVertex(Point(0.5 ,  0   ,  0.5 ));
-    vts[21] = m.addVertex(Point(0.75,  0   ,  0.25));
-    vts[22] = m.addVertex(Point(0.25,  0.5 ,  0   ));
-    vts[23] = m.addVertex(Point(0.5 ,  0.25,  0   ));
-    vts[24] = m.addVertex(Point(0.25,  0.25,  0   ));
-    vts[25] = m.addVertex(Point(0.25,  0   ,  0.5 ));
-    vts[26] = m.addVertex(Point(0.25,  0   ,  0.25));
-    vts[27] = m.addVertex(Point(0.5 ,  0   ,  0.25));
-    vts[28] = m.addVertex(Point(0   ,  0.5 ,  0.25));
-    vts[29] = m.addVertex(Point(0   ,  0.25,  0.5 ));
-    vts[30] = m.addVertex(Point(0   ,  0.25,  0.25));
-    vts[31] = m.addVertex(Point(0.5 ,  0.25,  0.25));
-    vts[32] = m.addVertex(Point(0.25,  0.5 ,  0.25));
-    vts[33] = m.addVertex(Point(0.25,  0.25,  0.5 ));
-    vts[34] = m.addVertex(Point(0.25,  0.25,  0.25));
+    vts[ 0] = m.addVertex(listOf<Real>(0.  ,  0   ,  0   ));
+    vts[ 1] = m.addVertex(listOf<Real>(1.  ,  0   ,  0   ));
+    vts[ 2] = m.addVertex(listOf<Real>(0.  ,  1   ,  0   ));
+    vts[ 3] = m.addVertex(listOf<Real>(0.  ,  0   ,  1   ));
+    vts[ 4] = m.addVertex(listOf<Real>(0.25,  0   ,  0   ));
+    vts[ 5] = m.addVertex(listOf<Real>(0.5 ,  0   ,  0   ));
+    vts[ 6] = m.addVertex(listOf<Real>(0.75,  0   ,  0   ));
+    vts[ 7] = m.addVertex(listOf<Real>(0.75,  0.25,  0   ));
+    vts[ 8] = m.addVertex(listOf<Real>(0.5 ,  0.5 ,  0   ));
+    vts[ 9] = m.addVertex(listOf<Real>(0.25,  0.75,  0   ));
+    vts[10] = m.addVertex(listOf<Real>(0   ,  0.75,  0   ));
+    vts[11] = m.addVertex(listOf<Real>(0   ,  0.5 ,  0   ));
+    vts[12] = m.addVertex(listOf<Real>(0   ,  0.25,  0   ));
+    vts[13] = m.addVertex(listOf<Real>(0   ,  0   ,  0.75));
+    vts[14] = m.addVertex(listOf<Real>(0   ,  0   ,  0.5 ));
+    vts[15] = m.addVertex(listOf<Real>(0   ,  0   ,  0.25));
+    vts[16] = m.addVertex(listOf<Real>(0   ,  0.25,  0.75));
+    vts[17] = m.addVertex(listOf<Real>(0   ,  0.5 ,  0.5 ));
+    vts[18] = m.addVertex(listOf<Real>(0   ,  0.75,  0.25));
+    vts[19] = m.addVertex(listOf<Real>(0.25,  0   ,  0.75));
+    vts[20] = m.addVertex(listOf<Real>(0.5 ,  0   ,  0.5 ));
+    vts[21] = m.addVertex(listOf<Real>(0.75,  0   ,  0.25));
+    vts[22] = m.addVertex(listOf<Real>(0.25,  0.5 ,  0   ));
+    vts[23] = m.addVertex(listOf<Real>(0.5 ,  0.25,  0   ));
+    vts[24] = m.addVertex(listOf<Real>(0.25,  0.25,  0   ));
+    vts[25] = m.addVertex(listOf<Real>(0.25,  0   ,  0.5 ));
+    vts[26] = m.addVertex(listOf<Real>(0.25,  0   ,  0.25));
+    vts[27] = m.addVertex(listOf<Real>(0.5 ,  0   ,  0.25));
+    vts[28] = m.addVertex(listOf<Real>(0   ,  0.5 ,  0.25));
+    vts[29] = m.addVertex(listOf<Real>(0   ,  0.25,  0.5 ));
+    vts[30] = m.addVertex(listOf<Real>(0   ,  0.25,  0.25));
+    vts[31] = m.addVertex(listOf<Real>(0.5 ,  0.25,  0.25));
+    vts[32] = m.addVertex(listOf<Real>(0.25,  0.5 ,  0.25));
+    vts[33] = m.addVertex(listOf<Real>(0.25,  0.25,  0.5 ));
+    vts[34] = m.addVertex(listOf<Real>(0.25,  0.25,  0.25));
 
     int const E = 64;
 
@@ -446,12 +446,12 @@ class TetMesh2Tests : public testing::Test
     int const N = 5;
 
     VertexH vts[N];
-                                    // tag
-    vts[ 0] = m.addVertex(Point(0,0,0), 0);
-    vts[ 1] = m.addVertex(Point(1,0,0), 1);
-    vts[ 2] = m.addVertex(Point(0,1,0), 2);
-    vts[ 3] = m.addVertex(Point(0,0,1), 3);
-    vts[ 4] = m.addVertex(Point(0,-1,0), 4);
+                                               // tag
+    vts[ 0] = m.addVertex(listOf<Real>(0,0,0), 0);
+    vts[ 1] = m.addVertex(listOf<Real>(1,0,0), 1);
+    vts[ 2] = m.addVertex(listOf<Real>(0,1,0), 2);
+    vts[ 3] = m.addVertex(listOf<Real>(0,0,1), 3);
+    vts[ 4] = m.addVertex(listOf<Real>(0,-1,0), 4);
 
     int const E = 2;
 
@@ -522,7 +522,7 @@ TEST(MeshTest, AddVertex)
 
   for (unsigned i = 0; i < 5; ++i)
   {
-    vts[i] = m.addVertex(Point(i,i));
+    vts[i] = m.addVertex(listOf<Real>(i,i,0));
     EXPECT_EQ(i+1, m.numVertices());
     EXPECT_EQ(0u, vts[i].valency(&m));
   }
@@ -542,7 +542,7 @@ TEST(MeshTest, RemoveUnrefVertex)
   VertexH vts[5];
 
   for (unsigned i = 0; i < 5; ++i)
-  { vts[i] = m.addVertex(Point(i,i)); }
+  { vts[i] = m.addVertex(listOf<Real>(i,i,0)); }
 
   m.removeUnrefVertex(vts[2]);
   EXPECT_EQ(index_t(4), (index_t)m.numVertices());
@@ -873,7 +873,7 @@ struct MyPrinterTri2 : public DefaultGetDataVtk
 
   virtual void getData(index_t id, Real *values) const
   {
-    VertexH(id).coord(&m, values, 2);
+    VertexH(id).coord(&m, values);
   }
 
   virtual void getData(Real const *x_local, index_t cell_id, int /*ith*/, Real * values) const
@@ -949,7 +949,7 @@ struct MyPrinterTri3 : public DefaultGetDataVtk
   virtual void getData(index_t id, Real *values) const
   {
     Real x_real[2];
-    VertexH(id).coord(&m, x_real, 2);
+    VertexH(id).coord(&m, x_real);
 
     // finding angles
     {

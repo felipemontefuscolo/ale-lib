@@ -352,7 +352,7 @@ class ShapeTri1Tests : public testing::Test
     subCellsTet(n, tris);
 
     for (int i = 0; i < (n+1)*(n+2)/2; ++i)
-      m.addVertex(Point(xyz.at(2*i + 0),xyz.at(2*i + 1)));
+      m.addVertex(listOf<Real>(xyz.at(2*i + 0),xyz.at(2*i + 1)));
 
     for (int i = 0; i < n*n; ++i)
       m.addCell(listOf(VertexH(tris.at(3*i)), VertexH(tris.at(3*i+1)), VertexH(tris.at(3*i+2))));
@@ -539,7 +539,7 @@ class ShapeTet1Tests : public testing::Test
     subCellsTet(n, tets);
 
     for (int i = 0; i < (n+1)*(n+2)*(n+3)/6; ++i)
-      m.addVertex(Point(xyz.at(3*i + 0),xyz.at(3*i + 1),xyz.at(3*i + 2)));
+      m.addVertex(listOf<Real>(xyz.at(3*i + 0),xyz.at(3*i + 1),xyz.at(3*i + 2)));
 
     for (int i = 0; i < n*n*n; ++i)
       m.addCell(listOf(VertexH(tets.at(4*i)), VertexH(tets.at(4*i+1)), VertexH(tets.at(4*i+2)), VertexH(tets.at(4*i+3))));
