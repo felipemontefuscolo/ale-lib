@@ -49,7 +49,6 @@ public:
   typedef typename MeshT::RidgeH RidgeH;
   typedef typename MeshT::FacetH FacetH;
   typedef typename MeshT::CellH CellH;
-  typedef typename MeshT::PointT PointT;
 
   typedef VarDofs<MeshT> VarT;
 

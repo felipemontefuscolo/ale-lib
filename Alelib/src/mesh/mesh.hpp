@@ -53,7 +53,6 @@ struct DefaultTraits
   typedef Facet           FacetT;  // dim = d-1
   typedef Ridge           RidgeT;  // dim = d-2
   typedef Vertex          VertexT; // dim = 0
-  typedef Point<SpaceDim> PointT;  // dim = 0  
 
 
 };
@@ -69,9 +68,7 @@ class Mesh
   typedef typename Traits::RidgeT  RidgeT;  // dim = d-2
   typedef typename Traits::VertexT VertexT; // dim = 0
   typedef Mesh<Traits>             MeshT;
-public:
-  typedef typename Traits::PointT  PointT;  // dim = 0
-private:
+  typedef Point<Traits::SpaceDim>  PointT;  // dim = 0
 
   // some sugar typedefs
   typedef SeqList<std::vector<CellT>,   SetVector<index_t> > CellContainer;
