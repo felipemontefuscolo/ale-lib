@@ -67,6 +67,10 @@ struct RDL_caller<TRIANGLE,Mesh_t,T>
 
     for (int i = 0; i < MeshT::facets_per_cell; ++i)
     {
+      
+      c.facet(mp,i);
+      
+      
       if (c.facet(mp,i).icellSide0(mp) == c)
         continue;
       int anchor;
@@ -136,7 +140,7 @@ inline
 
     if (n<4)
       return;
-    
+
     // NOW THE FACETS
     std::vector<int> map;
     int const map_size = (n-1)*(n-2)/2;
@@ -176,6 +180,7 @@ inline
 template<typename Mesh_t, class T>
 void reorderDofsLagrange(Mesh_t const* mp, typename Mesh_t::CellH c, int n, int ncomps, T * dofs)
 {
+  ALELIB_CHECK(mp != NULL, "invalid mesh pointer", std::invalid_argument);
   internal::RDL_caller<Mesh_t::CellType, Mesh_t,T> caller;
   caller(mp, c, n, ncomps, dofs);
 }

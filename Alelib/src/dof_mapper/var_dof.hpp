@@ -722,7 +722,7 @@ public:
         *dofs++ = m_facets_dofs[region][f_id][j];
       }
     }
-
+    return dofs;
   }
 
   template<class OutIterator>

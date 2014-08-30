@@ -33,7 +33,7 @@
 #include "Alelib/src/mesh/enums.hpp"
 #include "Alelib/src/mesh/mesh.hpp"
 #include "Alelib/src/dof_mapper/var_dof.hpp"
-
+#include "Alelib/src/dof_mapper/reorder.hpp"
 
 namespace alelib
 {
@@ -41,7 +41,6 @@ namespace alelib
 template<typename Mesh_t>
 class MeshIoMsh : public iPathHandle
 {
-  Mesh_t const* m_mesh;
 public:
 
   typedef Mesh_t MeshT;
@@ -53,13 +52,12 @@ public:
   typedef VarDofs<MeshT> VarT;
 
   static const ECellType CellType = MeshT::CellType;
+  static const int SpaceDim = MeshT::SpaceDim;
 
 
   void readFile(const char* filename, MeshT * mesh)
   {
-
     mesh->clear();
-
 
     ALELIB_ASSERT(mesh, "invalid mesh pointer", std::invalid_argument);
 
@@ -133,21 +131,11 @@ public:
     if (EOF == fscanf(file_ptr, "%d", &num_elms) )
       ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
 
-    // ---------------------------------------
-    // Detectando a ordem da malha, verificando sequencia dos elementos,
-    // e contando o número de células.
-    // ---------------------------------------
-    const int mesh_cell_msh_tag = CType2mshTag(CellType);//mesh->cellMshTag();
 
-    //if (mshTag2CType(EMshTag(mesh_cell_msh_tag)) != mesh->cellType())
-    //{
-    //  //ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
-    //  printf("ERROR: CType2mshTag() = %d\n", CType2mshTag(mesh->cellType()));
-    //  printf("ERROR: cell->getMshTag() = %d\n", c_ptr->getMshTag());
-    //  throw;
-    //}
+    int nodes_per_cell;
+    int msh_cell_type;
 
-
+    // check mesh cell type and order
     bool wrong_file_err=true;
     index_t  elem_number;               // contagem para verificação de erros.
     for (index_t k = 0; k < num_elms; ++k)
@@ -163,11 +151,19 @@ public:
         break;
       }
 
+      ECellType ct;
+      int deg;
+      int cdim;
+
+      mshTypeAndOrder(EMshTag(type_tag), ct, deg, cdim); // output are ct and deg
+      
       // check type
-      if (type_tag == mesh_cell_msh_tag)
+      if (cdim == MeshT::cell_dim)
       {
+        ALELIB_ASSERT(ct == CellType, "meshes with mixed elements are not supported", std::invalid_argument);
         wrong_file_err=false;
         ++num_cells;
+        msh_cell_type = type_tag;
       }
 
       if (!fgets(buffer, sizeof(buffer), file_ptr) || feof(file_ptr))
@@ -178,6 +174,8 @@ public:
 
     }
     ALELIB_ASSERT(!wrong_file_err, "Wrong file format. Make sure you created the mesh with correct file format. ", std::invalid_argument);
+
+    nodes_per_cell = numNodeForMshTag(EMshTag(msh_cell_type));
 
 
 
@@ -191,14 +189,12 @@ public:
     this->timer.restart();
 
     index_t   inc(0);
-    int       nodes_per_cell = MeshT::verts_per_cell;
     VertexH   c_verts[20];
     index_t   id_aux;
     int       numm_tags;
     int       elm_dim;
     int       physical;
     int const cell_dim = MeshT::cell_dim;
-    int const cell_msh_tag = CType2mshTag(MeshT::CellType);
     for (index_t k=0; k < num_elms; ++k)
     {
       if ( EOF == fscanf(file_ptr, "%d %d %d %d", &elem_number, &type_tag, &numm_tags, &physical) )
@@ -220,24 +216,24 @@ public:
         if ( EOF == fscanf(file_ptr, "%d", &id_aux) )
           ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
         --id_aux;
-        //mesh->getNodePtr(id_aux)->setTag(physical);
         VertexH(id_aux).setTag(mesh, physical);
       }
       else if (elm_dim == cell_dim)
       {
-        //cell = mesh->pushCell((int*)0);
         ++inc;
-        ALELIB_ASSERT(cell_msh_tag == type_tag, "Invalid cell or invalid mesh", std::runtime_error);
-        for (int i=0; i< nodes_per_cell; ++i)
+        for (int i=0; i< MeshT::verts_per_cell; ++i)
         {
           if ( EOF == fscanf(file_ptr, "%d", &id_aux) )
             ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
-          //cell->setNodeId(i, id_aux-1);
           c_verts[i] = VertexH(--id_aux);
         }
+        // ignore high order nodes
+        for (int i = MeshT::verts_per_cell; i < nodes_per_cell; ++i)
+          if ( EOF == fscanf(file_ptr, "%d", &id_aux) )
+            ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
+        
         CellH c = mesh->addCell(c_verts);
         c.setTag(mesh, physical);
-        //mesh->pushCell(cell);
       }
       else
       {
@@ -268,15 +264,9 @@ public:
     fseek (file_ptr , elems_file_pos , SEEK_SET );
     fscanf(file_ptr, "%d", &num_elms);
 
-    int n_nodes               = MeshT::verts_per_cell;// mesh->nodesPerCell();
-    //int n_vertices_per_facet  = mesh->verticesPerFacet();
-    int n_nodes_per_facet     = MeshT::verts_per_facet;//mesh->nodesPerFacet();
-    //int n_vertices_per_corner = mesh->verticesPerCorner();
-    int n_nodes_per_corner    = MeshT::verts_per_ridge;
 
-
-    std::vector<VertexH> nodes(n_nodes_per_facet);    // facet nodes
-    std::vector<VertexH> bnodes(n_nodes_per_corner);  // corner nodes
+    std::vector<VertexH> nodes(MeshT::verts_per_facet);    // facet nodes
+    std::vector<VertexH> bnodes(MeshT::verts_per_ridge);  // corner nodes
 
     for (int k=0; k < num_elms; ++k)
     {
@@ -291,6 +281,7 @@ public:
         fscanf(file_ptr, "%s", buffer);
       }
 
+
       elm_dim = dimForMshTag(EMshTag(type_tag));
 
       if ((elm_dim == 0) && (cell_dim!=2))
@@ -299,7 +290,7 @@ public:
       }
       else if (elm_dim == cell_dim-1) // FACETS
       {
-        for (int i=0; i<n_nodes_per_facet; ++i)
+        for (int i=0; i<MeshT::verts_per_facet; ++i)
         {
           fscanf(file_ptr, "%d", &id_aux);
           VertexH v(--id_aux);
@@ -307,7 +298,11 @@ public:
             v.setTag(mesh, physical);
           nodes[i] = v;
         }
-        //std::copy( nodes, nodes + n_vertices_per_facet, vtcs );
+        // ignore high order nodes
+        int const n_nodes = numNodeForMshTag(EMshTag(type_tag));
+        for (int i = MeshT::verts_per_facet; i < n_nodes; ++i)
+          fscanf(file_ptr, "%d", &id_aux);
+        
         if (cell_dim > 1)
         {
           FacetH f = mesh->getFacetFromVertices(nodes.data());
@@ -316,7 +311,7 @@ public:
           else
           {
             printf("WARNING: INVALID FACET IN INPUT MESH! vtcs: ");
-            for (int zz = 0; zz < n_nodes_per_facet; ++zz)
+            for (int zz = 0; zz < MeshT::verts_per_facet; ++zz)
               printf("%d ", nodes[zz].id(mesh));
             printf("\n");
           }
@@ -324,7 +319,7 @@ public:
       }
       else if (elm_dim == cell_dim-2) // RIDGES
       {
-        for (int i=0; i<n_nodes_per_corner; ++i)
+        for (int i=0; i<MeshT::verts_per_ridge; ++i)
         {
           fscanf(file_ptr, "%d", &id_aux);
           VertexH v(--id_aux);
@@ -332,6 +327,10 @@ public:
             v.setTag(mesh, physical);
           bnodes[i] = v;
         }
+        // ignore high order nodes
+        int const n_nodes = numNodeForMshTag(EMshTag(type_tag));
+        for (int i = MeshT::verts_per_ridge; i < n_nodes; ++i)
+          fscanf(file_ptr, "%d", &id_aux);        
         if (cell_dim>2)
         {
           RidgeH r = mesh->getRidgeFromVertices(bnodes.data());
@@ -343,7 +342,7 @@ public:
       }
       else
       {
-        for (int i=0; i<n_nodes; ++i)
+        for (int i=0; i<MeshT::verts_per_cell; ++i)
         {
           fscanf(file_ptr, "%d", &id_aux);
           VertexH v(--id_aux);
@@ -351,6 +350,10 @@ public:
           if (v.tag(mesh) == 0)
             v.setTag(mesh, physical);
         }
+        // ignore high order nodes
+        int const n_nodes = numNodeForMshTag(EMshTag(type_tag));
+        for (int i = MeshT::verts_per_cell; i < n_nodes; ++i)
+          fscanf(file_ptr, "%d", &id_aux);            
       }
 
 
@@ -418,7 +421,185 @@ public:
 
     fclose(file_ptr);
 
+    mesh->removeUnrefVertices();
   }
+
+  // read coordinates from a file
+  // it assumes that the space dimension of the mesh is the same of the `coords'
+  void readCoordinates(const char* filename, MeshT const* mesh, Real* coords, VarT const& var)
+  {
+    ALELIB_ASSERT(mesh, "invalid mesh pointer", std::invalid_argument);
+
+    //this->fi_registerFile(filename, ".msh");
+
+    FILE * file_ptr = fopen(filename, "r");
+
+    ALELIB_ASSERT(file_ptr, "could not open mesh file", std::invalid_argument);
+
+    double  coord[3];
+    int     type_tag;
+    char    buffer[256];
+    //std::tr1::shared_ptr<Point> p_ptr(new Point());
+    //std::tr1::shared_ptr<Cell> c_ptr(mesh->createCell());
+
+  //  int const spacedim = MeshT::cell_dim;
+
+    long    nodes_file_pos;  // $Nodes
+    long    elems_file_pos;  // $Elements
+
+    // nós
+    nodes_file_pos = find_keyword("$Nodes", 6, file_ptr);
+    //nodes_file_pos++;  // only to avoid gcc warning: variable ‘nodes_file_pos’ set but not used [-Wunused-but-set-variable]
+
+    ALELIB_ASSERT(nodes_file_pos>0, "invalid file format", std::invalid_argument);
+
+    index_t num_pts(0);
+    index_t node_number(0);
+    if ( EOF == fscanf(file_ptr, "%d", &num_pts) )
+      ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
+
+    if (NULL == fgets(buffer, sizeof(buffer), file_ptr)) // escapa do \n
+      ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
+    
+    std::vector<Real> file_coords(3*num_pts);
+    
+    for (index_t i=0; i< num_pts; ++i)
+    {
+      if ( NULL == fgets(buffer, sizeof(buffer), file_ptr) )
+        ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
+      sscanf(buffer, "%d %lf %lf %lf", &node_number, &coord[0], &coord[1], &coord[2]);
+      file_coords[3*i + 0] = coord[0];
+      file_coords[3*i + 1] = coord[1];
+      file_coords[3*i + 2] = coord[2];
+      ALELIB_ASSERT(node_number==i+1, "wrong file format", std::invalid_argument);
+    }
+
+
+    elems_file_pos = find_keyword("$Elements", 9, file_ptr);
+
+    ALELIB_ASSERT(elems_file_pos>0, "invalid file format", std::invalid_argument);
+
+    index_t num_cells=0;
+    index_t num_elms;
+
+    if (EOF == fscanf(file_ptr, "%d", &num_elms) )
+      ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
+
+
+    // detect expected degree
+    int const cell_dim = CTypeDim(CellType);
+    int expected_deg;
+    if (cell_dim == 1)
+      expected_deg = var.numDofsInCell()/SpaceDim + 1;
+    else if(cell_dim == 2)
+      expected_deg = var.numDofsInFacet()/SpaceDim + 1;
+    else
+      expected_deg = var.numDofsInRidge()/SpaceDim + 1;
+
+    int nodes_per_cell;
+    int msh_cell_type;
+
+    // check mesh cell type and order
+    bool wrong_file_err=true;
+    index_t  elem_number;               // contagem para verificação de erros.
+    for (index_t k = 0; k < num_elms; ++k)
+    {
+
+      if (EOF == fscanf(file_ptr, "%d %d", &elem_number, &type_tag) )
+        ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
+
+      // check sequence
+      if (elem_number != k+1)
+      {
+        wrong_file_err=true;
+        break;
+      }
+
+      ECellType ct;
+      int deg;
+      int cdim;
+
+      mshTypeAndOrder(EMshTag(type_tag), ct, deg, cdim);
+
+      // check type
+      if (cdim == MeshT::cell_dim)
+      {
+        ALELIB_ASSERT(ct == CellType, "meshes with mixed elements are not supported", std::invalid_argument);
+        ALELIB_ASSERT(expected_deg == deg, "current mesh order and file mesh order are incompatible", std::invalid_argument);
+        wrong_file_err=false;
+        ++num_cells;
+        msh_cell_type = type_tag;
+      }
+
+      if (!fgets(buffer, sizeof(buffer), file_ptr) || feof(file_ptr))
+      {
+        wrong_file_err=true;
+        break;
+      }
+
+    }
+    ALELIB_ASSERT(!wrong_file_err, "Wrong file format. Make sure you created the mesh with correct file format. ", std::invalid_argument);
+    
+    nodes_per_cell = numNodeForMshTag(EMshTag(msh_cell_type));
+
+
+    
+    // copy coordinates from file_coords to the coords
+    fseek (file_ptr , elems_file_pos , SEEK_SET );
+    if (EOF == fscanf(file_ptr, "%d", &num_elms) )
+      ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
+
+    
+    std::vector<index_t> x_dofs(nodes_per_cell*SpaceDim);
+    
+    index_t   id_aux;
+    int       numm_tags;
+    int       elm_dim;
+    int       physical;
+    //int const cell_msh_tag = CType2mshTag(MeshT::CellType);
+    index_t   cell_id = 0;
+    for (index_t k=0; k < num_elms; ++k)
+    {
+      if ( EOF == fscanf(file_ptr, "%d %d %d %d", &elem_number, &type_tag, &numm_tags, &physical) )
+        ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
+
+      // synchronization
+      ALELIB_ASSERT(elem_number==k+1, "invalid file format", std::invalid_argument);
+
+      for (int j=1; j<numm_tags; ++j)
+      {
+        if ( EOF == fscanf(file_ptr, "%s", buffer) )
+          ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
+      }
+
+      elm_dim = dimForMshTag(EMshTag(type_tag));
+
+      if (elm_dim == cell_dim)
+      {
+        var.getCellDofs(x_dofs.data(), CellH(cell_id));
+        reorderDofsLagrange<MeshT,index_t>(mesh, CellH(cell_id), expected_deg, SpaceDim, x_dofs.data());
+        for (int i=0; i< nodes_per_cell; ++i)
+        {
+          if ( EOF == fscanf(file_ptr, "%d", &id_aux) )
+            ALELIB_ASSERT(false, "invalid msh format", std::runtime_error);
+          --id_aux; // converting to C numbering
+          for (int k = 0; k < SpaceDim; ++k)
+            coords[x_dofs[i*SpaceDim + k]] = file_coords[id_aux*3 + k];
+          
+          //std::cout << "(" << x_dofs[i*SpaceDim] << " " << x_dofs[i*SpaceDim+1] << "), ";
+        }
+        //std::cout << std::endl;
+        ++cell_id;
+      }
+      
+    }// end for k
+
+    fclose(file_ptr);
+
+  }
+
+
+
 
 
   ECellType identifiesMeshType(const char* filename, int* space_dim_ = NULL) const

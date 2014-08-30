@@ -69,8 +69,8 @@ public:
       *values++ = data_r[ncomps*id + i];
   }
 
-  // This function is called when printing higher-order meshes.
-  // The default behaviour is to printing zero at high-order nodes.
+  /// This function is called when printing higher-order meshes.
+  /// The default behaviour is to printing zero at high-order nodes.
   /// @param x_local the coordinate in the cell reference from where data is extracted
   /// @param cell_id the cell from where data is extracted
   /// @param ith number of the correspondent Lagrange degree of freedom in the cell reference.
@@ -212,6 +212,12 @@ private:
         for (int j = 0; j < n_nds; ++j)
           fprintf(fp," %d", ids[m_subcells[i*n_nds + j]]);
         fprintf(fp,"\n");
+
+        //// std::cout AQUI IMPRIMIR
+        //printf("%d", n_nds);
+        //for (int j = 0; j < n_nds; ++j)
+        //  printf(" %d", ids[m_subcells[i*n_nds + j]]);
+        //printf("\n");
       }
     }
   }
@@ -741,6 +747,9 @@ void writeMesh(DefaultGetDataVtk const& data, double* time = NULL)
     reorderDofsLagrange<MeshT,index_t>(m_mesh, c, m_subdivs_lvl, 1, dofs.data());
 
     fi_printCellVtk(dofs.data(), file_ptr);
+    //for (int i = 0; i < (int)dofs.size(); ++i)
+    //  std::cout << dofs[i] << " ";
+    //std::cout << std::endl;
 
     dofs.clear();
   }

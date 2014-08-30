@@ -74,13 +74,24 @@ struct TraitsTet : public DefaultTraits<TETRAHEDRON, true, 3> { typedef MyCellTe
 struct TraitsHex : public DefaultTraits<HEXAHEDRON , true, 3> { typedef MyCellHex CellT; typedef MyVertex VertexT; typedef MyFacet FacetT; typedef MyRidge RidgeT;};
 
 
+struct TraitsEdgNoC : public DefaultTraits<EDGE       , false, 1> { typedef MyCellEdg CellT; typedef MyVertex VertexT; typedef MyFacet FacetT; typedef MyRidge RidgeT;};
+struct TraitsTriNoC : public DefaultTraits<TRIANGLE   , false, 2> { typedef MyCellTri CellT; typedef MyVertex VertexT; typedef MyFacet FacetT; typedef MyRidge RidgeT;};
+struct TraitsQuaNoC : public DefaultTraits<QUADRANGLE , false, 2> { typedef MyCellQua CellT; typedef MyVertex VertexT; typedef MyFacet FacetT; typedef MyRidge RidgeT;};
+struct TraitsTetNoC : public DefaultTraits<TETRAHEDRON, false, 3> { typedef MyCellTet CellT; typedef MyVertex VertexT; typedef MyFacet FacetT; typedef MyRidge RidgeT;};
+struct TraitsHexNoC : public DefaultTraits<HEXAHEDRON , false, 3> { typedef MyCellHex CellT; typedef MyVertex VertexT; typedef MyFacet FacetT; typedef MyRidge RidgeT;};
+
+
 typedef Mesh<TraitsEdg> MeshEdg;
 typedef Mesh<TraitsTri> MeshTri;
 typedef Mesh<TraitsQua> MeshQua;
 typedef Mesh<TraitsTet> MeshTet;
 typedef Mesh<TraitsHex> MeshHex;
 
-
+typedef Mesh<TraitsEdgNoC> MeshEdgNoC;
+typedef Mesh<TraitsTriNoC> MeshTriNoC;
+typedef Mesh<TraitsQuaNoC> MeshQuaNoC;
+typedef Mesh<TraitsTetNoC> MeshTetNoC;
+typedef Mesh<TraitsHexNoC> MeshHexNoC;
 
 
 template<typename Mesh_t>

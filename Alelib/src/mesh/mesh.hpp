@@ -309,7 +309,11 @@ public:
   { m_cells.reserve(n); }
   
   void reserveVerts(index_t n)
-  { m_verts.reserve(n); }
+  {
+    m_verts.reserve(n);
+    if (StoreCoords)
+      m_points.reserve(n);
+  }
   
   void reserveFacets(index_t n)
   {
@@ -327,16 +331,21 @@ public:
 
   void clear()
   {
-    for (index_t i = 0; i < (index_t)m_cells.totalSize(); ++i)
-      m_cells.disable(i);
-    for (index_t i = 0; i < (index_t)m_verts.totalSize(); ++i)
-      m_verts.disable(i);
-    if (cell_dim > 1)
-      for (index_t i = 0; i < (index_t)m_facets.totalSize(); ++i)
-        m_facets.disable(i);
-    if (cell_dim > 2)
-      for (index_t i = 0; i < (index_t)m_ridges.totalSize(); ++i)
-        m_ridges.disable(i);
+    //for (index_t i = 0; i < (index_t)m_cells.totalSize(); ++i)
+    //  m_cells.disable(i);
+    //for (index_t i = 0; i < (index_t)m_verts.totalSize(); ++i)
+    //  m_verts.disable(i);
+    //if (cell_dim > 1)
+    //  for (index_t i = 0; i < (index_t)m_facets.totalSize(); ++i)
+    //    m_facets.disable(i);
+    //if (cell_dim > 2)
+    //  for (index_t i = 0; i < (index_t)m_ridges.totalSize(); ++i)
+    //    m_ridges.disable(i);
+    m_cells.clear();
+    m_verts.clear();
+    if (cell_dim > 1) m_facets.clear();
+    if (cell_dim > 2) m_ridges.clear();
+    if (StoreCoords) m_points.clear();
   }
 
   /// @return the id of the added vertex
