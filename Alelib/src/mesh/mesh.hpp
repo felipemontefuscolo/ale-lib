@@ -10,14 +10,16 @@
 #include "cell.hpp"
 #include "enums.hpp"
 #include "Array/array.hpp"
-#include "../util/list_type.hpp"
-#include "../util/initializer_list.hpp"
-#include "../util/algorithm.hpp"
-#include "../util/misc2.hpp"
-#include "../util/assert.hpp"
-#include "../util/timer.hpp"
+#include "Alelib/src/util/list_type.hpp"
+#include "Alelib/src/util/initializer_list.hpp"
+#include "Alelib/src/util/algorithm.hpp"
+#include "Alelib/src/util/misc2.hpp"
+#include "Alelib/src/util/assert.hpp"
+#include "Alelib/src/util/timer.hpp"
 #include "AssocVector.hpp"
-#include "../io/alelib_tags.hpp"
+#include "Alelib/src/io/alelib_tags.hpp"
+#include <cmath>
+
 
 #include <iterator>      // std::iterator, std::input_iterator_tag
 
@@ -643,6 +645,58 @@ public:
   }
 
 
+  /** @param nc_ number of cells.
+   *  @param type mesh cell type.
+   */
+  static
+  index_t estimateNumFacets(index_t nc_)
+  {
+    ECellType const cc = CellType;
+    double nc = static_cast<float>(nc_);  // nc = num cells
+
+  #define _ROUND_2_INT_(x) static_cast<index_t>(floor((x) + 0.5))
+
+    switch (cc)
+    {
+      case TRIANGLE:
+        return _ROUND_2_INT_(1.5*nc + sqrt(2.*nc));
+      case QUADRANGLE:
+        return _ROUND_2_INT_(2.*(nc + sqrt(nc)));
+      case TETRAHEDRON:
+        return _ROUND_2_INT_(2.*nc+pow(6.,1./3)*pow(nc,2./3));
+      case HEXAHEDRON:
+        return _ROUND_2_INT_(3.*nc+3.*pow(nc,2./3));
+      default:
+        return 0;
+    }
+
+  #undef _ROUND_2_INT_
+
+  }
+  static
+  index_t estimateNumRidges(index_t nc_)
+  {
+    ECellType const cc = CellType;
+    double nc = static_cast<float>(nc_); // nc = num cells
+
+  #define _ROUND_2_INT_(x) static_cast<index_t>(floor((x) + 0.5))
+
+    switch (cc)
+    {
+      case TRIANGLE:
+        return _ROUND_2_INT_(0.5*nc);
+      case QUADRANGLE:
+        return _ROUND_2_INT_(nc);
+      case TETRAHEDRON:
+        return _ROUND_2_INT_((7.*nc+9.*pow(6.,1./3)*pow(nc,2./3)+3*pow(6.,2./3)*pow(nc,1./3))/6.);
+      case HEXAHEDRON:
+        return _ROUND_2_INT_(3*nc+6*pow(nc,2./3)+3*pow(nc,1./3));
+      default:
+        return 0;
+    }
+
+  #undef _ROUND_2_INT_
+  }
 
 
 

@@ -177,7 +177,9 @@ public:
 
     nodes_per_cell = numNodeForMshTag(EMshTag(msh_cell_type));
 
-
+    mesh->reserveCells(num_cells*1.1);
+    mesh->reserveFacets( MeshT::estimateNumFacets(num_cells)*1.1  );
+    mesh->reserveRidges( MeshT::estimateNumRidges(num_cells)*1.1  );
 
     /* --------------------------------------
      * Lendo as células
