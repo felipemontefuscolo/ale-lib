@@ -708,7 +708,7 @@ TEST_F(TetMesh1Tests, PrintVtkAscii)
 {
   MeshWriter writer(&m);
 
-  writer.setOutputFileName("output/tetmesh1.vtk");
+  writer.setOutputFileName("output/TetMesh1.PrintVtkAscii.vtk");
 
   double time = 1.2345;
   writer.writeMesh(&time);
@@ -718,7 +718,7 @@ TEST_F(TetMesh1Tests, PrintVtkBinSplitEdge)
 {
   MeshWriter writer(&m);
 
-  writer.setOutputFileName("output/tetmesh1.vtk");
+  writer.setOutputFileName("output/TetMesh1.PrintVtkBinSplitEdge.vtk");
   writer.setBinaryOutput(true);
   writer.setFamily(true);
 
@@ -805,7 +805,7 @@ TEST_F(TetMesh2Tests, PrintNodalFieldVtk)
   writer.setFamily(true);
 
   writer.setNamePadding(2);
-  writer.setOutputFileName("output/tetmesh.vtk");
+  writer.setOutputFileName("output/TetMesh2.PrintNodalFieldVtk.vtk");
 
   writer.splitMeshEdges(1);
   writer.writeMesh();
@@ -837,7 +837,7 @@ TEST_F(TetMesh2Tests, PrintCustomCoordsFieldVtk)
   writer.setFamily(true);
 
   writer.setNamePadding(2);
-  writer.setOutputFileName("output/tetmesh.vtk");
+  writer.setOutputFileName("output/TetMesh2.PrintCustomCoordsFieldVtk.vtk");
 
   writer.splitMeshEdges(1);
   writer.writeMesh();
@@ -913,7 +913,7 @@ TEST_F(TriMesh2Tests, PrintNodalFieldVtk)
   writer.setFamily(true);
 
   writer.setNamePadding(2);
-  writer.setOutputFileName("output/trimesh.vtk");
+  writer.setOutputFileName("output/TriMesh2.PrintNodalFieldVtk.vtk");
 
   writer.splitMeshEdges(1);
   writer.writeMesh();
@@ -1019,7 +1019,7 @@ TEST_F(TriMesh2Tests, PrintCustomCoordsFieldVtk)
   writer.setFamily(true);
 
   writer.setNamePadding(2);
-  writer.setOutputFileName("output/trimesh.vtk");
+  writer.setOutputFileName("output/TriMesh2.PrintCustomCoordsFieldVtk.vtk");
 
   writer.splitMeshEdges(1);
   writer.writeMesh(MyPrinterTri3(m));
@@ -1318,7 +1318,7 @@ class TetMesh1NoCTests : public testing::Test
  protected:  // You should make the members protected s.t. they can be
              // accessed from sub-classes.
 
-  typedef MeshTet MeshT;
+  typedef MeshTetNoC MeshT;
   typedef MeshT::VertexH VertexH;
   typedef MeshT::CellH CellH;
   typedef MeshT::FacetH FacetH;
@@ -1329,12 +1329,8 @@ class TetMesh1NoCTests : public testing::Test
 
   MeshT m;
 
-  static void addTetMesh1(MeshTet &m, bool check = true)
+  static void addTetMesh1(MeshT &m, bool check = true)
   {
-    typedef MeshTet MeshT;
-    typedef MeshT::VertexH VertexH;
-    typedef MeshT::CellH   CellH;
-
     int const N = 35;
 
     VertexH vts[N];
@@ -1512,7 +1508,7 @@ class TetMesh2NoCTests : public testing::Test
  protected:  // You should make the members protected s.t. they can be
              // accessed from sub-classes.
 
-  typedef MeshTet MeshT;
+  typedef MeshTetNoC MeshT;
   typedef MeshT::VertexH VertexH;
   typedef MeshT::CellH CellH;
   typedef MeshT::FacetH FacetH;
@@ -1523,12 +1519,8 @@ class TetMesh2NoCTests : public testing::Test
 
   MeshT m;
 
-  static void addTetMesh(MeshTet &m, bool check = true)
+  static void addTetMesh(MeshT &m, bool check = true)
   {
-    typedef MeshTet MeshT;
-    typedef MeshT::VertexH VertexH;
-    typedef MeshT::CellH   CellH;
-
     int const N = 5;
 
     VertexH vts[N];
@@ -1710,292 +1702,6 @@ TEST_F(TriMesh1NoCTests, AddAndRemoveCell)
   checkMesh(m);
 }
 
-#if 0
-
-TEST_F(TriMesh1Tests, PrintVtkBinSplitEdge)
-{
-  MeshWriter writer(&m);
-
-  writer.setOutputFileName("output/trimesh1.vtk");
-  writer.setBinaryOutput(true);
-  writer.setFamily(true);
-
-  writer.setNamePadding(2);
-
-  double time = 1.1;
-  writer.splitMeshEdges(2);
-  writer.writeMesh(&time);
-
-  m.removeCell(CellH(9), true);
-
-  time = 1.2;
-  writer.splitMeshEdges(3);
-  writer.writeMesh(&time);
-
-  m.removeCell(CellH(5), true);
-
-  time = 1.3;
-  writer.splitMeshEdges(4);
-  writer.writeMesh(&time);
-
-  m.removeCell(CellH(1), true);
-
-  time = 1.4;
-  writer.splitMeshEdges(5);
-  writer.writeMesh(&time);
-
-  checkMesh(m);
-}
-
-TEST_F(TetMesh1NoCTests, RemoveCell)
-{
-  vector<CellH> star34 = VertexH(34).star(&m);
-
-  for (int i = 0; i < (int)star34.size(); ++i)
-    m.removeCell(star34[i], true);
-
-  checkMesh(m);
-
-  unsigned kk = 0;
-  for(CellH c = m.cellBegin(); c != m.cellEnd(); ++c)
-  {
-    if (c.isDisabled(&m))
-      continue;
-
-    m.removeCell(c, true);
-    if ((++kk)%2==0)
-      checkMesh(m);
-  }
-
-  // add again to be sure
-  addTetMesh1(m, true);
-
-}
-
-TEST_F(TetMesh1NoCTests, PrintVtkBinSplitEdge)
-{
-  MeshWriter writer(&m);
-
-  writer.setOutputFileName("output/tetmesh1.vtk");
-  writer.setBinaryOutput(true);
-  writer.setFamily(true);
-
-  writer.setNamePadding(2);
-
-  // remove some cells for better visibility
-  for (int i = 0; i < 50; ++i)
-    m.removeCell(CellH(i), true);
-
-
-  double time = 1.1;
-  writer.splitMeshEdges(2);
-  writer.writeMesh(&time);
-
-  //m.removeCell(CellH(9), true);
-  //
-  time = 1.2;
-  writer.splitMeshEdges(3);
-  writer.writeMesh(&time);
-  //
-  //m.removeCell(CellH(5), true);
-  //
-  time = 1.3;
-  writer.splitMeshEdges(4);
-  writer.writeMesh(&time);
-  //
-  //m.removeCell(CellH(1), true);
-  //
-  time = 1.4;
-  writer.splitMeshEdges(5);
-  writer.writeMesh(&time);
-  //
-  //checkMesh(m);
-}
-
-struct MyPrinterTet2 : public DefaultGetDataVtk
-{
-  typedef MeshTetNoC::VertexH VertexH;
-  typedef MeshTetNoC::CellH CellH;
-  MeshTetNoC const& m;
-  MyPrinterTet2(MeshTetNoC const& m_) : DefaultGetDataVtk(), m(m_) {}
-
-  virtual void getData(index_t id, Real *values) const
-  {
-    VertexH(id).coord(&m, values);
-  }
-
-  virtual void getData(Real const *x_local, index_t cell_id, int /*ith*/, Real *values) const
-  {
-    Real x[4][3];
-    CellH c(cell_id);
-    VertexH vts[4];
-    c.vertices(&m, vts);
-    for (int i = 0; i < 4; ++i)
-      vts[i].coord(&m, x[i]);
-
-    Real L[4];
-    L[0] = 1;
-    for (int i = 1; i <= 3; ++i) {
-      L[i] = x_local[i-1];
-      L[0] -= L[i];
-    }
-
-    Real x_real[3] = {0,0,0};
-    for (int i = 0; i < 4; ++i)
-      for (int j = 0; j < 3; ++j)
-        x_real[j] += L[i]*x[i][j];
-
-    values[0] = x_real[0];
-    values[1] = x_real[1];
-    values[2] = x_real[2];
-
-  }
-
-  virtual int numComps() const
-  { return 3; }
-};
-
-TEST_F(TetMesh2Tests, PrintNodalFieldVtk)
-{
-  MeshWriter writer;
-  writer.attachMesh(&m);
-  writer.setBinaryOutput(false);
-  writer.setFamily(true);
-
-  writer.setNamePadding(2);
-  writer.setOutputFileName("output/tetmesh.vtk");
-
-  writer.splitMeshEdges(1);
-  writer.writeMesh();
-  writer.addNodalScalarField("radial", MyPrinterTet2(m));
-
-  writer.splitMeshEdges(2);
-  writer.writeMesh();
-  writer.addNodalScalarField("radial", MyPrinterTet2(m));
-
-  writer.splitMeshEdges(3);
-  writer.writeMesh();
-  writer.addNodalScalarField("radial", MyPrinterTet2(m));
-
-  writer.splitMeshEdges(4);
-  writer.writeMesh();
-  writer.addNodalScalarField("radial", MyPrinterTet2(m));
-
-  writer.splitMeshEdges(5);
-  writer.writeMesh();
-  writer.addNodalScalarField("radial", MyPrinterTet2(m));
-
-}
-
-TEST_F(TetMesh2Tests, PrintCustomCoordsFieldVtk)
-{
-  MeshWriter writer;
-  writer.attachMesh(&m);
-  writer.setBinaryOutput(false);
-  writer.setFamily(true);
-
-  writer.setNamePadding(2);
-  writer.setOutputFileName("output/tetmesh.vtk");
-
-  writer.splitMeshEdges(1);
-  writer.writeMesh();
-  writer.addNodalScalarField("radial", MyPrinterTet2(m));
-
-  writer.splitMeshEdges(2);
-  writer.writeMesh();
-  writer.addNodalScalarField("radial", MyPrinterTet2(m));
-
-  writer.splitMeshEdges(3);
-  writer.writeMesh();
-  writer.addNodalScalarField("radial", MyPrinterTet2(m));
-
-  writer.splitMeshEdges(4);
-  writer.writeMesh();
-  writer.addNodalScalarField("radial", MyPrinterTet2(m));
-
-  writer.splitMeshEdges(5);
-  writer.writeMesh();
-  writer.addNodalScalarField("radial", MyPrinterTet2(m));
-
-}
-
-struct MyPrinterTri2 : public DefaultGetDataVtk
-{
-  typedef MeshTriNoC::VertexH VertexH;
-  typedef MeshTriNoC::CellH CellH;
-  MeshTriNoC const& m;
-  MyPrinterTri2(MeshTriNoC const& m_) : DefaultGetDataVtk(), m(m_) {}
-
-  virtual void getData(index_t id, Real *values) const
-  {
-    VertexH(id).coord(&m, values);
-  }
-
-  virtual void getData(Real const *x_local, index_t cell_id, int /*ith*/, Real * values) const
-  {
-    //Real * const values = values_; // UNBELIEVABLE: it is necessary in clang while in gcc it is not. God?
-    Real x[3][3];
-    CellH c(cell_id);
-    VertexH vts[3];
-    c.vertices(&m, vts);
-    for (int i = 0; i < 3; ++i)
-      vts[i].coord(&m, x[i]);
-
-    Real L[3];
-    L[0] = 1;
-    for (int i = 1; i <= 2; ++i) {
-      L[i] = x_local[i-1];
-      L[0] -= L[i];
-    }
-
-    Real x_real[3] = {0,0,0};
-    for (int i = 0; i < 3; ++i)
-      for (int j = 0; j < 2; ++j)
-        x_real[j] += L[i]*x[i][j];
-
-    values[0] = x_real[0];
-    values[1] = x_real[1];
-
-  }
-
-  virtual int numComps() const
-  { return 2; }
-};
-
-TEST_F(TriMesh2Tests, PrintNodalFieldVtk)
-{
-  MeshWriter writer;
-  writer.attachMesh(&m);
-  writer.setBinaryOutput(false);
-  writer.setFamily(true);
-
-  writer.setNamePadding(2);
-  writer.setOutputFileName("output/trimesh.vtk");
-
-  writer.splitMeshEdges(1);
-  writer.writeMesh();
-  writer.addNodalScalarField("radial", MyPrinterTri2(m));
-
-  writer.splitMeshEdges(2);
-  writer.writeMesh();
-  writer.addNodalScalarField("radial", MyPrinterTri2(m));
-
-  writer.splitMeshEdges(3);
-  writer.writeMesh();
-  writer.addNodalScalarField("radial", MyPrinterTri2(m));
-
-  writer.splitMeshEdges(4);
-  writer.writeMesh();
-  writer.addNodalScalarField("radial", MyPrinterTri2(m));
-
-  writer.splitMeshEdges(5);
-  writer.writeMesh();
-  writer.addNodalScalarField("radial", MyPrinterTri2(m));
-
-}
-
-#endif
-
 
 
 struct MyPrinterNoCTri3 : public DefaultGetDataVtk
@@ -2014,7 +1720,6 @@ struct MyPrinterNoCTri3 : public DefaultGetDataVtk
     // In this example, the numbering of the degrees of freedom coincides with the mesh numbering
   virtual void getData(index_t id, Real *values) const
   {
-    //int dofs[2];
     var.getVertexDofs(dofs.begin(), VertexH(id));
     values[0] = data[dofs[0]];
     values[1] = data[dofs[1]];
@@ -2139,95 +1844,169 @@ TEST_F(TriMesh2NoCTests, PrintCustomCoordsFieldVtk)
   }
 
 
-//
-//  writer.setNamePadding(2);
-//  writer.setOutputFileName("output/trimesh.vtk");
-//
-//  writer.splitMeshEdges(1);
-//  writer.writeMesh(MyPrinterNoCTri3(m));
-//  writer.addNodalScalarField("radial", MyPrinterNoCTri3(m));
-//
-//  writer.splitMeshEdges(2);
-//  writer.writeMesh(MyPrinterNoCTri3(m));
-//  writer.addNodalScalarField("radial", MyPrinterNoCTri3(m));
-//
-//  writer.splitMeshEdges(3);
-//  writer.writeMesh(MyPrinterNoCTri3(m));
-//  writer.addNodalScalarField("radial", MyPrinterNoCTri3(m));
-//
-//  writer.splitMeshEdges(4);
-//  writer.writeMesh(MyPrinterNoCTri3(m));
-//  writer.addNodalScalarField("radial", MyPrinterNoCTri3(m));
-//
-//  writer.splitMeshEdges(5);
-//  writer.writeMesh(MyPrinterNoCTri3(m));
-//  writer.addNodalScalarField("radial", MyPrinterNoCTri3(m));
-
 }
 
-#if 0
 
-
-TEST(MshIoTests, ReadFileTest)
+struct MyPrinterNoCTet2 : public DefaultGetDataVtk
 {
-  //MeshIoMsh<EDGE>        R1;
-  MeshIoMsh<MeshTriNoC>    R2;
-  //MeshIoMsh<QUADRANGLE>  R3;
-  MeshIoMsh<MeshTetNoC> R4;
-  //MeshIoMsh<HEXAHEDRON>  R5;
+  typedef MeshTetNoC MeshT;
+  typedef MeshT::VertexH VertexH;
+  typedef MeshT::CellH CellH;
+  MeshT const& m;
+  Real const* data;
+  VarDofs<MeshT> const& var;
+  mutable std::vector<index_t> dofs;
+  
+  explicit
+  MyPrinterNoCTet2(MeshT const& m_, Real const* d, VarDofs<MeshT> const& v) : DefaultGetDataVtk(), m(m_), data(d), var(v), dofs(var.numDofsPerCell()) {}
 
-  MeshTriNoC m2;
-  MeshTetNoC m4;
+  virtual void getData(index_t id, Real *values) const
+  {
+    var.getVertexDofs(dofs.begin(), VertexH(id));
+    values[0] = data[dofs[0]];
+    values[1] = data[dofs[1]];
+    values[2] = data[dofs[2]];
+  }
 
-  R2.readFile("meshes/simple_tri0.msh", &m2);
-  R4.readFile("meshes/simple_tet0.msh", &m4);
+  virtual void getData(Real const */*x_local*/, index_t cell_id, int ith, Real *values) const
+  {
+    var.getCellDofs(dofs.data(), CellH(cell_id));
 
-  EXPECT_EQ(13u, m2.numVertices());
-  EXPECT_EQ(16u, m2.numCells());
-  EXPECT_EQ(28u, m2.numFacets());
+    values[0] = data[dofs[ith*3 + 0]];
+    values[1] = data[dofs[ith*3 + 1]];
+    values[2] = data[dofs[ith*3 + 2]];
+  }
 
-  EXPECT_EQ(27u,  m4.numVertices());
-  EXPECT_EQ(48u,  m4.numCells());
-  EXPECT_EQ(120u, m4.numFacets());
-  EXPECT_EQ(98u,  m4.numRidges());
-
-
-  for (index_t i = 0; i < 13; ++i)
-    EXPECT_TRUE(MeshTriNoC::VertexH(i).tag(&m2) > 0);
-
-  for (index_t i = 0; i < 16; ++i)
-    EXPECT_TRUE(MeshTriNoC::CellH(i).tag(&m2) > 0);
-
-  for (index_t i = 0; i < 28; ++i)
-    EXPECT_TRUE(MeshTriNoC::FacetH(i).tag(&m2) > 0);
+  virtual int numComps() const
+  { return 3; }
+};
 
 
+TEST_F(TetMesh2NoCTests, PrintCustomCoordsFieldVtk)
+{
+  MeshIoMsh<MeshT> R;
 
-  EXPECT_EQ(1 , MeshTetNoC::VertexH(0).tag(&m4));
-  EXPECT_EQ(2 , MeshTetNoC::VertexH(1).tag(&m4));
-  EXPECT_EQ(4 , MeshTetNoC::VertexH(2).tag(&m4));
-  EXPECT_EQ(3 , MeshTetNoC::VertexH(3).tag(&m4));
-  EXPECT_EQ(13, MeshTetNoC::VertexH(4).tag(&m4));
-  EXPECT_EQ(10, MeshTetNoC::VertexH(5).tag(&m4));
-  EXPECT_EQ(11, MeshTetNoC::VertexH(6).tag(&m4));
-  EXPECT_EQ(12, MeshTetNoC::VertexH(7).tag(&m4));
+  MeshWriter writer;
+  writer.attachMesh(&m);
+  writer.setBinaryOutput(false);
+  writer.setFamily(true);
+  writer.setOutputFileName("output/TetMesh2NoC.vtk");
+  writer.setNamePadding(2);
+  // linear
+  {
+    R.readFile("meshes/sphere_tet0.msh", &m);
+    EXPECT_EQ(6, (int)m.numVertices());
+    EXPECT_EQ(4, (int)m.numCells());
+    EXPECT_EQ(12, (int)m.numFacets());
+    EXPECT_EQ(13, (int)m.numRidges());
 
-  for (index_t i = 0; i < 27; ++i)
-    EXPECT_TRUE(MeshTetNoC::VertexH(i).tag(&m4) > 0);
+    DofMapper<MeshT> map(&m);  //            ndpv,  ndpr,  ndpf,  ndpc
+    map.addVariable("coordinate", MeshT::SpaceDim,     0,     0,     0);
+    map.SetUp();
+    EXPECT_EQ(18, (int)map.numDofs());
+    std::vector<Real> coords(map.numDofs());
+    
+    R.readCoordinates("meshes/sphere_tet0.msh", &m, coords.data(), map.variable(0));
+    
+    writer.writeMesh(MyPrinterNoCTet2(m, coords.data(), map.variable(0)));
+  }
 
-  for (index_t i = 0; i < 48; ++i)
-    EXPECT_TRUE(MeshTetNoC::CellH(i).tag(&m4) > 0);
 
-  for (index_t i = 0; i < 120; ++i)
-    EXPECT_TRUE(MeshTetNoC::FacetH(i).tag(&m4) > 0);
+  // quadratic
+  {
+    R.readFile("meshes/sphere_tet1.msh", &m);
+    EXPECT_EQ(6, (int)m.numVertices());
+    EXPECT_EQ(4, (int)m.numCells());
+    EXPECT_EQ(12, (int)m.numFacets());
+    EXPECT_EQ(13, (int)m.numRidges());
+    
+    DofMapper<MeshT> map(&m);  //            ndpv, ndpr,            ndpf,  ndpc
+    map.addVariable("coordinate", MeshT::SpaceDim, MeshT::SpaceDim, 0,     0);
+    map.SetUp();
+    EXPECT_EQ(57, (int)map.numDofs());
+    std::vector<Real> coords(map.numDofs());
 
-  for (index_t i = 0; i < 98; ++i)
-    EXPECT_TRUE(MeshTetNoC::RidgeH(i).tag(&m4) > 0);
+    R.readCoordinates("meshes/sphere_tet1.msh", &m, coords.data(), map.variable(0));;
 
+    //for (int i = 0; i < (int)coords.size()/3; ++i)
+    //{
+    //  for (int j = 0; j < 3; ++j)
+    //  {
+    //    std::cout << coords[i*3 + j] << " ";
+    //  }
+    //  std::cout << std::endl;
+    //}
+    
+
+    writer.splitMeshEdges(2);
+    writer.writeMesh(MyPrinterNoCTet2(m, coords.data(), map.variable(0)));
+  }
+
+
+  // cubic
+  {
+    R.readFile("meshes/sphere_tet2.msh", &m);
+    EXPECT_EQ(6, (int)m.numVertices());
+    EXPECT_EQ(4, (int)m.numCells());
+    EXPECT_EQ(12, (int)m.numFacets());
+    EXPECT_EQ(13, (int)m.numRidges());
+    
+    DofMapper<MeshT> map(&m);  //            ndpv, ndpr,              ndpf,      ndpc
+    map.addVariable("coordinate", MeshT::SpaceDim, 2*MeshT::SpaceDim, MeshT::SpaceDim, 0);
+    map.SetUp();
+    EXPECT_EQ(132, (int)map.numDofs());
+    std::vector<Real> coords(map.numDofs());
+
+    R.readCoordinates("meshes/sphere_tet2.msh", &m, coords.data(), map.variable(0));;
+
+    writer.splitMeshEdges(3);
+    writer.writeMesh(MyPrinterNoCTet2(m, coords.data(), map.variable(0)));
+  }
+
+  # if 0 // 4th 
+
+  // quartic
+  {
+    R.readFile("meshes/sphere_tet3.msh", &m);
+    EXPECT_EQ(6, (int)m.numVertices());
+    EXPECT_EQ(4, (int)m.numCells());
+    EXPECT_EQ(12, (int)m.numFacets());
+    EXPECT_EQ(13, (int)m.numRidges());
+    
+    DofMapper<MeshT> map(&m);  //            ndpv, ndpr,              ndpf,      ndpc
+    map.addVariable("coordinate", MeshT::SpaceDim, 3*MeshT::SpaceDim, 3*MeshT::SpaceDim, MeshT::SpaceDim);
+    map.SetUp();
+    EXPECT_EQ(255, (int)map.numDofs());
+    std::vector<Real> coords(map.numDofs());
+
+    R.readCoordinates("meshes/sphere_tet3.msh", &m, coords.data(), map.variable(0));;
+
+    writer.splitMeshEdges(4);
+    writer.writeMesh(MyPrinterNoCTet2(m, coords.data(), map.variable(0)));
+  }
+  // 10th
+  {
+    R.readFile("meshes/sphere_tet9.msh", &m);
+    EXPECT_EQ(6, (int)m.numVertices());
+    EXPECT_EQ(4, (int)m.numCells());
+    EXPECT_EQ(12, (int)m.numFacets());
+    EXPECT_EQ(13, (int)m.numRidges());
+    
+    DofMapper<MeshT> map(&m);  //            ndpv, ndpr,              ndpf,      ndpc
+    map.addVariable("coordinate", MeshT::SpaceDim,    0, 9*MeshT::SpaceDim, 36*MeshT::SpaceDim);
+    map.SetUp();
+    EXPECT_EQ(442, (int)map.numDofs());
+    std::vector<Real> coords(map.numDofs());
+
+    R.readCoordinates("meshes/sphere_tet9.msh", &m, coords.data(), map.variable(0));;
+
+    writer.splitMeshEdges(10);
+    writer.writeMesh(MyPrinterNoCTet2(m, coords.data(), map.variable(0)));
+  }
+
+  #endif
 
 }
-
-#endif
 
 
 
