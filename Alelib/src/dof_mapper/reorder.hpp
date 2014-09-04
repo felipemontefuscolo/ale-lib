@@ -63,7 +63,7 @@ struct RDL_caller<TRIANGLE,Mesh_t,T>
     //int const ndofs = (n+1)*(n+2)/2;
 
     typedef Mesh_t MeshT;
-    typedef typename MeshT::CellH CellH;
+    //typedef typename MeshT::CellH CellH;
 
     for (int i = 0; i < MeshT::facets_per_cell; ++i)
     {
@@ -107,7 +107,7 @@ inline
       return;
 
     typedef Mesh_t MeshT;
-    typedef typename MeshT::CellH CellH;
+    //typedef typename MeshT::CellH CellH;
     typedef typename MeshT::VertexH VertexH;
 
     // RIDGES FIRST

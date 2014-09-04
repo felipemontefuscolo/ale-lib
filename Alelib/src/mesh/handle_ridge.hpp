@@ -117,7 +117,7 @@ public:
     VertexH vts[2];
     this->vertices(mp, vts);
     typedef typename VertexT::VectorT VectorT;
-    typedef typename VectorT::const_iterator iterator;
+    //typedef typename VectorT::const_iterator iterator;
     
     VectorT const& star0 = mp->m_verts[vts[0].id(mp)].icells;
     VectorT const& star1 = mp->m_verts[vts[1].id(mp)].icells;

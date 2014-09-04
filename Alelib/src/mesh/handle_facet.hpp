@@ -78,7 +78,7 @@ public:
     VertexH vts[CellT::n_verts_p_facet];
     this->vertices(mp, vts);
     typedef typename VertexT::VectorT VectorT;
-    typedef typename VectorT::const_iterator iterator;
+    //typedef typename VectorT::const_iterator iterator;
     
     VectorT const& star0 = mp->m_verts[vts[0].id(mp)].icells;
     VectorT const& star1 = mp->m_verts[vts[1].id(mp)].icells;

@@ -498,6 +498,8 @@ public:
     else
       expected_deg = var.numDofsInRidge()/SpaceDim + 1;
 
+    ALELIB_ASSERT(!(expected_deg >= 4 && CellType == TETRAHEDRON), "gmsh reader for this cell type is not implemented yet", std::invalid_argument);
+
     int nodes_per_cell;
     int msh_cell_type;
 

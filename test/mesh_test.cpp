@@ -1963,8 +1963,10 @@ TEST_F(TetMesh2NoCTests, PrintCustomCoordsFieldVtk)
     writer.writeMesh(MyPrinterNoCTet2(m, coords.data(), map.variable(0)));
   }
 
-  # if 0 // 4th 
 
+  // Something is wrong with the element ordering for degrees above 4.
+  // I think that the culprit is Gmsh.
+  # if 0 // 4th  
   // quartic
   {
     R.readFile("meshes/sphere_tet3.msh", &m);
@@ -1979,11 +1981,14 @@ TEST_F(TetMesh2NoCTests, PrintCustomCoordsFieldVtk)
     EXPECT_EQ(255, (int)map.numDofs());
     std::vector<Real> coords(map.numDofs());
 
-    R.readCoordinates("meshes/sphere_tet3.msh", &m, coords.data(), map.variable(0));;
+    ASSERT_ANY_THROW(R.readCoordinates("meshes/sphere_tet3.msh", &m, coords.data(), map.variable(0)));
 
-    writer.splitMeshEdges(4);
-    writer.writeMesh(MyPrinterNoCTet2(m, coords.data(), map.variable(0)));
+    //writer.splitMeshEdges(4);
+    //writer.writeMesh(MyPrinterNoCTet2(m, coords.data(), map.variable(0)));
   }
+  
+ 
+  
   // 10th
   {
     R.readFile("meshes/sphere_tet9.msh", &m);
