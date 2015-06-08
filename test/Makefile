@@ -26,15 +26,15 @@ USER_DIR = .
 CXX = $(ALE_CXX)
 
 # Flags passed to the preprocessor.
-CPPFLAGS += -I$(GTEST_DIR)/include $(ALE_INCLUDE)
+CPPFLAGS += -DGTEST_USE_OWN_TR1_TUPLE=1 -I$(GTEST_DIR)/include $(ALE_INCLUDE)
 
 # Flags passed to the C++ compiler.
-CXXFLAGS += -g3 -Wall -Wextra -gdwarf-2 -DDEBUG -MMD
+CXXFLAGS += -std=c++11 -g3 -Wall -Wextra -gdwarf-2 -DDEBUG -MMD
 
 #-gdwarf-2 is for handle inline functions in gdb
 
 LDFLAGS	= -L${ALE_LIBS_DIR} -lalelib
-LDFLAGS+= -fopenmp -lpthread -pthread
+#LDFLAGS+= -fopenmp -lpthread -pthread
 #                            -L$(METIS_LD) -lmetis
 
 # All Google Test headers.  Usually you shouldn't change this

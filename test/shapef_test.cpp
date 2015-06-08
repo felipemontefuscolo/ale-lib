@@ -37,16 +37,36 @@
 #include <Alelib/ShapeFunction>
 #include <Alelib/Quadrature>
 #include <Alelib/src/shape_functions/parametric_pts.hpp>
-#include <tr1/array>
-#include <tr1/tuple>
 #include <algorithm>
-#include <tr1/memory>
 #include <limits> // for std::numeric_limits<Real>::epsilon()
-#include <tr1/functional>
 //#include <functional>
+#include <cmath>
+
+#include <ciso646>  // detect std::lib
+#ifdef _LIBCPP_VERSION
+// using libc++
+#define MULTI_HAVE_TYPE_TRAITS
+#else
+// using libstdc++
+#define MULTI_HAVE_TR1_TYPE_TRAITS
+#endif
+
+#ifdef MULTI_HAVE_TYPE_TRAITS
+#include <array>
+#include <array>
+#include <tuple>
+#include <memory>
+#include <functional>
+namespace Tr1 = std;
+#else
 #include <tr1/array>
 #include <tr1/tuple>
-#include <cmath>
+#include <tr1/memory>
+#include <tr1/functional>
+namespace Tr1 = std::tr1;
+
+#endif
+
 
 namespace SHAPEF_TEST_CPP {
 
@@ -54,7 +74,7 @@ namespace SHAPEF_TEST_CPP {
 
 
 
-using namespace std::tr1::placeholders;
+using namespace Tr1::placeholders;
 
 Real const ALE_EPS = std::numeric_limits<Real>::epsilon();
 Real const ALE_TOL = 500000*ALE_EPS; // ~ 1.1e-10 para double
@@ -220,7 +240,7 @@ TEST(ShapeEdge1Tests, LagrangeGradient)
   int const sdim = 1;
 
   // Shape function placeholder
-  std::tr1::function<Real (Real const*)> Func;
+  Tr1::function<Real (Real const*)> Func;
 
   for (int degree = 1; degree < 8; ++degree)
   {
@@ -233,7 +253,7 @@ TEST(ShapeEdge1Tests, LagrangeGradient)
       {
         Real x[] = {xyz[i]};
 
-        Func = std::tr1::bind(std::tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
+        Func = Tr1::bind(Tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
 
         ASSERT_NEAR(diff_( Func, x, 0, sdim ),  sf.grad(x, dof, 0), ALE_TOL)
         << "degree: " << degree << "\npoint: " << i << "\ndof: " << dof << "\ncomp:" << 0 << "\npt:" << x[0] <<  endl;
@@ -259,7 +279,7 @@ TEST(ShapeEdge1Tests, LagrangeHessian)
   int const sdim = 1;
 
   // Shape function placeholder
-  std::tr1::function<Real (Real const*)> Func;
+  Tr1::function<Real (Real const*)> Func;
 
   for (int degree = 1; degree < 8; ++degree)
   {
@@ -272,9 +292,11 @@ TEST(ShapeEdge1Tests, LagrangeHessian)
       {
         Real x[] = {xyz[i]};
 
-        Func = std::tr1::bind(std::tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
+        Func = Tr1::bind(Tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
 
-        ASSERT_NEAR(diff2_( Func, x, 0, 0, sdim ),  sf.hessian(x, dof, 0, 0), 3.e-6)
+        double const aa = diff2_( Func, x, 0, 0, sdim );
+        double const bb = sf.hessian(x, dof, 0, 0);
+        ASSERT_NEAR(aa,  bb, 3.e-6)
         << "degree: " << degree << "\npoint: " << i << "\ndof: " << dof << "\ncomp:" << 0 << "\npt:" << x[0] <<  endl;
 
         //cout << diff_( Func, x, 0, sdim ) << " ppp:" << x[0] << endl;
@@ -296,11 +318,11 @@ TEST(ShapeEdge1Tests, BubbleVGH) // value, gradient and hessian
   ShapeFunction sf;
 
   // Shape function placeholder
-  std::tr1::function<Real (Real const*)> Func;
+  Tr1::function<Real (Real const*)> Func;
 
   sf.setType("Bubble", /*dim*/1);
 
-  Func = std::tr1::bind(std::tr1::mem_fn(&ShapeFunction::value), sf, _1, 0);
+  Func = Tr1::bind(Tr1::mem_fn(&ShapeFunction::value), sf, _1, 0);
   
   Real x = 0;
   
@@ -412,7 +434,7 @@ TEST_F(ShapeTri1Tests, LagrangeGradient)
   int const sdim = 2;
 
   // Shape function placeholder
-  std::tr1::function<Real (Real const*)> Func;
+  Tr1::function<Real (Real const*)> Func;
 
   for (int degree = 1; degree < 9; ++degree)
   {
@@ -425,7 +447,7 @@ TEST_F(ShapeTri1Tests, LagrangeGradient)
 
       for (int dof = 0; dof < (int)xyz.size()/2; ++dof)
       {
-        Func = std::tr1::bind(std::tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
+        Func = Tr1::bind(Tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
 
         for (int c = 0; c < sdim; ++c)
         {
@@ -448,7 +470,7 @@ TEST_F(ShapeTri1Tests, LagrangeHessian)
   int const sdim = 2;
 
   // Shape function placeholder
-  std::tr1::function<Real (Real const*)> Func;
+  Tr1::function<Real (Real const*)> Func;
 
   for (int degree = 1; degree < 6; ++degree)
   {
@@ -461,7 +483,7 @@ TEST_F(ShapeTri1Tests, LagrangeHessian)
 
       for (int dof = 0; dof < (int)xyz.size()/2; ++dof)
       {
-        Func = std::tr1::bind(std::tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
+        Func = Tr1::bind(Tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
 
         for (int c = 0; c < sdim; ++c)
         {
@@ -485,7 +507,7 @@ TEST_F(ShapeTri1Tests, BubbleVGH)
   int const sdim = 2;
 
   // Shape function placeholder
-  std::tr1::function<Real (Real const*)> Func;
+  Tr1::function<Real (Real const*)> Func;
 
   sf.setType("Bubble", /*dim*/2);
   
@@ -497,7 +519,7 @@ TEST_F(ShapeTri1Tests, BubbleVGH)
 
     int dof = 0;
 
-    Func = std::tr1::bind(std::tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
+    Func = Tr1::bind(Tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
 
     for (int c = 0; c < sdim; ++c)
     {
@@ -601,7 +623,7 @@ TEST_F(ShapeTet1Tests, LagrangeGradient)
   int const sdim = 3;
 
   // Shape function placeholder
-  std::tr1::function<Real (Real const*)> Func;
+  Tr1::function<Real (Real const*)> Func;
 
   for (int degree = 1; degree < 6; ++degree)
   {
@@ -614,7 +636,7 @@ TEST_F(ShapeTet1Tests, LagrangeGradient)
 
       for (int dof = 0; dof < (int)xyz.size()/3; ++dof)
       {
-        Func = std::tr1::bind(std::tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
+        Func = Tr1::bind(Tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
 
         for (int c = 0; c < sdim; ++c)
         {
@@ -637,7 +659,7 @@ TEST_F(ShapeTet1Tests, LagrangeHessian)
   int const sdim = 3;
 
   // Shape function placeholder
-  std::tr1::function<Real (Real const*)> Func;
+  Tr1::function<Real (Real const*)> Func;
 
   for (int degree = 1; degree < 6; ++degree)
   {
@@ -650,7 +672,7 @@ TEST_F(ShapeTet1Tests, LagrangeHessian)
 
       for (int dof = 0; dof < (int)xyz.size()/3; ++dof)
       {
-        Func = std::tr1::bind(std::tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
+        Func = Tr1::bind(Tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
 
         for (int c = 0; c < sdim; ++c)
         {
@@ -673,7 +695,7 @@ TEST_F(ShapeTet1Tests, BubbleVGH)
   int const sdim = 3;
 
   // Shape function placeholder
-  std::tr1::function<Real (Real const*)> Func;
+  Tr1::function<Real (Real const*)> Func;
 
   sf.setType("Bubble", /*dim*/3);
   genTetParametricPts(4, xyz);
@@ -684,7 +706,7 @@ TEST_F(ShapeTet1Tests, BubbleVGH)
 
     int dof = 0;
 
-    Func = std::tr1::bind(std::tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
+    Func = Tr1::bind(Tr1::mem_fn(&ShapeFunction::value), sf, _1, dof);
 
     for (int c = 0; c < sdim; ++c)
     {
@@ -705,7 +727,7 @@ TEST_F(ShapeTet1Tests, LagrangeBubble)
   //int const sdim = 3;
 
   // Shape function placeholder
-  std::tr1::function<Real (Real const*)> Func;
+  Tr1::function<Real (Real const*)> Func;
 
   sf.setType("Lagrange+Bubble", /*dim*/3, 1);
   genTetParametricPts(4, xyz);

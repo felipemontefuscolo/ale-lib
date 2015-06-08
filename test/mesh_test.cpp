@@ -35,12 +35,35 @@
 #include <Alelib/DofMapper>
 #include <Alelib/Mesh>
 #include <Alelib/IO>
-#include <tr1/array>
-#include <tr1/tuple>
 #include <algorithm>
-#include <tr1/memory>
 #include <cmath>
 #include <typeinfo>
+
+#include <ciso646>  // detect std::lib
+#ifdef _LIBCPP_VERSION
+// using libc++
+#define MULTI_HAVE_TYPE_TRAITS
+#else
+// using libstdc++
+#define MULTI_HAVE_TR1_TYPE_TRAITS
+#endif
+
+#ifdef MULTI_HAVE_TYPE_TRAITS
+#include <array>
+#include <array>
+#include <tuple>
+#include <memory>
+#include <functional>
+namespace Tr1 = std;
+#else
+#include <tr1/array>
+#include <tr1/tuple>
+#include <tr1/memory>
+#include <tr1/functional>
+namespace Tr1 = std::tr1;
+#endif
+
+
 
 namespace MESH_TEST_CPP {
 
