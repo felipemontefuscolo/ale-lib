@@ -6,7 +6,7 @@
 #include <set>
 #include <utility>
 #include <iterator>
-#include <tr1/type_traits>
+//#include <tr1/type_traits>
 #include "../mesh/enums.hpp"
 #include "../util/misc.hpp"
 #include "contrib/Loki/set_vector.hpp"
@@ -14,6 +14,27 @@
 //#include "../mesh/labelable.hpp"  //nao precisa
 #include <iostream>
 #include "macros.hpp"
+
+
+#include <ciso646>  // detect std::lib
+#ifdef _LIBCPP_VERSION
+// using libc++
+#define MULTI_HAVE_TYPE_TRAITS
+#else
+// using libstdc++
+#define MULTI_HAVE_TR1_TYPE_TRAITS
+#endif
+
+#ifdef MULTI_HAVE_TYPE_TRAITS
+#include <type_traits>
+namespace Tr1 = std;
+#else
+#include <tr1/type_traits>
+namespace Tr1 = std::tr1;
+#endif
+
+
+
 
 namespace alelib
 {
@@ -74,7 +95,7 @@ public:
 private:
   
   // auxiliary typedefs
-  typedef typename std::tr1::remove_pointer<value_type>::type RP_ValueType; // remove pointer value type
+  typedef typename Tr1::remove_pointer<value_type>::type RP_ValueType; // remove pointer value type
   typedef          RP_ValueType &                          RP_Reference;
   typedef          RP_ValueType const&                     RP_ConstReference;
   typedef          RP_ValueType *                          RP_Pointer;
@@ -262,7 +283,7 @@ public:
 protected:
 
   template<class Value_type>
-  index_t insert_impl(const_reference obj, typename EnableIf< ! std::tr1::is_pointer<Value_type>::value >::type * = NULL)
+  index_t insert_impl(const_reference obj, typename EnableIf< ! Tr1::is_pointer<Value_type>::value >::type * = NULL)
   {
     if (m_disabled_idcs.empty())
     {
@@ -283,7 +304,7 @@ protected:
   }
 
   template<class Value_type>
-  index_t insert_impl(value_type obj, typename EnableIf< std::tr1::is_pointer<Value_type>::value >::type * = NULL)
+  index_t insert_impl(value_type obj, typename EnableIf< Tr1::is_pointer<Value_type>::value >::type * = NULL)
   {
     if (m_disabled_idcs.empty())
     {

@@ -596,7 +596,7 @@ public:
     }
 
     // RIDGES
-    if (CellT::dim>2)
+    if (CellT::dim>2 )
     {
       // the ridges
       for (int i = 0; i < (int)CellT::n_ridges; ++i)
@@ -611,13 +611,13 @@ public:
         else // if (r.valency > 1)
         {
           CellH ics[2];
-          rh.first2icells(this, ics);
-          int I = 0;
-          if (ics[0] == ch)
-            I = 1;
-          --(r.valency);
-          r.icell    = ics[I].id(this);
-          r.local_id = ics[I].ridgeLocalId(this, rh);
+           rh.first2icells(this, ics);
+           int I = 0;
+           if (ics[0] == ch)
+             I = 1;
+           --(r.valency);
+           r.icell    = ics[I].id(this);
+           r.local_id = ics[I].ridgeLocalId(this, rh);
         }
       }
     }

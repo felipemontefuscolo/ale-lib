@@ -3,10 +3,27 @@
 
 #include <vector>
 #include <map>
-#include <tr1/tuple>
 #include <cstdio>
 #include <stdexcept>
 #include <algorithm>
+
+
+#include <ciso646>  // detect std::lib
+#ifdef _LIBCPP_VERSION
+// using libc++
+#define MULTI_HAVE_TYPE_TRAITS
+#else
+// using libstdc++
+#define MULTI_HAVE_TR1_TYPE_TRAITS
+#endif
+
+#ifdef MULTI_HAVE_TYPE_TRAITS
+#include <tuple>
+namespace Tr1 = std;
+#else
+#include <tr1/tuple>
+namespace Tr1 = std::tr1;
+#endif
 
 
 #ifdef DEBUG
@@ -457,6 +474,22 @@ inline void genTetParametricPtsINT(int n, std::vector<int> & list)
   return;
 }
 
+struct MyTuple
+{
+  int i0, i1, i2;
+  MyTuple(int a, int b, int c) : i0(a), i1(b), i2(c) {}
+  bool operator< (MyTuple const& a) const {
+    if (i0 == a.i0) {
+      if (i1 == a.i1) 
+        return i2 < a.i2;
+      else
+        return i1 < a.i1;
+    }
+    else
+      return i0 < a.i0;
+  }
+};
+
 
 /// connectivity(4*i+j) = j-th vertex of the cell i
 inline void subCellsTet(int n, std::vector<int> &connectivity)
@@ -467,7 +500,8 @@ inline void subCellsTet(int n, std::vector<int> &connectivity)
   connectivity.clear();
   connectivity.reserve(n*n);
 
-  typedef std::tr1::tuple<int, int, int> Coord;
+  //typedef Tr1::tuple<int, int, int> Coord;
+  typedef MyTuple Coord;
   typedef int Id;
 
   std::map<Coord, Id> xyz;

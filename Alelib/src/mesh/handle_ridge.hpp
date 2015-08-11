@@ -127,7 +127,7 @@ public:
 
     set_2_intersection(star0.begin(), star0.end(),
                        star1.begin(), star1.end(), intersect);
-                       
+                   
     ics[0] = CellH(intersect[0]);
     ics[1] = CellH(intersect[1]);
   }

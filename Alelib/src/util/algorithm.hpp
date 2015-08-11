@@ -78,9 +78,9 @@ template <class InputIterator1, class InputIterator2, class OutputIterator>
                                      InputIterator2 first2, InputIterator2 last2,
                                      OutputIterator result)
 {
+  int counter = 0;
   while (first1!=last1 && first2!=last2)
   {
-    int counter = 0;
     if (*first1<*first2) ++first1;
     else if (*first2<*first1) ++first2;
     else {
@@ -101,9 +101,9 @@ template <class InputIterator1, class InputIterator2, class OutputIterator>
                                      InputIterator2 first2, InputIterator2 last2,
                                      OutputIterator result)
 {
+  int counter = 0;
   while (first1!=last1 && first2!=last2)
   {
-    int counter = 0;
     if (*first1<*first2) ++first1;
     else if (*first2<*first1) ++first2;
     else {

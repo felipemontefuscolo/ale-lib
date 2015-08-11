@@ -22,7 +22,23 @@
 #ifndef ALELIB_MISC2_HPP
 #define ALELIB_MISC2_HPP
 
-#include <tr1/cstdint>
+#include <ciso646>  // detect std::lib
+#ifdef _LIBCPP_VERSION
+// using libc++
+#define MULTI_HAVE_TYPE_TRAITS
+#else
+// using libstdc++
+#define MULTI_HAVE_TR1_TYPE_TRAITS
+#endif
+
+#ifdef MULTI_HAVE_TYPE_TRAITS
+#include <type_traits>
+namespace Tr1 = std;
+#else
+#include <tr1/type_traits>
+namespace Tr1 = std::tr1;
+
+#endif
 
 /** calculate the log2 of a number.
  *  reference: http://graphics.stanford.edu/~seander/bithacks.html#IntegerLogLookup
@@ -39,7 +55,7 @@ int log2_i32(uint32_t v)
   };
   
   //unsigned int v; // 32-bit word to find the log of
-  register unsigned int t, tt; // temporaries
+  unsigned int t, tt; // temporaries
   
   if ((tt = (v >> 16)))
   {
@@ -65,7 +81,7 @@ int log2_i64(uint64_t v)
 	    LT(7), LT(7), LT(7), LT(7), LT(7), LT(7), LT(7), LT(7)
   };
   
-  register uint64_t t, tt; // temporaries
+  uint64_t t, tt; // temporaries
   
   if ((tt = (v >> 32)))
   {

@@ -23,7 +23,6 @@
 #define ALELIB_MESHIOVTK_HPP
 
 #include <cstdio>
-#include <tr1/array>
 #include "vtk_io.hpp"
 #include "path_handle.hpp"
 #include "Alelib/src/util/assert.hpp"
@@ -34,6 +33,22 @@
 #include "Alelib/src/shape_functions/default_map.hpp"
 #include "Alelib/src/dof_mapper/reorder.hpp"
 
+#include <ciso646>  // detect std::lib
+#ifdef _LIBCPP_VERSION
+// using libc++
+#define MULTI_HAVE_TYPE_TRAITS
+#else
+// using libstdc++
+#define MULTI_HAVE_TR1_TYPE_TRAITS
+#endif
+
+#ifdef MULTI_HAVE_TYPE_TRAITS
+#include <array>
+namespace Tr1 = std;
+#else
+#include <tr1/array>
+namespace Tr1 = std::tr1;
+#endif
 
 namespace alelib
 {

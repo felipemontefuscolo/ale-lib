@@ -22,7 +22,6 @@
 #ifndef ALELIB_MSH_IO_HPP
 #define ALELIB_MSH_IO_HPP
 
-#include <tr1/memory>
 #include <cstdio>
 #include "path_handle.hpp"
 #include "msh_tags.hpp"
@@ -34,6 +33,23 @@
 #include "Alelib/src/mesh/mesh.hpp"
 #include "Alelib/src/dof_mapper/var_dof.hpp"
 #include "Alelib/src/dof_mapper/reorder.hpp"
+
+#include <ciso646>  // detect std::lib
+#ifdef _LIBCPP_VERSION
+// using libc++
+#define MULTI_HAVE_TYPE_TRAITS
+#else
+// using libstdc++
+#define MULTI_HAVE_TR1_TYPE_TRAITS
+#endif
+
+#ifdef MULTI_HAVE_TYPE_TRAITS
+#include <array>
+namespace Tr1 = std;
+#else
+#include <tr1/array>
+namespace Tr1 = std::tr1;
+#endif
 
 namespace alelib
 {
@@ -70,8 +86,8 @@ public:
     double  coord[3];
     int     type_tag;
     char    buffer[256];
-    //std::tr1::shared_ptr<Point> p_ptr(new Point());
-    //std::tr1::shared_ptr<Cell> c_ptr(mesh->createCell());
+    //Tr1::shared_ptr<Point> p_ptr(new Point());
+    //Tr1::shared_ptr<Cell> c_ptr(mesh->createCell());
 
   //  int const spacedim = MeshT::cell_dim;
 
@@ -441,8 +457,8 @@ public:
     double  coord[3];
     int     type_tag;
     char    buffer[256];
-    //std::tr1::shared_ptr<Point> p_ptr(new Point());
-    //std::tr1::shared_ptr<Cell> c_ptr(mesh->createCell());
+    //Tr1::shared_ptr<Point> p_ptr(new Point());
+    //Tr1::shared_ptr<Cell> c_ptr(mesh->createCell());
 
   //  int const spacedim = MeshT::cell_dim;
 

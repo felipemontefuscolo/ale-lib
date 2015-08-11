@@ -20,7 +20,7 @@ Scalar lagrange(Scalar const*x_, unsigned ith, int degree, int dim, std::vector<
     return Scalar(1.);
 
   Scalar x[3];
-  for (int i = 0; i < 3; ++i)
+  for (int i = 0; i < dim; ++i)
     x[i] = x_[i];
 
   if (dim==1) // rescale

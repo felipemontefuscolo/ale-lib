@@ -23,9 +23,26 @@
 #ifndef ALELIB_ALE_TAGS_HPP
 #define ALELIB_ALE_TAGS_HPP
 
-#include <tr1/array>
 #include "../util/misc2.hpp"
 #include "../util/assert.hpp"
+
+#include <ciso646>  // detect std::lib
+#ifdef _LIBCPP_VERSION
+// using libc++
+#define MULTI_HAVE_TYPE_TRAITS
+#else
+// using libstdc++
+#define MULTI_HAVE_TR1_TYPE_TRAITS
+#endif
+
+#ifdef MULTI_HAVE_TYPE_TRAITS
+#include <array>
+namespace Tr1 = std;
+#else
+#include <tr1/array>
+namespace Tr1 = std::tr1;
+#endif
+
 
 namespace alelib
 {
@@ -33,9 +50,9 @@ namespace alelib
 namespace fi_AlelibTagsInitializers
 {
   static inline
-  std::tr1::array<int, N_CELL_TYPES> CTypeNumNodes_ini()
+  Tr1::array<int, N_CELL_TYPES> CTypeNumNodes_ini()
   {
-    std::tr1::array<int, N_CELL_TYPES> tab;
+    Tr1::array<int, N_CELL_TYPES> tab;
 
     tab[log2_i32(POINT        ) ] = 2;
     tab[log2_i32(EDGE         ) ] = 2;
@@ -48,9 +65,9 @@ namespace fi_AlelibTagsInitializers
   }
 
   static inline
-  std::tr1::array<int, N_CELL_TYPES> CTypeDim_ini()
+  Tr1::array<int, N_CELL_TYPES> CTypeDim_ini()
   {
-    std::tr1::array<int, N_CELL_TYPES> tab;
+    Tr1::array<int, N_CELL_TYPES> tab;
 
     tab[log2_i32(POINT        ) ] = 0;
     tab[log2_i32(EDGE         ) ] = 1;
@@ -63,9 +80,9 @@ namespace fi_AlelibTagsInitializers
   }
 
   static inline
-  std::tr1::array<const char*, N_CELL_TYPES> CTypeName_ini()
+  Tr1::array<const char*, N_CELL_TYPES> CTypeName_ini()
   {
-    std::tr1::array<const char*, N_CELL_TYPES> tab;
+    Tr1::array<const char*, N_CELL_TYPES> tab;
 
     tab[log2_i32(POINT        ) ] = "Point";
     tab[log2_i32(EDGE         ) ] = "Edge";
@@ -78,9 +95,9 @@ namespace fi_AlelibTagsInitializers
   }
 
   static inline
-  std::tr1::array<ECellType, MSH_MAX_INDEX+1> mshTag2CType_ini()
+  Tr1::array<ECellType, MSH_MAX_INDEX+1> mshTag2CType_ini()
   {
-    std::tr1::array<ECellType, MSH_MAX_INDEX+1> tab;
+    Tr1::array<ECellType, MSH_MAX_INDEX+1> tab;
 
     tab[MSH_PNT   ] = POINT;
     tab[MSH_LIN_2 ] = EDGE;
@@ -93,9 +110,9 @@ namespace fi_AlelibTagsInitializers
   }
 
   static inline
-  std::tr1::array<EMshTag, N_CELL_TYPES> CType2mshTag_ini()
+  Tr1::array<EMshTag, N_CELL_TYPES> CType2mshTag_ini()
   {
-    std::tr1::array<EMshTag, N_CELL_TYPES> tab;
+    Tr1::array<EMshTag, N_CELL_TYPES> tab;
 
     tab[log2_i32(POINT      ) ] = MSH_PNT;
     tab[log2_i32(EDGE       ) ] = MSH_LIN_2 ;
@@ -108,9 +125,9 @@ namespace fi_AlelibTagsInitializers
   }
 
   static inline
-  std::tr1::array<ECellFamily, N_CELL_TYPES> CType2cfamily_ini()
+  Tr1::array<ECellFamily, N_CELL_TYPES> CType2cfamily_ini()
   {
-    std::tr1::array<ECellFamily, N_CELL_TYPES> tab;
+    Tr1::array<ECellFamily, N_CELL_TYPES> tab;
 
     tab[log2_i32(POINT      ) ] = static_cast<ECellFamily>(SIMPLEX | HCUBE);
     tab[log2_i32(EDGE       ) ] = static_cast<ECellFamily>(SIMPLEX | HCUBE);
@@ -123,9 +140,9 @@ namespace fi_AlelibTagsInitializers
   }
 
   static inline
-  std::tr1::array<ECellType, N_CELL_TYPES> facetof_ini()
+  Tr1::array<ECellType, N_CELL_TYPES> facetof_ini()
   {
-    std::tr1::array<ECellType, N_CELL_TYPES> tab;
+    Tr1::array<ECellType, N_CELL_TYPES> tab;
 
     tab[log2_i32(POINT        ) ] = UNDEFINED_CELLT;
     tab[log2_i32(EDGE         ) ] = POINT;
@@ -143,7 +160,7 @@ static inline
 int CTypeNumNodes(ECellType type)
 {
   static const
-  std::tr1::array<int, N_CELL_TYPES> n_nds = fi_AlelibTagsInitializers::CTypeNumNodes_ini();
+  Tr1::array<int, N_CELL_TYPES> n_nds = fi_AlelibTagsInitializers::CTypeNumNodes_ini();
 
   unsigned idx = log2_i32(type);
   if (idx >= N_CELL_TYPES)
@@ -161,7 +178,7 @@ int CTypeDim(ECellType type)
 {
 
   static const
-  std::tr1::array<int, N_CELL_TYPES> dims = fi_AlelibTagsInitializers::CTypeDim_ini();
+  Tr1::array<int, N_CELL_TYPES> dims = fi_AlelibTagsInitializers::CTypeDim_ini();
 
   unsigned idx = log2_i32(type);
   if (idx >= N_CELL_TYPES)
@@ -177,7 +194,7 @@ static inline
 const char* CTypeName(ECellType type)
 {
   static const
-  std::tr1::array<const char*, N_CELL_TYPES> names = fi_AlelibTagsInitializers::CTypeName_ini();
+  Tr1::array<const char*, N_CELL_TYPES> names = fi_AlelibTagsInitializers::CTypeName_ini();
 
   unsigned idx = log2_i32(type);
   if (idx >= N_CELL_TYPES)
@@ -193,7 +210,7 @@ static inline
 ECellType mshTag2CType(EMshTag type)
 {
   static const
-  std::tr1::array<ECellType, MSH_MAX_INDEX+1> tab = fi_AlelibTagsInitializers::mshTag2CType_ini();
+  Tr1::array<ECellType, MSH_MAX_INDEX+1> tab = fi_AlelibTagsInitializers::mshTag2CType_ini();
 
   unsigned idx = static_cast<unsigned>(type);
   if (idx-1 >= MSH_MAX_INDEX)
@@ -210,7 +227,7 @@ static inline
 EMshTag CType2mshTag(ECellType type)
 {
   static const
-  std::tr1::array<EMshTag, N_CELL_TYPES> tab = fi_AlelibTagsInitializers::CType2mshTag_ini();
+  Tr1::array<EMshTag, N_CELL_TYPES> tab = fi_AlelibTagsInitializers::CType2mshTag_ini();
 
   unsigned idx = log2_i32(type);
   if (idx >= N_CELL_TYPES)
@@ -373,7 +390,7 @@ void mshTypeAndOrder(EMshTag msh, /*out*/ ECellType& type, /*out*/int& order , /
 static inline
 ECellFamily CType2cfamily(ECellType type)
 {
-  std::tr1::array<ECellFamily, N_CELL_TYPES> tab = fi_AlelibTagsInitializers::CType2cfamily_ini();
+  Tr1::array<ECellFamily, N_CELL_TYPES> tab = fi_AlelibTagsInitializers::CType2cfamily_ini();
 
   unsigned idx = log2_i32(type);
   if (idx >= N_CELL_TYPES)
@@ -387,7 +404,7 @@ ECellFamily CType2cfamily(ECellType type)
 static inline
 ECellType facetof(ECellType type)
 {
-  std::tr1::array<ECellType, N_CELL_TYPES> tab = fi_AlelibTagsInitializers::facetof_ini();
+  Tr1::array<ECellType, N_CELL_TYPES> tab = fi_AlelibTagsInitializers::facetof_ini();
 
   unsigned idx = log2_i32(type);
   if (idx >= N_CELL_TYPES)

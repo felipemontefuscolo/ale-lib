@@ -20,13 +20,13 @@ ALE_LIBS_DIR = $(ALELIB_DIR)/Alelib/slibs
 
 #ALE_LDFLAGS = -fopenmp -L$(METIS_LD) -lmetis
 #ALE_LDFLAGS = -L$(METIS_LD) -lmetis
-ALE_LDFLAGS = -fopenmp
+#ALE_LDFLAGS = -fopenmp
 
 #-Wundef -Wshadow boost hates these 
-ALE_PEDANTIC_FLAGS = -pedantic -Wcast-align -Wredundant-decls -Winline -Wmissing-format-attribute -Wpacked -Wmissing-field-initializers
+ALE_PEDANTIC_FLAGS = -std=c++11 -Wcast-align -Wredundant-decls -Winline -Wmissing-format-attribute -Wpacked -Wmissing-field-initializers
 ALE_PEDANTIC_FLAGS += 
 
-ALE_CXXFLAGS  = -g  -Wextra -Wall ${ALE_PEDANTIC_FLAGS} $(ALE_INCLUDE)
+ALE_CXXFLAGS  =   -g3  -Wextra -Wall ${ALE_PEDANTIC_FLAGS} $(ALE_INCLUDE) #-stdlib=libc++
 #ALE_CXXFLAGS = -O3 -march=native -msse2  $(ALE_INCLUDE) -fopenmp
 ALE_CXXFLAGS += $(ALE_LDFLAGS)
 ALE_CXXFLAGS += -MMD             # for dependencies

@@ -27,16 +27,32 @@
 //#include "alelib_tags.hpp"
 #include "../util/assert.hpp"
 #include "../util/misc2.hpp"
+
+#include <ciso646>  // detect std::lib
+#ifdef _LIBCPP_VERSION
+// using libc++
+#define MULTI_HAVE_TYPE_TRAITS
+#else
+// using libstdc++
+#define MULTI_HAVE_TR1_TYPE_TRAITS
+#endif
+
+#ifdef MULTI_HAVE_TYPE_TRAITS
+#include <array>
+namespace Tr1 = std;
+#else
 #include <tr1/array>
+namespace Tr1 = std::tr1;
+#endif
 
 namespace alelib {
 
 namespace fi_MshTagsInitializers
 {
   static inline
-  std::tr1::array<int, MSH_MAX_INDEX+1> n_nodes_4_elm_T()
+  Tr1::array<int, MSH_MAX_INDEX+1> n_nodes_4_elm_T()
   {
-    std::tr1::array<int, MSH_MAX_INDEX+1> tab;
+    Tr1::array<int, MSH_MAX_INDEX+1> tab;
     
     tab[MSH_LIN_2   ] = 2     ;
     tab[MSH_TRI_3   ] = 3     ;
@@ -163,9 +179,9 @@ namespace fi_MshTagsInitializers
  
 
   static inline
-  std::tr1::array<int, MSH_MAX_INDEX+1> dim_4_elm_T()
+  Tr1::array<int, MSH_MAX_INDEX+1> dim_4_elm_T()
   {
-    std::tr1::array<int, MSH_MAX_INDEX+1> tab;
+    Tr1::array<int, MSH_MAX_INDEX+1> tab;
     
     tab[MSH_LIN_2   ] = 1;
     tab[MSH_TRI_3   ] = 2;
@@ -297,7 +313,7 @@ static inline
 int numNodeForMshTag(EMshTag type)
 {
   static const
-  std::tr1::array<int, MSH_MAX_INDEX+1> nds = fi_MshTagsInitializers::n_nodes_4_elm_T();
+  Tr1::array<int, MSH_MAX_INDEX+1> nds = fi_MshTagsInitializers::n_nodes_4_elm_T();
 
   unsigned idx = static_cast<unsigned>(type);
   if (idx-1 >= MSH_MAX_INDEX)
@@ -314,7 +330,7 @@ static inline
 int dimForMshTag(EMshTag type)
 {
   static const
-  std::tr1::array<int, MSH_MAX_INDEX+1> dims = fi_MshTagsInitializers::dim_4_elm_T();
+  Tr1::array<int, MSH_MAX_INDEX+1> dims = fi_MshTagsInitializers::dim_4_elm_T();
 
   unsigned idx = static_cast<unsigned>(type);
   if (idx-1 >= MSH_MAX_INDEX)

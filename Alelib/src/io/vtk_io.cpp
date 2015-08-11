@@ -1,5 +1,5 @@
 #include "vtk_io.hpp"
-#include <tr1/array>
+//#include <tr1/array>
 #include "../util/misc2.hpp"
 #include "../shape_functions/parametric_pts.hpp"
 #include "../shape_functions/default_map.hpp"
