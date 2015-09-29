@@ -15,8 +15,14 @@ $(ALELIB_DIR)/conf/variables:
 src: $(ALELIB_DIR)/conf/variables Makefile
 	$(MAKE) all -C Alelib/src
 	
+#clean:
+#	$(MAKE) clean -C Alelib/src
+
 clean:
-	$(MAKE) clean -C Alelib/src
+	$(ALE_RM) `find . -iname *.o`
+	$(ALE_RM) `find . -iname *.d`
+	$(ALE_RM) `find . -iname *.a`
+
 	
 ok_msg: src
 	@echo

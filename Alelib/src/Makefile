@@ -17,12 +17,15 @@ $(SUBDIRS):
 clean:
 	$(ALE_RM) `find . -iname *.o`
 	$(ALE_RM) `find . -iname *.d`
+	$(ALE_RM) `find . -iname *.a`
 	
 # pay attention to the wildcard depth.
 build: subdirs
-	ar -cr libalelib.a $(wildcard */*.o) $(wildcard */*/*.o) $(wildcard */*/*/*.o)
+	## Linux Users
+	#ar -cr libalelib.a $(wildcard */*.o) $(wildcard */*/*.o) $(wildcard */*/*/*.o)
+	#mv -f libalelib.a $(ALE_LIBS_DIR)
+	#ranlib $(ALE_LIBS_DIR)/libalelib.a
+	## MAC USERS
+	libtool -static -o libalelib.a $(wildcard */*.o) $(wildcard */*/*.o) $(wildcard */*/*/*.o)
 	mv -f libalelib.a $(ALE_LIBS_DIR)
-	ranlib $(ALE_LIBS_DIR)/libalelib.a
-	
-	
 	

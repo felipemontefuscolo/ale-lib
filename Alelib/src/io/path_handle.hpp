@@ -33,14 +33,14 @@ public:
 
   iPathHandle() : m_is_family(false), m_name_padd(5)
   {
-    setOutputFileName("untitled");
+    this->setOutputFileName("untitled");
   }
 
   void setFamily(bool is_family)
   {
     m_is_family = is_family;
   }
-  
+
   bool isFamily() const
   {
     return m_is_family;
@@ -58,25 +58,26 @@ public:
    *           -foo/bar   (error)
    *           -foo/bar/  (ok)
    *           -foo/bar/jow (ok only if <tt>bar</tt> exists)
-   */ 
+   */
   void setOutputFileName(const char* name);
 
-  
-protected:  
+
+protected:
   /// TODO
   void printPathInfo();
 
 protected:
 
-  /* 
+  /*
    * Before read a mesh, this function must be called
    * @param filename file name
    * @param extension expected extension
    * @param is_family output
-   */ 
+   */
   bool registerFile(std::string filename, std::string const& extension);
- 
+
   std::string paddedName(int filenum, std::string const& ext, int padding = 5);
+
 
   std::string m_in_meshfile;  // eg.   /home/user/test.msh
   std::string m_in_basename;  // eg.   test

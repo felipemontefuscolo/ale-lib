@@ -62,7 +62,7 @@ namespace internal
   template<> struct VtkTraits<TRIANGLE>    {static int const tag =  5;};
   template<> struct VtkTraits<QUADRANGLE>  {static int const tag =  9;};
   template<> struct VtkTraits<TETRAHEDRON> {static int const tag = 10;};
-  template<> struct VtkTraits<HEXAHEDRON>  {static int const tag = 12;};  
+  template<> struct VtkTraits<HEXAHEDRON>  {static int const tag = 12;};
 }
 
 
@@ -72,10 +72,10 @@ class DefaultGetDataVtk
 public:
 
   /**
-   */  
+   */
 
   DefaultGetDataVtk(Real * r = NULL, int ncomps_ = 1) : data_r(r), ncomps(ncomps_) {}
-  
+
   /// @param id id of the vertex or cell
   /// @param values the data
   virtual void getData(index_t id, Real *values) const
@@ -102,9 +102,9 @@ public:
 
   virtual int numComps() const
   { return ncomps; }
-  
+
   virtual ~DefaultGetDataVtk() {data_r = NULL;}
-  
+
 protected:
   Real * data_r;
   int    ncomps;
@@ -134,8 +134,8 @@ public:
   typedef typename MeshT::RidgeH RidgeH;
   typedef typename MeshT::FacetH FacetH;
   typedef typename MeshT::CellH CellH;
-  
-  
+
+
   static const ECellType CellType = MeshT::CellType;
 
   MeshIoVtk() : m_is_binary(false), m_filenum(0), m_add_node_scalar_n_calls(0), m_add_cell_scalar_n_calls(0),
@@ -144,7 +144,8 @@ public:
     splitMeshEdges(1);
   };
 
-  explicit MeshIoVtk(MeshT const* mesh) : m_is_binary(false), m_filenum(0), m_add_node_scalar_n_calls(0), m_add_cell_scalar_n_calls(0)
+  explicit MeshIoVtk(MeshT const* mesh) : m_is_binary(false), m_filenum(0), m_add_node_scalar_n_calls(0),
+                                          m_add_cell_scalar_n_calls(0)
   {
     attachMesh(mesh);
     splitMeshEdges(1);
@@ -161,12 +162,12 @@ public:
   {
     ALELIB_ASSERT(mesh != NULL, "invalid mesh", std::invalid_argument);
     m_mesh = mesh;
-    m_spacedim = m_mesh->spaceDim();    
+    m_spacedim = m_mesh->spaceDim();
   }
 
   std::string outputFileName()
   {
-    return this->paddedName(this->m_filenum, ".vtk");
+    return iPathHandle::paddedName(this->m_filenum, ".vtk");
   }
 
 
@@ -286,7 +287,7 @@ void writeMesh(double* time = NULL)
   this->m_add_node_scalar_n_calls=0;
   this->m_add_cell_scalar_n_calls=0;
 
-  std::string outname = this->paddedName(this->m_filenum, ".vtk", m_name_padd);
+  std::string outname = iPathHandle::paddedName(this->m_filenum, ".vtk", m_name_padd);
   ++m_filenum;
 
   FILE *file_ptr = fopen(outname.c_str(), m_is_binary ? "wb" : "w");
@@ -553,7 +554,7 @@ void writeMesh(DefaultGetDataVtk const& data, double* time = NULL)
   this->m_add_node_scalar_n_calls=0;
   this->m_add_cell_scalar_n_calls=0;
 
-  std::string outname = this->paddedName(this->m_filenum, ".vtk", m_name_padd);
+  std::string outname = iPathHandle::paddedName(this->m_filenum, ".vtk", m_name_padd);
   ++m_filenum;
 
   FILE *file_ptr = fopen(outname.c_str(), m_is_binary ? "wb" : "w");
@@ -804,7 +805,7 @@ void writeMesh(DefaultGetDataVtk const& data, double* time = NULL)
 void addNodalScalarField(const char* nome_var, DefaultGetDataVtk const& data)
 {
 
-  std::string ss = this->paddedName(this->m_filenum-1, ".vtk", m_name_padd);
+  std::string ss = iPathHandle::paddedName(this->m_filenum-1, ".vtk", m_name_padd);
 
   FILE * file_ptr = fopen(ss.c_str(), "a");
 
@@ -924,7 +925,7 @@ void addNodalScalarField(const char* nome_var, DefaultGetDataVtk const& data)
   fclose(file_ptr);
 }
 
-  
+
   void addNodalVectorField(const char* nome_var, DefaultGetDataVtk const& data);
   void addCellScalarField(const char* nome_var, DefaultGetDataVtk const& data);
   void addNodeIntVtk(const char* nome_var, DefaultGetDataVtk const& data);

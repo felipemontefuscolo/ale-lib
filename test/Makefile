@@ -26,7 +26,7 @@ USER_DIR = .
 CXX = $(ALE_CXX)
 
 # Flags passed to the preprocessor.
-CPPFLAGS += -DGTEST_USE_OWN_TR1_TUPLE=1 -I$(GTEST_DIR)/include $(ALE_INCLUDE)
+CPPFLAGS += -DGTEST_USE_OWN_TR1_TUPLE=0 -I$(GTEST_DIR)/include $(ALE_INCLUDE)
 
 # Flags passed to the C++ compiler.
 CXXFLAGS += -std=c++11 -g3 -Wall -Wextra -gdwarf-2 -DDEBUG -MMD
