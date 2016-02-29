@@ -1,5 +1,5 @@
 # ale-lib
-A Finite Element Framework in C++
+A Finite Element framework in C++
 
 
 This library has several components:
